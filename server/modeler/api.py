@@ -10,14 +10,14 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
         isRunFile = lambda f: any(
             f.suffix.endswith(suffix) for suffix in ["pfidb", "yaml", "yml"]
         )
-        directory = Path(runDirectory)
-        self.runFile = str(next(filter(isRunFile, directory.iterdir())))
+        self.directory = Path(runDirectory)
+        self.runFile = str(next(filter(isRunFile, self.directory.iterdir())))
         self.parflowConfig = Run.from_definition(self.runFile)
 
         pv_protocols.ParaViewWebProtocol.__init__(self)
 
         self.files = list(
-            map(str, filter(lambda x: not isRunFile(x), directory.iterdir()))
+            map(str, filter(lambda x: not isRunFile(x), self.directory.iterdir()))
         )
 
     @exportRpc("parflow.state.get")
@@ -35,5 +35,8 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
 
     @exportRpc("parflow.simput.run")
     def simputRun(self):
-        working_directory = "/".join(self.runFile.split("/")[:-1])
-        self.parflowConfig.run(working_directory=working_directory)
+        for f in self.directory.iterdir():
+            if f.suffix.endswith("pfb"):
+                self.parflowConfig.dist(f.name)
+
+        self.parflowConfig.run(working_directory=str(self.directory))
