@@ -20,8 +20,8 @@ export default {
       if (this.tableValue.tableLabels[header]) {
         return this.tableValue.tableLabels[header];
       }
-      if (this.prop.ui.domain.row_kinds[header]) {
-        return this.prop.ui.domain.row_kinds[header].ui.label;
+      if (this.prop.ui.id === header) {
+        return this.prop.label;
       }
       return header;
     }
