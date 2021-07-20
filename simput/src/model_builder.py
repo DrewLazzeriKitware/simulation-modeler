@@ -164,6 +164,10 @@ def _create_parameters(path, id, data):
     help_text = data.get("help", "").strip("\n").split("] ", 1)
     param["help"] = help_text[1] if len(help_text) > 1 else help_text[0]
 
+    if param_id.lower().endswith("filename"):
+        param["domain"] = {"dynamic": True, "external": "files"}
+        param["ui"] = "enum"
+
     # Add table config
     table = data.get("table_params")
     if table is not None:

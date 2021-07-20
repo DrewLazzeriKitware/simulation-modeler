@@ -52,6 +52,17 @@ export default {
         debug: state.dataManager.getOutput(),
         converted: state.dataManager.getOutput()["pftools"]
       });
+    },
+    SIMPUT_FILES_SET(vuex, files) {
+      const domain = files.reduce((acc, filename) => {
+        const { length, [length - 1]: shortName } = filename.split("/");
+        acc[shortName] = filename;
+        return acc;
+      }, {});
+      /* eslint-disable no-undef */
+      // Simput global
+      Simput.types["parflow"].external = { files: domain };
+      /* eslint-enable*/
     }
   }
 };

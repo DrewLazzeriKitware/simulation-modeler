@@ -16,10 +16,14 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
 
         pv_protocols.ParaViewWebProtocol.__init__(self)
 
+        self.files = list(
+            map(str, filter(lambda x: not isRunFile(x), directory.iterdir()))
+        )
+
     @exportRpc("parflow.state.get")
     def getState(self):
         state = self.parflowConfig.to_dict()
-        return state
+        return {"state": state, "files": self.files}
 
     @exportRpc("parflow.simput.save")
     def simputSave(self, simputView):

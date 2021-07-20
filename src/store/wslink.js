@@ -63,7 +63,10 @@ export default {
         .getRemote()
         .modeler.getState()
         .catch(console.error);
-      dispatch("SIMPUT_INIT", serverState);
+      if (serverState) {
+        dispatch("SIMPUT_INIT", serverState.state);
+        dispatch("SIMPUT_FILES_SET", serverState.files);
+      }
       return serverState;
     },
     async WS_SAVE({ state }, view) {
