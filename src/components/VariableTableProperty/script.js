@@ -21,7 +21,14 @@ export default {
         return this.tableValue.tableLabels[header];
       }
       if (this.prop.ui.id === header) {
-        return this.prop.label;
+        return this.prop.ui.label;
+      }
+      // FIXME can't find labels for row_kinds unless table has rows
+      const matchingColumn = this.prop.ui.domain.columns.find(
+        column => column.id === header
+      );
+      if (matchingColumn) {
+        return matchingColumn.label;
       }
       return header;
     }
