@@ -1,15 +1,17 @@
 from wslink import register as exportRpc
 from paraview.web import protocols as pv_protocols
 from parflow import Run
-from glob import glob
+from pathlib import Path
 import json
 
 
 class DataFlow(pv_protocols.ParaViewWebProtocol):
     def __init__(self, decode=True, runDirectory="", **kwargs):
-        print(f"{runDirectory}*.pfidb")
-        print(glob(f"{runDirectory}*.pfidb"))
-        self.runFile = next(iter(glob(f"{runDirectory}*.pfidb")), "No pfidb found")
+        isRunFile = lambda f: any(
+            f.suffix.endswith(suffix) for suffix in ["pfidb", "yaml", "yml"]
+        )
+        directory = Path(runDirectory)
+        self.runFile = str(next(filter(isRunFile, directory.iterdir())))
         self.parflowConfig = Run.from_definition(self.runFile)
 
         pv_protocols.ParaViewWebProtocol.__init__(self)
