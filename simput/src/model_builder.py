@@ -14,6 +14,7 @@ exts = [".yaml"]
 lookup_tables_by_class = dict()
 lookup_attribute_by_path = dict()
 lookup_domain_dependency_by_pattern = defaultdict(list)
+external = dict()
 
 
 def create_view(data, fname):
@@ -172,7 +173,9 @@ def _create_parameters(path, id, data):
     table = data.get("table_params")
     if table is not None:
         param["ui"] = "variable_table"
-        param["domain"] = {
+        external_key = f"VariableTableDomain/{param_id}"
+        param["domain"] = {"dynamic": True, "external": external_key}
+        external[external_key] = {
             "columns": data.get("table_params"),
             "row_kinds": data.get("row_kinds"),
             "table_labels": data.get("table_labels"),
@@ -184,7 +187,7 @@ def _create_parameters(path, id, data):
     param["handlers"] = list(data.get("handlers", {}).values())
     domain_dep = data.get("domains", {}).get("EnumDomain", {}).get("locations")
     if domain_dep:
-        param["domain"] = {"dynamic": True}
+        param["domain"] = {"dynamic": True, "external": f"EnumDomain/{param['id']}"}
         for location in domain_dep:
             clean_location = location[1:]  # drop leading slash
             pattern = re.sub(r"\{.*?\}", ".*", clean_location)
@@ -366,7 +369,8 @@ def attach_direct_hooks(view, param, attr, hooks_by_views):
 
 
 def attach_nested_hooks(view, param, attr, hooks_by_views):
-    for nested_param in param.get("domain", {}).get("columns", []):
+    external_key = f'VariableTableDomain/{param["id"]}'
+    for nested_param in external.get(param["id"], {}).get("columns", []):
         attach_direct_hooks(view, nested_param, attr, hooks_by_views)
 
 

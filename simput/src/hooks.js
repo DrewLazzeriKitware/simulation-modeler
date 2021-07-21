@@ -42,13 +42,14 @@ class EnumDomainUpdate {
       currentViewData
     } = hookParams;
     const { source_id, dependant_domains } = hookConfig;
-
+    const external = dataModel.external;
     Object.assign(this, {
       modelDefinition,
       dataModel,
       source_id,
       currentViewData,
-      dependant_domains
+      dependant_domains,
+      external
     });
   }
 
@@ -81,12 +82,7 @@ class EnumDomainUpdate {
   }
 
   setNewDomain(destination) {
-    const wasDynamic = destination.domain && destination.domain.dynamic;
-    destination.domain = { ...this.newDomain, dynamic: !!wasDynamic };
-
-    // Trigger view reactivity
-    //eslint-disable-next-line no-self-assign
-    this.dataModel.data = this.dataModel.data;
+    this.external[`EnumDomain/${destination}`] = this.newDomain;
   }
 
   copySourceToDomains() {
@@ -99,14 +95,19 @@ class EnumDomainUpdate {
           if (param.id === dependantKey) {
             this.setNewDomain(param);
           }
-          if (param.domain && param.domain.columns) {
-            // If param nested in table
-            for (const c in param.domain.columns) {
-              const column = param.domain.columns[c];
-              this.setNewDomain(column);
-            }
-          }
+          this.copySourceToTableDomains(param, dependantKey);
         }
+      }
+    }
+  }
+
+  copySourceToTableDomains(param, dependantKey) {
+    const tableDomain = this.external[`VariableTableDomain/${param.id}`];
+    if (tableDomain) {
+      // If param nested in table
+      for (const c in param.domain.columns) {
+        const column = param.domain.columns[c];
+        if (column.id === dependantKey) this.setNewDomain(column);
       }
     }
   }
@@ -126,10 +127,12 @@ class VariableTableUpdate {
 
     // Find where new names need to go
     const table_view = this.findTargetViewName(dataModel, table_attr);
+    const external = dataModel.external;
 
     Object.assign(this, {
       modelDefinition,
       dataModel,
+      external,
       names_view,
       names_id,
       names_attr,
@@ -142,10 +145,9 @@ class VariableTableUpdate {
 
   run() {
     const nameSources = this.readNames();
-    const defs = this.modelDefinition.definitions[this.table_attr].parameters;
 
-    // We generate table rows from combining all their names, unless
-    // we have a match_condition key
+    // We generate table rows from combining all their names,
+    // unless we have a match_condition key
     let restrictions = [];
     if (this.match_condition) {
       restrictions = this.getNameRestrictions(
@@ -155,37 +157,30 @@ class VariableTableUpdate {
         this.dataModel
       );
     }
-
-    for (const d in defs) {
-      const tableDef = defs[d];
-      // Only update tables that depend on this dynamic variable
-      if (
-        tableDef.domain &&
-        tableDef.domain.row_kinds &&
-        tableDef.domain.row_kinds[this.table_variable_id]
-      ) {
-        this.writeNamesToDef(tableDef, nameSources);
-        if (this.shouldOverwriteTable(tableDef)) {
-          this.writeTableToProp(tableDef, nameSources, restrictions);
-        }
+    const tableDomain = this.external[this.table_variable_id];
+    // Only update tables that depend on this dynamic variable
+    if (tableDomain) {
+      this.writeNamesToDef(tableDomain, nameSources);
+      if (this.shouldOverwriteTable(tableDomain)) {
+        this.writeTableToProp(tableDomain, nameSources, restrictions);
       }
     }
   }
 
-  writeNamesToDef(tableDef, nameSources) {
+  writeNamesToDef(tableDomain, nameSources) {
     const names = nameSources
       .map(ns => ns.names.value[0] || "")
       .flatMap(p => this.namesFromProp(p))
       .filter(i => i);
 
-    tableDef.domain.row_kinds[this.table_variable_id] = names;
+    tableDomain.row_kinds[this.table_variable_id] = names;
     return names;
   }
 
-  writeTableToProp(tableDef, nameSources, restrictions) {
+  writeTableToProp(tableDomain, nameSources, restrictions) {
     const viewData = this.dataModel.data[this.table_view];
 
-    const [attr, ...path] = tableDef.id.split("/");
+    const [attr, ...path] = this.table_variable_id.split("/");
     let prop_id = attr + "." + attr + "/" + path.join("/");
     // Change id for dynamic views
     if (this.modelDefinition.views[this.table_view].size === -1) {
@@ -193,8 +188,8 @@ class VariableTableUpdate {
     }
 
     for (var v = 0; v < viewData.length; v++) {
-      viewData[v][this.table_attr][tableDef.id] = {
-        value: [this.makeTable(tableDef, nameSources, restrictions)],
+      viewData[v][this.table_attr][this.table_variable_id] = {
+        value: [this.makeTable(tableDomain, nameSources, restrictions)],
         id: prop_id
       };
     }
@@ -203,27 +198,21 @@ class VariableTableUpdate {
     this.dataModel.data[this.table_view] = viewData;
   }
 
-  shouldOverwriteTable(tableDef) {
+  shouldOverwriteTable(tableDomain) {
     // Don't overwrite if we can't find the table
     if (!this.table_view) {
       return false;
     }
-
     // Overwrite if uninitialized
+    if (!tableDomain) {
+      return true;
+    }
+
+    // Overwrite if names on external differ from names on prop
     const data = this.dataModel.data[this.table_view];
     const attr = data[0][this.table_attr];
-    if (!attr[tableDef.id]) {
-      // Bridge initialized some data, but not this param
-      return true;
-    }
-    const simputParam = attr[tableDef.id].value[0];
-    if (!simputParam) {
-      // Table present, but missing data
-      return true;
-    }
-
-    // Overwrite if names differ at all
-    const names = tableDef.domain.row_kinds[this.table_variable_id];
+    const simputParam = attr[this.table_variable_id].value[0];
+    const names = tableDomain.row_kinds[this.table_variable_id];
     const nameValues = simputParam.rows.map(
       row => row.rowKeys[this.table_variable_id]
     );
@@ -351,20 +340,18 @@ class VariableTableUpdate {
     return conditions;
   }
 
-  makeTable(tableDef, nameSources, restrictions) {
-    const { table_labels, table_order } = tableDef.domain;
+  makeTable(tableDomain, nameSources, restrictions) {
+    const { table_labels, table_order } = tableDomain;
     const rows = [];
 
-    const row_permutations = this.rowSectionCombinations(
-      tableDef.domain.row_kinds
-    );
+    const row_permutations = this.rowSectionCombinations(tableDomain.row_kinds);
 
     for (const r in row_permutations) {
       const permutation = row_permutations[r];
 
       const valueCells = {};
-      for (const c in tableDef.domain.columns) {
-        const column = tableDef.domain.columns[c];
+      for (const c in tableDomain.columns) {
+        const column = tableDomain.columns[c];
         const ui = Object.assign({}, column);
 
         // Widget selection

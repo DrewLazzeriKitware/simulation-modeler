@@ -85,7 +85,8 @@ class ParflowViewBuilder {
 
     const { type } = this;
     const module = this.simput.types[type];
-    const dataModel = new ModelManager(module, { data, type });
+    const external = {};
+    const dataModel = new ModelManager(module, { data, type, external });
 
     return dataModel;
   }
