@@ -35,7 +35,9 @@ export default {
   },
   computed: {
     tableValue() {
-      return this.prop.data.value[0] || { rows: [] };
+      return (
+        this.prop.data.value[0] || { rows: [], tableLabels: {}, tableOrder: [] }
+      );
     },
     columnOrder() {
       const order = this.tableValue.tableOrder;

@@ -88,27 +88,7 @@ class EnumDomainUpdate {
   copySourceToDomains() {
     for (const d in this.dependant_domains) {
       const dependantKey = this.dependant_domains[d];
-      for (const a in this.modelDefinition.definitions) {
-        const attr = this.modelDefinition.definitions[a];
-        for (const p in attr.parameters) {
-          const param = attr.parameters[p];
-          if (param.id === dependantKey) {
-            this.setNewDomain(param);
-          }
-          this.copySourceToTableDomains(param, dependantKey);
-        }
-      }
-    }
-  }
-
-  copySourceToTableDomains(param, dependantKey) {
-    const tableDomain = this.external[`VariableTableDomain/${param.id}`];
-    if (tableDomain) {
-      // If param nested in table
-      for (const c in param.domain.columns) {
-        const column = param.domain.columns[c];
-        if (column.id === dependantKey) this.setNewDomain(column);
-      }
+      this.setNewDomain(dependantKey);
     }
   }
 }
@@ -117,7 +97,7 @@ class VariableTableUpdate {
   constructor(hookParams) {
     const { hookConfig, dataModel, modelDefinition } = hookParams;
     const {
-      table_variable_id,
+      variable_table_id,
       table_attr,
       names_id,
       names_view,
@@ -138,7 +118,7 @@ class VariableTableUpdate {
       names_attr,
       table_view,
       table_attr,
-      table_variable_id,
+      variable_table_id,
       match_condition
     });
   }
@@ -157,13 +137,12 @@ class VariableTableUpdate {
         this.dataModel
       );
     }
-    const tableDomain = this.external[this.table_variable_id];
+    const key = `VariableTableDomain/${this.variable_table_id}`;
+    const tableDomain = this.external[key];
     // Only update tables that depend on this dynamic variable
-    if (tableDomain) {
-      this.writeNamesToDef(tableDomain, nameSources);
-      if (this.shouldOverwriteTable(tableDomain)) {
-        this.writeTableToProp(tableDomain, nameSources, restrictions);
-      }
+    this.writeNamesToDef(tableDomain, nameSources);
+    if (this.shouldOverwriteTable(tableDomain)) {
+      this.writeTableToProp(tableDomain, nameSources, restrictions);
     }
   }
 
@@ -173,14 +152,14 @@ class VariableTableUpdate {
       .flatMap(p => this.namesFromProp(p))
       .filter(i => i);
 
-    tableDomain.row_kinds[this.table_variable_id] = names;
+    tableDomain.row_kinds[this.variable_table_id] = names;
     return names;
   }
 
   writeTableToProp(tableDomain, nameSources, restrictions) {
     const viewData = this.dataModel.data[this.table_view];
 
-    const [attr, ...path] = this.table_variable_id.split("/");
+    const [attr, ...path] = this.variable_table_id.split("/");
     let prop_id = attr + "." + attr + "/" + path.join("/");
     // Change id for dynamic views
     if (this.modelDefinition.views[this.table_view].size === -1) {
@@ -188,7 +167,7 @@ class VariableTableUpdate {
     }
 
     for (var v = 0; v < viewData.length; v++) {
-      viewData[v][this.table_attr][this.table_variable_id] = {
+      viewData[v][this.table_attr][this.variable_table_id] = {
         value: [this.makeTable(tableDomain, nameSources, restrictions)],
         id: prop_id
       };
@@ -203,18 +182,18 @@ class VariableTableUpdate {
     if (!this.table_view) {
       return false;
     }
-    // Overwrite if uninitialized
-    if (!tableDomain) {
-      return true;
-    }
 
-    // Overwrite if names on external differ from names on prop
+    // Overwrite if parameter isn't initialized yet
     const data = this.dataModel.data[this.table_view];
     const attr = data[0][this.table_attr];
-    const simputParam = attr[this.table_variable_id].value[0];
-    const names = tableDomain.row_kinds[this.table_variable_id];
+    if (!attr[this.variable_table_id]) return true;
+    const simputParam = attr[this.variable_table_id].value[0];
+    if (!simputParam) return true;
+
+    // Overwrite if names on external differ from names on prop
+    const names = tableDomain.row_kinds[this.variable_table_id];
     const nameValues = simputParam.rows.map(
-      row => row.rowKeys[this.table_variable_id]
+      row => row.rowKeys[this.variable_table_id]
     );
 
     const uniqNameValues = [...new Set(nameValues)];
@@ -290,7 +269,7 @@ class VariableTableUpdate {
     // We restrict the rows in a target table based on
     // a value from its sibling table (from same view)
     // which may match a foreign name
-    const targetTableKey = this.table_variable_id;
+    const targetTableKey = this.variable_table_id;
     const { foreignNameKey, siblingParamKey } = match_condition;
 
     const conditions = [];

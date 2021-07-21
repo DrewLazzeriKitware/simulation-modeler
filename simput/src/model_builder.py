@@ -197,7 +197,7 @@ def _create_parameters(path, id, data):
         if lookup_tables_by_class.get(data["__class__"]):
             raise ValueError("Error: multiple tables sharing class", data["__class__"])
         lookup_tables_by_class[data["__class__"]] = {
-            "table_variable_id": param["id"],
+            "variable_table_id": param["id"],
             "path": path,
             "table": table,
         }
@@ -319,25 +319,25 @@ def make_tables(path, id, data, dynamic_tokens=None, table_labels=None):
     if dynamic_tokens is None:
         dynamic_tokens = []
     dynamic_tokens.append(id)
-    for table_variable_id, table_p in data.get("table_params").items():
+    for variable_table_id, table_p in data.get("table_params").items():
         if (
             table_p.get("table_params") is not None
         ):  # If child is a table, make it a sibling table
             tables.extend(
                 make_tables(
                     path,
-                    table_variable_id,
+                    variable_table_id,
                     table_p,
                     dynamic_tokens.copy(),
                     table_labels,
                 )
             )
         else:
-            table_param = _create_parameters(path, table_variable_id, table_p)
+            table_param = _create_parameters(path, variable_table_id, table_p)
             table_params.append(table_param)
 
             # Add details from children to table
-            simput_id = f"{path}/{clean_dynamic_tokens(table_variable_id)}"
+            simput_id = f"{path}/{clean_dynamic_tokens(variable_table_id)}"
             label = table_p.get("__simput__", {}).get("table_label", None)
             order = table_p.get("__simput__", {}).get("table_column_order", None)
             if label:
@@ -420,7 +420,7 @@ def attach_table_from_names_hook(hooks, handler, param, attr):
         table_attr = dynamic_attribute or target["path"].split("/")[0]
         hook = {
             "table_attr": table_attr,
-            "table_variable_id": target.get("table_variable_id"),
+            "variable_table_id": target.get("variable_table_id"),
             "match_condition": target.get("match_condition"),
             "names_id": param["id"],
             "names_attr": attr,
@@ -500,6 +500,8 @@ def cli(output, directory, file, include_wells, include_clm):
     if "Core" in model["order"]:
         order.insert(0, order.pop(order.index("Core")))
     model["order"] = order
+
+    model["external"] = external
 
     with open(f"{output}/model.json", "w", encoding="utf8") as f:
         json.dump(model, f, ensure_ascii=False)
