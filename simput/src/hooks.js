@@ -97,7 +97,7 @@ class VariableTableUpdate {
   constructor(hookParams) {
     const { hookConfig, dataModel, modelDefinition } = hookParams;
     const {
-      variable_table_id,
+      variable_column_id,
       table_attr,
       names_id,
       names_view,
@@ -118,7 +118,7 @@ class VariableTableUpdate {
       names_attr,
       table_view,
       table_attr,
-      variable_table_id,
+      variable_column_id,
       match_condition
     });
   }
@@ -137,29 +137,32 @@ class VariableTableUpdate {
         this.dataModel
       );
     }
-    const key = `VariableTableDomain/${this.variable_table_id}`;
-    const tableDomain = this.external[key];
-    // Only update tables that depend on this dynamic variable
-    this.writeNamesToDef(tableDomain, nameSources);
-    if (this.shouldOverwriteTable(tableDomain)) {
-      this.writeTableToProp(tableDomain, nameSources, restrictions);
+    const prefix_key = `VariableTableDomain/${this.variable_column_id}`;
+    for (const key in this.external) {
+      if (key.startsWith(prefix_key)) {
+        // Only update tables that depend on this dynamic variable
+        this.writeNamesToDef(key, nameSources);
+        if (this.shouldOverwriteTable(key)) {
+          this.writeTableToProp(key, nameSources, restrictions);
+        }
+      }
     }
   }
 
-  writeNamesToDef(tableDomain, nameSources) {
+  writeNamesToDef(tableId, nameSources) {
     const names = nameSources
       .map(ns => ns.names.value[0] || "")
       .flatMap(p => this.namesFromProp(p))
       .filter(i => i);
 
-    tableDomain.row_kinds[this.variable_table_id] = names;
+    this.external[tableId].row_kinds[this.variable_column_id] = names;
     return names;
   }
 
-  writeTableToProp(tableDomain, nameSources, restrictions) {
+  writeTableToProp(tableId, nameSources, restrictions) {
     const viewData = this.dataModel.data[this.table_view];
 
-    const [attr, ...path] = this.variable_table_id.split("/");
+    const [attr, ...path] = this.variable_column_id.split("/");
     let prop_id = attr + "." + attr + "/" + path.join("/");
     // Change id for dynamic views
     if (this.modelDefinition.views[this.table_view].size === -1) {
@@ -167,8 +170,8 @@ class VariableTableUpdate {
     }
 
     for (var v = 0; v < viewData.length; v++) {
-      viewData[v][this.table_attr][this.variable_table_id] = {
-        value: [this.makeTable(tableDomain, nameSources, restrictions)],
+      viewData[v][this.table_attr][this.variable_column_id] = {
+        value: [this.makeTable(tableId, nameSources, restrictions)],
         id: prop_id
       };
     }
@@ -177,7 +180,7 @@ class VariableTableUpdate {
     this.dataModel.data[this.table_view] = viewData;
   }
 
-  shouldOverwriteTable(tableDomain) {
+  shouldOverwriteTable(tableId) {
     // Don't overwrite if we can't find the table
     if (!this.table_view) {
       return false;
@@ -186,14 +189,14 @@ class VariableTableUpdate {
     // Overwrite if parameter isn't initialized yet
     const data = this.dataModel.data[this.table_view];
     const attr = data[0][this.table_attr];
-    if (!attr[this.variable_table_id]) return true;
-    const simputParam = attr[this.variable_table_id].value[0];
+    if (!attr[this.variable_column_id]) return true;
+    const simputParam = attr[this.variable_column_id].value[0];
     if (!simputParam) return true;
 
     // Overwrite if names on external differ from names on prop
-    const names = tableDomain.row_kinds[this.variable_table_id];
+    const names = this.external[tableId].row_kinds[this.variable_column_id];
     const nameValues = simputParam.rows.map(
-      row => row.rowKeys[this.variable_table_id]
+      row => row.rowKeys[this.variable_column_id]
     );
 
     const uniqNameValues = [...new Set(nameValues)];
@@ -269,7 +272,7 @@ class VariableTableUpdate {
     // We restrict the rows in a target table based on
     // a value from its sibling table (from same view)
     // which may match a foreign name
-    const targetTableKey = this.variable_table_id;
+    const targetTableKey = this.variable_column_id;
     const { foreignNameKey, siblingParamKey } = match_condition;
 
     const conditions = [];
@@ -319,10 +322,10 @@ class VariableTableUpdate {
     return conditions;
   }
 
-  makeTable(tableDomain, nameSources, restrictions) {
-    const { table_labels, table_order } = tableDomain;
+  makeTable(tableId, nameSources, restrictions) {
     const rows = [];
 
+    const tableDomain = this.external[tableId];
     const row_permutations = this.rowSectionCombinations(tableDomain.row_kinds);
 
     for (const r in row_permutations) {
@@ -352,7 +355,7 @@ class VariableTableUpdate {
       }
     }
 
-    return { rows, tableLabels: table_labels, tableOrder: table_order };
+    return { rows };
   }
 
   rowSectionCombinations(sections) {

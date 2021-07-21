@@ -17,8 +17,8 @@ export default {
       this.$emit("change", this.prop.data);
     },
     labelForHeader(header) {
-      if (this.tableValue.tableLabels[header]) {
-        return this.tableValue.tableLabels[header];
+      if (this.prop.ui.domain.table_labels[header]) {
+        return this.prop.ui.domain.table_labels[header];
       }
       if (this.prop.ui.id === header) {
         return this.prop.ui.label;
@@ -35,12 +35,10 @@ export default {
   },
   computed: {
     tableValue() {
-      return (
-        this.prop.data.value[0] || { rows: [], tableLabels: {}, tableOrder: [] }
-      );
+      return this.prop.data.value[0];
     },
     columnOrder() {
-      const order = this.tableValue.tableOrder;
+      const order = this.prop.ui.domain.table_order;
       const columns = this.prop.ui.domain.columns.map(c => c.id);
       columns.sort((first, second) => {
         if (!order[first] && !order[second]) return 0;
