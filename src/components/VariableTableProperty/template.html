@@ -5,17 +5,17 @@
       <th
         v-for="(row, rowKey) in variableHeaders"
         :key="`variableHeader` + rowKey"
-        style="left: 0; position: sticky; font-variant: small-caps; text-align: center; z-index: 1; "
+        style="left: 0; position: sticky; text-align: center; z-index: 1; "
         class="grey lighten-2 px-4"
       >
         {{row}}
       </th>
       <th
         v-if="tableValue.rows.length"
-        v-for="(row, rowKey) in columnHeaders"
-        :key="`columnHeader` + rowKey"
+        v-for="(column, columnKey) in columnHeaders"
+        :key="`columnHeader` + columnKey"
       >
-        {{row}}
+        {{column}}
       </th>
       <td v-if="!tableValue.rows.length" class="pl-2">
         (Table is empty)
@@ -26,7 +26,7 @@
       <td
         v-for="(rowSection, rowSectionHeader) in row.rowKeys"
         :key="rowSectionHeader"
-        style="left: 0; position: sticky; font-variant: small-caps; text-align: center; z-index: 1"
+        style="left: 0; position: sticky; text-align: center; z-index: 1"
         class="grey lighten-2 px-4"
       >
         {{rowSection}}
