@@ -20,7 +20,25 @@ export default {
     Error
   },
   data: () => ({
-    drawerOpen: true
+    drawerOpen: true,
+    items: [
+      {
+        text: "Simulation",
+        disabled: false
+      },
+      {
+        text: "Soil",
+        disabled: false
+      },
+      {
+        text: "Weather",
+        disabled: false
+      },
+      {
+        text: "pf-tools",
+        disabled: false
+      }
+    ]
   }),
   mounted() {
     this.connect();

@@ -17,9 +17,13 @@
       <span style="padding-left: .5em;"> Run </span>
     </v-btn>
     <template v-slot:extension>
-      <!--
-      <view-selector />
-      -->
+      <v-spacer />
+      <v-breadcrumbs :items="items" class="ma-0 pa-0">
+        <template v-slot:divider>
+          <v-icon>{{$vuetify.icons.seperator}}</v-icon>
+        </template>
+      </v-breadcrumbs>
+      <v-spacer />
     </template>
   </v-toolbar>
   <v-navigation-drawer app clipped v-model="drawerOpen">

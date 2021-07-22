@@ -28,7 +28,8 @@ Vue.use(Vuetify, {
       check: "mdi-check"
     },
     save: "mdi-content-save",
-    run: "mdi-run-fast"
+    run: "mdi-run-fast",
+    seperator: "mdi-rhombus-medium"
   },
   iconfont: "mdi"
 });
