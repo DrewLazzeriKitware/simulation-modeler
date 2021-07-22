@@ -138,28 +138,28 @@ class VariableTableUpdate {
       );
     }
     const prefix_key = `VariableTableDomain/${this.variable_column_id}`;
-    for (const key in this.external) {
-      if (key.startsWith(prefix_key)) {
+    for (const extTableId in this.external) {
+      if (extTableId.startsWith(prefix_key)) {
         // Only update tables that depend on this dynamic variable
-        this.writeNamesToDef(key, nameSources);
-        if (this.shouldOverwriteTable(key)) {
-          this.writeTableToProp(key, nameSources, restrictions);
+        this.writeNamesToDef(extTableId, nameSources);
+        if (this.shouldOverwriteTable(extTableId)) {
+          this.writeTableToProp(extTableId, nameSources, restrictions);
         }
       }
     }
   }
 
-  writeNamesToDef(tableId, nameSources) {
+  writeNamesToDef(extTableId, nameSources) {
     const names = nameSources
       .map(ns => ns.names.value[0] || "")
       .flatMap(p => this.namesFromProp(p))
       .filter(i => i);
 
-    this.external[tableId].row_kinds[this.variable_column_id] = names;
+    this.external[extTableId].row_kinds[this.variable_column_id] = names;
     return names;
   }
 
-  writeTableToProp(tableId, nameSources, restrictions) {
+  writeTableToProp(extTableId, nameSources, restrictions) {
     const viewData = this.dataModel.data[this.table_view];
 
     const [attr, ...path] = this.variable_column_id.split("/");
@@ -168,10 +168,10 @@ class VariableTableUpdate {
     if (this.modelDefinition.views[this.table_view].size === -1) {
       prop_id = this.table_view + "." + attr + "/" + path.join("/");
     }
-
+    const tableId = this.extractTableId(extTableId);
     for (var v = 0; v < viewData.length; v++) {
-      viewData[v][this.table_attr][this.variable_column_id] = {
-        value: [this.makeTable(tableId, nameSources, restrictions)],
+      viewData[v][this.table_attr][tableId] = {
+        value: [this.makeTable(extTableId, nameSources, restrictions)],
         id: prop_id
       };
     }
@@ -180,7 +180,7 @@ class VariableTableUpdate {
     this.dataModel.data[this.table_view] = viewData;
   }
 
-  shouldOverwriteTable(tableId) {
+  shouldOverwriteTable(extTableId) {
     // Don't overwrite if we can't find the table
     if (!this.table_view) {
       return false;
@@ -194,7 +194,7 @@ class VariableTableUpdate {
     if (!simputParam) return true;
 
     // Overwrite if names on external differ from names on prop
-    const names = this.external[tableId].row_kinds[this.variable_column_id];
+    const names = this.external[extTableId].row_kinds[this.variable_column_id];
     const nameValues = simputParam.rows.map(
       row => row.rowKeys[this.variable_column_id]
     );
@@ -322,10 +322,10 @@ class VariableTableUpdate {
     return conditions;
   }
 
-  makeTable(tableId, nameSources, restrictions) {
+  makeTable(extTableId, nameSources, restrictions) {
     const rows = [];
 
-    const tableDomain = this.external[tableId];
+    const tableDomain = this.external[extTableId];
     const row_permutations = this.rowSectionCombinations(tableDomain.row_kinds);
 
     for (const r in row_permutations) {
@@ -395,5 +395,11 @@ class VariableTableUpdate {
       return [...Array(prop).keys()].map(i => String(i + 1));
     }
     return prop.trim().split(" ");
+  }
+
+  extractTableId(externalTableId) {
+    const splitId = externalTableId.split("/");
+    splitId.shift();
+    return splitId.join("/");
   }
 }

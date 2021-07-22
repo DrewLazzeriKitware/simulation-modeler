@@ -24,12 +24,12 @@
     <!-- Table body rows-->
     <tr v-for="(row, i) in tableValue.rows" :key="i">
       <td
-        v-for="(rowSection, rowSectionHeader) in row.rowKeys"
-        :key="rowSectionHeader"
+        v-for="(allRowValues, rowSection) in prop.ui.domain.row_kinds"
+        :key="`rowSectionHeader-` + rowSection"
         style="left: 0; position: sticky; text-align: center; z-index: 1"
         class="grey lighten-2 px-4"
       >
-        {{rowSection}}
+        {{row.rowKeys[rowSection]}}
       </td>
       <td
         v-for="(column, j) in columnOrder"
