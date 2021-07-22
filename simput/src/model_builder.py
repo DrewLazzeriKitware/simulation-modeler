@@ -449,7 +449,17 @@ def attach_table_from_names_hook(hooks, handler, param, attr):
     type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
     help="A definition file to use.",
 )
-def cli(output, directory, file):
+@click.option(
+    "--include-wells",
+    default=False,
+    help="Whether to include support for Wells. This is complicated and left out by default.",
+)
+@click.option(
+    "--include-clm",
+    default=False,
+    help="Whether to include support for CLM. This is complicated and left out by default",
+)
+def cli(output, directory, file, include_wells, include_clm):
     """Accepts a single file, list of files, or directory name."""
     files = Path(directory).iterdir() if directory else [Path(f) for f in file]
 
@@ -457,12 +467,26 @@ def cli(output, directory, file):
         # Create the views, attributes, and parameters needed
         # for each file
         fname = f.stem.capitalize()
-        with open(f) as value:
-            data = load(value, Loader=Loader)
-            new_views, attr_paths = create_view(data, fname)
-            if new_views:
-                create_dynamic_view(data, new_views, fname, attr_paths)
-            create_parameters(data, attr_paths)
+
+        # Wells are removed by default
+        # See --include-wells
+        if fname != "Wells" or include_wells:
+            with open(f) as value:
+                data = load(value, Loader=Loader)
+
+                # CLM is removed by default
+                # See --include-clm
+                if fname == "Solver" and not include_clm:
+                    data["Solver"].pop("CLM")
+                if fname == "Netcdf" and not include_clm:
+                    data["NetCDF"].pop("WriteCLM")
+                    data["NetCDF"].pop("CLMNumStepsPerFile")
+
+                # Create views, attributes, and parameters
+                new_views, attr_paths = create_view(data, fname)
+                if new_views:
+                    create_dynamic_view(data, new_views, fname, attr_paths)
+                create_parameters(data, attr_paths)
 
     # Check for handlers which get hooks after all params set
     attach_hooks()
