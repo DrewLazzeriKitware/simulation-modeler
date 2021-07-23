@@ -27,15 +27,11 @@ export default {
         disabled: false
       },
       {
-        text: "Soil",
-        disabled: false
-      },
-      {
         text: "Weather",
         disabled: false
       },
       {
-        text: "pf-tools",
+        text: "pf-keys",
         disabled: false
       }
     ]

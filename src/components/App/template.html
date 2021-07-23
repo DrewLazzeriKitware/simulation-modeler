@@ -6,25 +6,22 @@
     <v-toolbar-title :class="$style.toolbarTitle">
       Parflow Modeler
     </v-toolbar-title>
+    <v-spacer />
+    <v-breadcrumbs :items="items" class="ma-0 pa-0">
+      <template v-slot:divider>
+        <v-icon>{{$vuetify.icons.seperator}}</v-icon>
+      </template>
+    </v-breadcrumbs>
 
     <v-spacer />
-    <v-btn color="primary" @click="save">
+    <v-btn color="secondary" small flat @click="save" class="px-0 mx-0">
       <v-icon> {{$vuetify.icons.save}} </v-icon>
       <span style="padding-left: .5em;"> Save </span>
     </v-btn>
-    <v-btn color="secondary" @click="run">
+    <v-btn color="secondary" small flat @click="run" class="px-0 mx-0">
       <v-icon> {{$vuetify.icons.run}} </v-icon>
       <span style="padding-left: .5em;"> Run </span>
     </v-btn>
-    <template v-slot:extension>
-      <v-spacer />
-      <v-breadcrumbs :items="items" class="ma-0 pa-0">
-        <template v-slot:divider>
-          <v-icon>{{$vuetify.icons.seperator}}</v-icon>
-        </template>
-      </v-breadcrumbs>
-      <v-spacer />
-    </template>
   </v-toolbar>
   <v-navigation-drawer app clipped v-model="drawerOpen">
     <workflow-menu />
