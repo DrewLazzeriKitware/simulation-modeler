@@ -34,6 +34,9 @@ class ParflowModelerEngine:
         self.files = list(
             map(str, filter(lambda x: not self.isRunFile(x), self.directory.iterdir()))
         )
+        self.set_visualizations()
+
+    def set_visualizations(self):
 
         # Configure PV view for visualizations
         self.view = simple.GetRenderView()
@@ -83,6 +86,7 @@ class ParflowModelerEngine:
 
     def simputSet(self, update):
         self.parflowConfig.pfset(flat_map=update)
+        self.set_visualizations()
 
     def runParflow():
         for f in self.directory.iterdir():
