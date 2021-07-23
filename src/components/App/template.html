@@ -4,16 +4,19 @@
       <img src="logo.svg" aria-hidden="true"
     /></v-btn>
     <v-toolbar-title :class="$style.toolbarTitle">
-      Parflow Modeler
+      Simulation Modeler
     </v-toolbar-title>
     <v-spacer />
-    <v-breadcrumbs :items="items" class="ma-0 pa-0">
-      <template v-slot:divider>
-        <v-icon>{{$vuetify.icons.seperator}}</v-icon>
-      </template>
-    </v-breadcrumbs>
-
+    <v-tabs centered shrink v-model="tab" style="width: inherit; ">
+      <v-tab
+        v-for="item in items"
+        style="background-color: rgb(245, 245, 245);"
+      >
+        {{item.text}}
+      </v-tab>
+    </v-tabs>
     <v-spacer />
+
     <v-btn color="secondary" small flat @click="save" class="px-0 mx-0">
       <v-icon> {{$vuetify.icons.save}} </v-icon>
       <span style="padding-left: .5em;"> Save </span>

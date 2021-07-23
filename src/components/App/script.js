@@ -21,6 +21,7 @@ export default {
   },
   data: () => ({
     drawerOpen: true,
+    tab: null,
     items: [
       {
         text: "Simulation",
