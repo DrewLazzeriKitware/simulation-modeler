@@ -3,22 +3,17 @@ import EnumProperty from "simput/src/components/properties/EnumProperty";
 import VariableTableProperty from "simulation-modeler/src/components/VariableTableProperty";
 
 import Bridge from "simulation-modeler/src/core/pfSimputBridge";
-import viewMapping from "simulation-modeler/src/core/viewMapping";
 import HookManager from "simput/src/core/HookManager";
 
 const bridge = new Bridge();
 
 export default {
   state: {
-    dataManager: null,
-    viewMapping
+    dataManager: null
   },
   getters: {
     SIMPUT_OUTPUT_GET(state) {
       return state.dataManager && state.dataManager.getOutput();
-    },
-    SIMPUT_VIEW_MAPPING(state) {
-      return state.viewMapping;
     },
     SIMPUT_DATAMANAGER(state) {
       return state.dataManager;

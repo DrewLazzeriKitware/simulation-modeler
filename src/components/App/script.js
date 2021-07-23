@@ -1,15 +1,11 @@
 import { mapActions } from "vuex";
 
-import ViewSelector from "simulation-modeler/src/components/ViewSelector";
 import Error from "simulation-modeler/src/components/Error";
-import Overview from "simulation-modeler/src/components/Overview";
 import Simput from "simulation-modeler/src/components/Simput";
 
 export default {
   name: "App",
   components: {
-    Overview,
-    ViewSelector,
     Error,
     Simput
   },
@@ -31,6 +27,11 @@ export default {
       }
     ]
   }),
+  computed: {
+    selectedTabText() {
+      return this.items[this.tab] && this.items[this.tab].text;
+    }
+  },
   mounted() {
     this.connect();
   },

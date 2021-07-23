@@ -4,7 +4,7 @@ import WorkflowMenu from "simput/src/components/core/WorkflowMenu";
 import WorkflowContent from "simput/src/components/core/WorkflowContent";
 
 export default {
-  name: "Overview",
+  name: "Simput",
   components: { WorkflowMenu, WorkflowContent },
   methods: {
     ...mapActions({

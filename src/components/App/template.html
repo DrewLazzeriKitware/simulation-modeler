@@ -26,18 +26,9 @@
       <span style="padding-left: .5em;"> Run </span>
     </v-btn>
   </v-toolbar>
-  <v-navigation-drawer app clipped v-model="drawerOpen">
-    <workflow-menu />
-  </v-navigation-drawer>
   <v-content app>
-    <workflow-content />
-    <!-- 
-    <div :class="$style.viewContainer">
-      <soil-selector />
-      <filtered-view />
-    </div>
-    <Overview />
-        -->
+    <Simput v-if="selectedTabText === 'Simput'" />
+    <div>Hold fast; there's more</div>
   </v-content>
   <error />
 </v-app>
