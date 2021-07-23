@@ -8,31 +8,11 @@ import "typeface-roboto";
 import App from "simulation-modeler/src/components/App";
 
 import store from "simulation-modeler/src/store";
+import icons from "simulation-modeler/src/plugins/icons";
 
 Vue.config.productionTip = false;
 Vue.use(Vuex);
-Vue.use(Vuetify, {
-  icons: {
-    simput: {
-      add: "mdi-plus",
-      warning: "mdi-alert-outline",
-      contentCopy: "mdi-content-copy",
-      delete: "mdi-delete-outline",
-      folder_open: "mdi-folder-outline",
-      close: "mdi-close",
-      error: "mdi-bug",
-      folder: "mdi-folder",
-      download: "mdi-cloud-download",
-      publish: "mdi-publish",
-      ok: "mdi-check-circle-outline",
-      check: "mdi-check"
-    },
-    save: "mdi-content-save",
-    run: "mdi-run-fast",
-    seperator: "mdi-rhombus-medium"
-  },
-  iconfont: "mdi"
-});
+Vue.use(Vuetify, icons);
 
 new Vue({
   store,

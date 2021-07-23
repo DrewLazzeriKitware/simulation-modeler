@@ -3,13 +3,15 @@ import { mapActions, mapGetters } from "vuex";
 import Error from "simulation-modeler/src/components/Error";
 import Simput from "simulation-modeler/src/components/Simput";
 import RemoteRenderView from "simulation-modeler/src/components/RemoteRenderView";
+import ViewControl from "simulation-modeler/src/components/ViewControl";
 
 export default {
   name: "App",
   components: {
     Error,
     Simput,
-    RemoteRenderView
+    RemoteRenderView,
+    ViewControl
   },
   data: () => ({
     drawerOpen: true,

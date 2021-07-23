@@ -21,6 +21,38 @@ export default {
     }
   },
   actions: {
+    // Common
+    async WS_RESET_CAMERA({ state }) {
+      await state.client
+        .getRemote()
+        .modeler.resetCamera()
+        .catch(console.error);
+    },
+    async WS_TOGGLE_EDGE_VISIBILITY({ state }) {
+      await state.client
+        .getRemote()
+        .modeler.toggleEdgeVisibility()
+        .catch(console.error);
+    },
+    async WS_TOGGLE_AXES_GRID_VISIBILITY({ state }) {
+      await state.client
+        .getRemote()
+        .modeler.toggleGridAxesVisibility()
+        .catch(console.error);
+    },
+    async WS_SET_VERTICAL_SPACE({ state }, zSpace) {
+      await state.client
+        .getRemote()
+        .modeler.setVerticalSpace(zSpace)
+        .catch(console.error);
+    },
+    async WS_SET_ELEVATION_SCALE({ state }, eScale) {
+      await state.client
+        .getRemote()
+        .modeler.setElevationScale(eScale)
+        .catch(console.error);
+    },
+
     // ------------------------------------------------------------------------
     // WS initialization
     // ------------------------------------------------------------------------

@@ -1,0 +1,83 @@
+<v-card
+  :class="$style.container"
+  class="pa-2 ma-4 rounded-pill d-flex flex-column"
+>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="resetCamera" v-bind="attrs" v-on="on">
+        <v-icon>
+          {{$vuetify.icons.resetCamera}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span>Reset camera</span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="toggleEdges" v-bind="attrs" v-on="on">
+        <v-icon v-if="!showEdges">
+          {{$vuetify.icons.viewControlShowEdges}}
+        </v-icon>
+        <v-icon v-if="showEdges">
+          {{$vuetify.icons.viewControlHideEdges}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span v-if="!showEdges">Show grid edges</span>
+    <span v-if="showEdges">Hide grid edges</span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="toggleGridAxes" v-bind="attrs" v-on="on">
+        <v-icon v-if="!showGridAxes">
+          {{$vuetify.icons.viewControlShowGridAxes}}
+        </v-icon>
+        <v-icon v-if="showGridAxes">
+          {{$vuetify.icons.viewControlHideGridAxes}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span v-if="!showGridAxes">Show axes </span>
+    <span v-if="showGridAxes">Hide axes </span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="expandElevation" v-bind="attrs" v-on="on">
+        <v-icon>
+          {{$vuetify.icons.gridExpandElevation}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span>Expand elevation</span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="compressElevation" v-bind="attrs" v-on="on">
+        <v-icon>
+          {{$vuetify.icons.gridCompressElevation}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span>Collapse elevation</span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="expandVertical" v-bind="attrs" v-on="on">
+        <v-icon>
+          {{$vuetify.icons.gridExpandVertical}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span>Expand vertically</span>
+  </v-tooltip>
+  <v-tooltip left>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn icon small @click="compressVertical" v-bind="attrs" v-on="on">
+        <v-icon>
+          {{$vuetify.icons.gridCompressVertical}}
+        </v-icon>
+      </v-btn>
+    </template>
+    <span>Collapse vertically</span>
+  </v-tooltip>
+</v-card>

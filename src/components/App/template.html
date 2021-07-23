@@ -28,7 +28,10 @@
   </v-toolbar>
   <v-content app class="pb-0">
     <Simput v-if="selectedTabText === 'Simput'" />
-    <RemoteRenderView v-else-if="!!client" :viewId="viewId" :client="client" />
+    <div v-else>
+      <RemoteRenderView v-if="!!client" :viewId="viewId" :client="client" />
+      <ViewControl v-if="!!client" />
+    </div>
   </v-content>
   <error />
 </v-app>
