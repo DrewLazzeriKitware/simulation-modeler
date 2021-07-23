@@ -16,7 +16,6 @@ export default {
     },
     save: "mdi-content-save",
     run: "mdi-run-fast",
-    seperator: "mdi-rhombus-medium",
 
     // Icons for view controller
     resetCamera: "mdi-camera-retake",
