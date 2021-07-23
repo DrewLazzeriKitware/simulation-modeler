@@ -1,0 +1,2 @@
+from modeler.annotations.compassAnnotation import CompassAnnotation
+from modeler.annotations.coordinateAnnotation import CoordinateAnnotation
