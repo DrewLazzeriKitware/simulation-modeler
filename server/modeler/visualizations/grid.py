@@ -44,20 +44,6 @@ class ComputationalGridVisualization(AbstractVisualization):
             "NZ": grid.NZ,
         }
 
-    def setState(self, state):
-        changed = False
-        if "P" in state and state["P"] > 0:
-            self.parflowConfig.Process.Topology.P = state["P"]
-            changed = True
-        if "Q" in state and state["Q"] > 0:
-            self.parflowConfig.Process.Topology.Q = state["Q"]
-            changed = True
-        if "R" in state and state["R"] > 0:
-            self.parflowConfig.Process.Topology.R = state["R"]
-            changed = True
-        if changed and self.loaded:
-            self._distributeGrid()
-
     # -------------------------------------------------------------------------
     # Viz setup
     # -------------------------------------------------------------------------

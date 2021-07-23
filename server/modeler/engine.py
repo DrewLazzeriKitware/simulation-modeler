@@ -95,9 +95,6 @@ class ParflowModelerEngine:
 
         self.parflowConfig.run(working_directory=str(self.directory))
 
-    def setGridState(self, gridState):
-        self.visualizations.grid.setState(gridState)
-
     # -------------------------------------------------------------------------
     # Visualization management
     # -------------------------------------------------------------------------

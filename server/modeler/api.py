@@ -26,10 +26,6 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
             pfset.write(json.dumps(simputView["converted"], indent=4))
         self.engine.simputSet(simputView["converted"])
 
-    @exportRpc("parflow.state.grid.set")
-    def setGridState(self, gridState):
-        return self.engine.setGridState(gridState)
-
     # -----------------------------------------------------
     # Run
     # -----------------------------------------------------
