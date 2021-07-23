@@ -1,23 +1,17 @@
 import { mapActions } from "vuex";
 
-import WorkflowContent from "simput/src/components/core/WorkflowContent";
-import WorkflowMenu from "simput/src/components/core/WorkflowMenu";
 import ViewSelector from "simulation-modeler/src/components/ViewSelector";
-import SoilSelector from "simulation-modeler/src/components/SoilSelector";
-import FilteredView from "simulation-modeler/src/components/FilteredView";
 import Error from "simulation-modeler/src/components/Error";
 import Overview from "simulation-modeler/src/components/Overview";
+import Simput from "simulation-modeler/src/components/Simput";
 
 export default {
   name: "App",
   components: {
     Overview,
-    WorkflowContent,
-    WorkflowMenu,
     ViewSelector,
-    SoilSelector,
-    FilteredView,
-    Error
+    Error,
+    Simput
   },
   data: () => ({
     drawerOpen: true,
@@ -32,7 +26,7 @@ export default {
         disabled: false
       },
       {
-        text: "pf-keys",
+        text: "Simput",
         disabled: false
       }
     ]
