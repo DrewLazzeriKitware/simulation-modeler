@@ -27,7 +27,7 @@ export default {
         disabled: false
       },
       {
-        text: "Weather",
+        text: "Forcing",
         disabled: false
       },
       {
