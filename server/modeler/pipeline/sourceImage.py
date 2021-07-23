@@ -57,4 +57,4 @@ class SourceImage:
 
     def __del__(self):
         for proxy in self.proxiesToDelete:
-            simple.Delete()
+            simple.Delete(proxy)
