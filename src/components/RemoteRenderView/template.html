@@ -1,0 +1,11 @@
+<div
+  :class="$style.container"
+  class="fill-width fill-height"
+  v-resize="onResize"
+>
+  <div
+    :class="$style.renderer"
+    class="js-renderer"
+    @mousedown="mouseDown()"
+  ></div>
+</div>

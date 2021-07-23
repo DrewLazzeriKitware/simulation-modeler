@@ -26,9 +26,9 @@
       <span style="padding-left: .5em;"> Run </span>
     </v-btn>
   </v-toolbar>
-  <v-content app>
+  <v-content app class="pb-0">
     <Simput v-if="selectedTabText === 'Simput'" />
-    <div>Hold fast; there's more</div>
+    <RemoteRenderView v-else-if="!!client" :viewId="viewId" :client="client" />
   </v-content>
   <error />
 </v-app>

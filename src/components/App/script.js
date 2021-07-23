@@ -1,13 +1,15 @@
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 import Error from "simulation-modeler/src/components/Error";
 import Simput from "simulation-modeler/src/components/Simput";
+import RemoteRenderView from "simulation-modeler/src/components/RemoteRenderView";
 
 export default {
   name: "App",
   components: {
     Error,
-    Simput
+    Simput,
+    RemoteRenderView
   },
   data: () => ({
     drawerOpen: true,
@@ -28,6 +30,10 @@ export default {
     ]
   }),
   computed: {
+    ...mapGetters({
+      client: "WS_CLIENT",
+      viewId: "VIZ_VIEW_ID"
+    }),
     selectedTabText() {
       return this.items[this.tab] && this.items[this.tab].text;
     }

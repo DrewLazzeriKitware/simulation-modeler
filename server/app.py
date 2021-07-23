@@ -46,8 +46,47 @@ class PVWServer(pv_wslink.PVServerProtocol):
         PVWServer.authKey = args.authKey
 
     def initialize(self):
+        # Bring protocols from Paraview for proxy rendering
+        self.registerVtkWebProtocol(pv_protocols.ParaViewWebMouseHandler())
+        self.registerVtkWebProtocol(
+            pv_protocols.ParaViewWebViewPort(
+                PVWServer.viewportScale,
+                PVWServer.viewportMaxWidth,
+                PVWServer.viewportMaxHeight,
+            )
+        )
+        self.registerVtkWebProtocol(
+            pv_protocols.ParaViewWebPublishImageDelivery(decode=False)
+        )
+
+        # Bring our protocols
+        self.registerVtkWebProtocol(api.ZoomWheelProtocol())
         self.registerVtkWebProtocol(api.DataFlow(runDirectory=self.runDirectory))
         self.updateSecret(PVWServer.authKey)
+
+        # tell the C++ web app to use no encoding. ParaViewWebPublishImageDelivery must be set to decode=False to match.
+        self.getApplication().SetImageEncoding(0)
+
+        # ProxyManager helper
+        pxm = simple.servermanager.ProxyManager()
+
+        # Update interaction mode
+        interactionProxy = pxm.GetProxy("settings", "RenderViewInteractionSettings")
+        interactionProxy.Camera3DManipulators = [
+            "Rotate",
+            "Pan",
+            "Zoom",
+            "Pan",
+            "Roll",
+            "Pan",
+            "Zoom",
+            "Rotate",
+            "Zoom",
+        ]
+
+        # Custom rendering settings
+        renderingSettings = pxm.GetProxy("settings", "RenderViewSettings")
+        renderingSettings.LODThreshold = PVWServer.settingsLODThreshold
 
 
 if __name__ == "__main__":

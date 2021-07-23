@@ -1,5 +1,6 @@
 import SmartConnect from "wslink/src/SmartConnect";
 import vtkWSLinkClient from "vtk.js/Sources/IO/Core/WSLinkClient";
+import { connectImageStream } from "vtk.js/Sources/Rendering/Misc/RemoteView";
 
 import protocols from "simulation-modeler/src/protocols";
 
@@ -51,6 +52,9 @@ export default {
       }
 
       await client.connect(config);
+      // Setup image-stream so remote render window get images
+      const session = client.getConnection().getSession();
+      connectImageStream(session);
 
       // Capture ws client in the store
       commit("WS_CLIENT_SET", client);
@@ -58,7 +62,7 @@ export default {
       // Catch up with server state
       dispatch("WS_LOAD_SERVER_STATE");
     },
-    async WS_LOAD_SERVER_STATE({ state, dispatch }) {
+    async WS_LOAD_SERVER_STATE({ state, dispatch, commit }) {
       const serverState = await state.client
         .getRemote()
         .modeler.getState()
@@ -66,6 +70,7 @@ export default {
       if (serverState) {
         dispatch("SIMPUT_INIT", serverState.state);
         dispatch("SIMPUT_FILES_SET", serverState.files);
+        commit("VIZ_VIEW_ID_SET", serverState.view);
       }
       return serverState;
     },
