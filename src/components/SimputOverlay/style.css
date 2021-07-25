@@ -1,0 +1,17 @@
+.titleBar {
+  cursor: pointer;
+}
+
+.floatingCardContainer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 50px;
+  width: 300px;
+  overflow: auto;
+}
+
+.floatingCard {
+  z-index: 1;
+  border: none !important;
+}

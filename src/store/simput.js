@@ -29,7 +29,7 @@ export default {
     }
   },
   mutations: {
-    SIMPUT_DATAMANAGER_SET(state, value) {
+    SIMPUT_DATAMANAGER(state, value) {
       state.dataManager = value;
     }
   },
@@ -40,7 +40,7 @@ export default {
       Simput.types["parflow"].hooks(HookManager);
       /* eslint-enable*/
       const modelManager = viewBuilder.run(simConfig);
-      commit("SIMPUT_DATAMANAGER_SET", modelManager);
+      commit("SIMPUT_DATAMANAGER", modelManager);
     },
     SIMPUT_SAVE({ state, dispatch }) {
       const out = state.dataManager.getOutput();

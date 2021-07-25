@@ -2,6 +2,7 @@ import { mapActions, mapGetters } from "vuex";
 
 import Error from "simulation-modeler/src/components/Error";
 import Simput from "simulation-modeler/src/components/Simput";
+import SimputOverlay from "simulation-modeler/src/components/SimputOverlay";
 import RemoteRenderView from "simulation-modeler/src/components/RemoteRenderView";
 import ViewControl from "simulation-modeler/src/components/ViewControl";
 
@@ -11,7 +12,8 @@ export default {
     Error,
     Simput,
     RemoteRenderView,
-    ViewControl
+    ViewControl,
+    SimputOverlay
   },
   data: () => ({
     drawerOpen: true,

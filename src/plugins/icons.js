@@ -16,6 +16,8 @@ export default {
     },
     save: "mdi-content-save",
     run: "mdi-run-fast",
+    hide: "mdi-minus",
+    show: "mdi-plus",
 
     // Icons for view controller
     resetCamera: "mdi-camera-retake",

@@ -1,0 +1,38 @@
+<div>
+  <div :class="$style.floatingCardContainer">
+    <v-card
+      :class="$style.floatingCard"
+      outlined
+      class="ma-4 rounded-2 elevation-8"
+      v-for="property in simputData.propList"
+      :key="property.title"
+    >
+      <div
+        @click="toggleHiding(property)"
+        :class="$style.titleBar"
+        class="grey d-flex justify-space-around"
+      >
+        <v-icon v-if="!hidden(property)" class="px-0">
+          {{$vuetify.icons.hide}}
+        </v-icon>
+        <v-icon v-if="hidden(property)" class="px-0">
+          {{ $vuetify.icons.show}}
+        </v-icon>
+        <div class="px-2 body-2">{{property.title}}</div>
+      </div>
+
+      <v-container v-if="!hidden(property)" fluid class="pa-0">
+        <v-card-text>
+          <template v-for="(content, i) in property.contents">
+            <property-factory
+              :key="i"
+              :prop="content"
+              :viewData="simputData.viewData"
+              @change="updateViewData"
+            />
+          </template>
+        </v-card-text>
+      </v-container>
+    </v-card>
+  </div>
+</div>
