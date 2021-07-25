@@ -14,11 +14,11 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
     # State management
     # -----------------------------------------------------
 
-    @exportRpc("parflow.state.get")
+    @exportRpc("sim.state.get")
     def getState(self):
         return self.engine.getState()
 
-    @exportRpc("parflow.simput.save")
+    @exportRpc("sim.simput.save")
     def simputSave(self, simputView):
         with open("debug_simput.json", "w") as simput:
             simput.write(json.dumps(simputView["debug"], indent=4))
@@ -30,7 +30,7 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
     # Run
     # -----------------------------------------------------
 
-    @exportRpc("parflow.simput.run")
+    @exportRpc("sim.simput.run")
     def simputRun(self):
         return self.engine.runParflow()
 
@@ -38,40 +38,40 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
     # Common API across viz
     # -----------------------------------------------------
 
-    @exportRpc("parflow.viz.reset.camera")
+    @exportRpc("sim.viz.reset.camera")
     def resetCamera(self):
         self.engine.resetCamera()
         self.getApplication().InvokeEvent("UpdateEvent")
 
-    @exportRpc("parflow.viz.axes.toggle")
+    @exportRpc("sim.viz.axes.toggle")
     def toggleAxesInfoVisibility(self):
         self.engine.toggleAxesInfoVisibility()
         self.getApplication().InvokeEvent("UpdateEvent")
 
-    @exportRpc("parflow.viz.edge.toggle")
+    @exportRpc("sim.viz.edge.toggle")
     def toggleEdgeVisibility(self):
         self.engine.toggleEdgeVisibility()
         self.getApplication().InvokeEvent("UpdateEvent")
 
-    @exportRpc("parflow.viz.space.set")
+    @exportRpc("sim.viz.space.set")
     def setZSpacing(self, zSpace):
         s = self.engine.setZSpacing(zSpace)
         self.getApplication().InvokeEvent("UpdateEvent")
         return s
 
-    @exportRpc("parflow.viz.elevation.set")
+    @exportRpc("sim.viz.elevation.set")
     def setElevationScale(self, eScale):
         s = self.engine.setElevationScale(eScale)
         self.getApplication().InvokeEvent("UpdateEvent")
         return s
 
-    @exportRpc("parflow.viz.activate")
+    @exportRpc("sim.viz.activate")
     def activateVisualization(self, name):
         self.engine.activateVisualization(name)
         self.getApplication().InvokeEvent("UpdateEvent")
         return self.engine.getState()
 
-    @exportRpc("parflow.viz.dark.toggle")
+    @exportRpc("sim.viz.dark.toggle")
     def toggleDarkMode(self):
         self.engine.toggleDarkMode()
         self.getApplication().InvokeEvent("UpdateEvent")
@@ -85,19 +85,19 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
     # Soils
     # -----------------------------------------------------
 
-    @exportRpc("parflow.soil.activate")
+    @exportRpc("sim.soil.activate")
     def activateSoil(self, soilValue):
         s = self.engine.activateSoil(soilValue)
         self.getApplication().InvokeEvent("UpdateEvent")
         return s
 
-    @exportRpc("parflow.soil.mode")
+    @exportRpc("sim.soil.mode")
     def setSoilVisualizationMode(self, mode):
         result = self.engine.setSoilVisualizationMode(mode)
         self.getApplication().InvokeEvent("UpdateEvent")
         return result
 
-    @exportRpc("parflow.soil.colors.set")
+    @exportRpc("sim.soil.colors.set")
     def setSoilColors(self, colorUpdate):
         s = self.engine.setSoilColors(colorUpdate)
         self.getApplication().InvokeEvent("UpdateEvent")
@@ -107,13 +107,13 @@ class DataFlow(pv_protocols.ParaViewWebProtocol):
     # Forcing
     # -----------------------------------------------------
 
-    @exportRpc("parflow.forcing.moment.set")
+    @exportRpc("sim.forcing.moment.set")
     def setForcingMoment(self, moment):
         valueRange = self.engine.setForcingMoment(moment)
         self.getApplication().InvokeEvent("UpdateEvent")
         return valueRange
 
-    @exportRpc("parflow.forcing.force.set")
+    @exportRpc("sim.forcing.force.set")
     def setForcingForce(self, force):
         valueRange = self.engine.setForcingForce(force)
         self.getApplication().InvokeEvent("UpdateEvent")

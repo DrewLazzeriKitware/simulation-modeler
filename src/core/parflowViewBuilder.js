@@ -1,7 +1,7 @@
 import { set, forEach } from "lodash";
 import ModelManager from "simput/src/core/ModelManager";
 
-class PfSimputBridge {
+class ParflowViewBuilder {
   constructor() {
     // Global Simput is set by module <script> in public/index.html
     //eslint-disable-next-line
@@ -11,7 +11,7 @@ class PfSimputBridge {
     this.dynamicFields = {};
   }
 
-  getSimputModel(pfRun) {
+  run(pfRun) {
     // Find all values to transfer from pf to simput
     const transfers = [];
     const views = this.simput.types[this.type].model.views;
@@ -127,4 +127,4 @@ class PfSimputBridge {
   }
 }
 
-export default PfSimputBridge;
+export default ParflowViewBuilder;

@@ -2,10 +2,10 @@ import CellProperty from "simput/src/components/properties/CellProperty";
 import EnumProperty from "simput/src/components/properties/EnumProperty";
 import VariableTableProperty from "simulation-modeler/src/components/VariableTableProperty";
 
-import Bridge from "simulation-modeler/src/core/pfSimputBridge";
+import ParflowViewBuilder from "simulation-modeler/src/core/parflowViewBuilder";
 import HookManager from "simput/src/core/HookManager";
 
-const bridge = new Bridge();
+const viewBuilder = new ParflowViewBuilder();
 
 export default {
   state: {
@@ -34,18 +34,19 @@ export default {
     }
   },
   actions: {
-    SIMPUT_INIT({ commit }, pfRun) {
+    SIMPUT_INIT({ commit }, simConfig) {
       /* eslint-disable no-undef */
       // Simput global
       Simput.types["parflow"].hooks(HookManager);
       /* eslint-enable*/
-      const modelManager = bridge.getSimputModel(pfRun);
+      const modelManager = viewBuilder.run(simConfig);
       commit("SIMPUT_DATAMANAGER_SET", modelManager);
     },
     SIMPUT_SAVE({ state, dispatch }) {
+      const out = state.dataManager.getOutput();
       dispatch("WS_SAVE", {
-        debug: state.dataManager.getOutput(),
-        converted: state.dataManager.getOutput()["pftools"]
+        debug: out,
+        converted: out["pftools"]
       });
     },
     SIMPUT_FILES_SET(vuex, files) {

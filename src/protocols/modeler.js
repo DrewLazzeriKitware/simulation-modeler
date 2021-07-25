@@ -1,30 +1,28 @@
 export default session => ({
   getState() {
-    return session.call("parflow.state.get", []);
+    return session.call("sim.state.get", []);
   },
   saveSimputView(view) {
-    return session.call("parflow.simput.save", [view]);
+    return session.call("sim.simput.save", [view]);
   },
   runParflow() {
-    return session.call("parflow.simput.run", []);
+    return session.call("sim.simput.run", []);
   },
 
-  // Common among vizualizations 
+  // Common among vizualizations
   resetCamera() {
-    return session.call('parflow.viz.reset.camera', []);
+    return session.call("sim.viz.reset.camera", []);
   },
   toggleGridAxesVisibility() {
-    return session.call('parflow.viz.axes.toggle', []);
+    return session.call("sim.viz.axes.toggle", []);
   },
   toggleEdgeVisibility() {
-    return session.call('parflow.viz.edge.toggle', []);
+    return session.call("sim.viz.edge.toggle", []);
   },
   setVerticalSpace(zSpace) {
-    return session.call('parflow.viz.space.set', [zSpace]);
+    return session.call("sim.viz.space.set", [zSpace]);
   },
   setElevationScale(eScale) {
-    return session.call('parflow.viz.elevation.set', [eScale]);
-  },
-
-
+    return session.call("sim.viz.elevation.set", [eScale]);
+  }
 });

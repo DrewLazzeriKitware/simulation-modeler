@@ -18,7 +18,7 @@ export default {
     tab: null,
     items: [
       {
-        text: "Simulation",
+        text: "Grid",
         disabled: false
       },
       {
