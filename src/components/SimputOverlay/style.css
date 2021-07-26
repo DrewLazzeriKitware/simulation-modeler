@@ -1,4 +1,5 @@
 .titleBar {
+  border-bottom: solid grey 1px;
   cursor: pointer;
 }
 
@@ -14,4 +15,5 @@
 .floatingCard {
   z-index: 1;
   border: none !important;
+  border-radius: 10px !important;
 }

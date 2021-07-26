@@ -10,12 +10,20 @@
       <div
         @click="toggleHiding(property)"
         :class="$style.titleBar"
-        class="grey d-flex justify-space-around"
+        class="d-flex"
       >
-        <v-icon v-if="!hidden(property)" class="px-0">
+        <v-icon
+          v-if="!hidden(property)"
+          class="px-0"
+          style="flex: initial !important;"
+        >
           {{$vuetify.icons.hide}}
         </v-icon>
-        <v-icon v-if="hidden(property)" class="px-0">
+        <v-icon
+          v-if="hidden(property)"
+          class="px-0"
+          style="flex: initial !important;"
+        >
           {{ $vuetify.icons.show}}
         </v-icon>
         <div class="px-2 body-2">{{property.title}}</div>
