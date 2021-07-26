@@ -22,6 +22,8 @@ class ElevationFilter:
         elevationReader = PFData(self.demFilename)
         elevationReader.loadHeader()
         elevationReader.loadData()
+        print(dir(elevationReader))
+        print(elevationReader.viewDataArray())
         elevation = elevationReader.getDataAsArray()
         self.minElevation = elevation.min()
 
