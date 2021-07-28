@@ -6,7 +6,7 @@
         v-for="(row, rowKey) in variableHeaders"
         :key="`variableHeader` + rowKey"
         style="left: 0; position: sticky; text-align: center; z-index: 1; "
-        class="grey lighten-2 px-4"
+        class="grey lighten-2 px-4 py-2"
       >
         {{row}}
       </th>
@@ -14,6 +14,7 @@
         v-if="tableValue.rows.length"
         v-for="(column, columnKey) in columnHeaders"
         :key="`columnHeader` + columnKey"
+        class="py-2"
       >
         {{column}}
       </th>
