@@ -4,4 +4,4 @@
 
 SCRIPT_DIR=`dirname "$0"`
 ROOT_DIR=$SCRIPT_DIR/../..
-docker build -t sandtank-dev -f $SCRIPT_DIR/Dockerfile $ROOT_DIR
+docker build -t simulation-modeler-dev -f $SCRIPT_DIR/Dockerfile $ROOT_DIR

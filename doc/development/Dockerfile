@@ -70,7 +70,6 @@ RUN groupadd ubuntu && \
     mkdir -p /opt/hypre && chown -R ubuntu:ubuntu /opt/hypre && \
     mkdir -p /opt/parflow && chown -R ubuntu:ubuntu /opt/parflow && \
     mkdir -p /opt/cmake && chown -R ubuntu:ubuntu /opt/cmake && \
-    mkdir -p /opt/ecoslim && chown -R ubuntu:ubuntu /opt/ecoslim && \
     mkdir -p /pvw && chown -R ubuntu:ubuntu /pvw
 
 USER ubuntu
@@ -134,33 +133,25 @@ USER ubuntu
 RUN cd /opt/paraview && \
     curl -L https://www.paraview.org/files/v5.7/ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit.tar.gz | tar --strip-components=1 -xzv
 
-# -----------------------------------------------------------------------------
-# EcoSLIM
-# -----------------------------------------------------------------------------
-
-RUN cd /home/ubuntu && \
-    git clone --recursive https://github.com/reedmaxwell/EcoSLIM.git
-
-WORKDIR /home/ubuntu/EcoSLIM
 
 # Build
 RUN /usr/bin/make
 RUN install -m 755 -o ubuntu -g ubuntu EcoSLIM.exe /opt/ecoslim
 
 # -----------------------------------------------------------------------------
-# Sandtank Client
+# Simulation Modeler Client
 # -----------------------------------------------------------------------------
 
-# Copy the sandtank repo, install the client, and move it
-COPY --chown=ubuntu:ubuntu . /home/ubuntu/sandtank-tmp
-RUN SANDTANK_DIR=/home/ubuntu/sandtank-tmp && \
-    rm -rf $SANDTANK_DIR/client/node_modules && \
-    rm -rf $SANDTANK_DIR/deploy/pvw/www && \
-    cd $SANDTANK_DIR/client && \
+# Copy the simulation modeler repo, install the client, and move it
+COPY --chown=ubuntu:ubuntu . /home/ubuntu/simulation-modeler
+RUN SIM_MOD_DIR=/home/ubuntu/simulation-modeler && \
+    rm -rf $SIM_MOD_DIR/client/node_modules && \
+    rm -rf $SIM_MOD_DIR/deploy/pvw/www && \
+    cd $SIM_MOD_DIR/client && \
     npm install && \
     npm run build && \
-    mv $SANDTANK_DIR/deploy/pvw/* /pvw/ && \
-    rm -rf $SANDTANK_DIR
+    mv $SIM_MOD_DIR/deploy/pvw/* /pvw/ && \
+    rm -rf $SIM_MOD_DIR
 
 # -----------------------------------------------------------------------------
 # Environment
