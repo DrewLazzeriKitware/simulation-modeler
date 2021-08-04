@@ -52,6 +52,15 @@ RUN a2enmod vhost_alias && \
     a2ensite 001-pvw && \
     a2dismod autoindex -f
 
+# Install python packages with system python,
+# copy them to where pvpython can find them, 
+# and remove parflow.py name collission
+RUN cd /pvw/server && \
+    pip3 install -r requirements.txt && \
+    cp -r /usr/local/lib/python3.8/dist-packages/* /opt/paraview/lib/python3.8/site-packages/ && \
+    rm -f /opt/paraview/lib/python3.8/site-packages/parflow.py
+
+
 # Open port 80 to the world outside the container
 EXPOSE 80
 

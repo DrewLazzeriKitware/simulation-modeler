@@ -146,12 +146,7 @@ RUN SIM_MOD_DIR=/home/ubuntu/simulation-modeler && \
     mv $SIM_MOD_DIR/dist/ /pvw/www && \
     rm -rf $SIM_MOD_DIR
 
-# Install python packages with system python
-# Then add to pythonpath so pvpython can find them
 COPY server /pvw/server
-RUN cd /pvw/server && \
-    pip3 install -r requirements.txt && \
-    PYTHONPATH=/home/ubuntu/.local/python3.8/site-packages:$PYTHONPATH
 
 # -----------------------------------------------------------------------------
 # Environment

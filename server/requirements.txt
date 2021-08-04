@@ -1,2 +1,2 @@
 idna==3.2
-pftools
+pftools[all]
