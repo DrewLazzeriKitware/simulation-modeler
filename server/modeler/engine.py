@@ -88,7 +88,7 @@ class ParflowModelerEngine:
         self.parflowConfig.pfset(flat_map=update)
         self.set_visualizations()
 
-    def runParflow():
+    def runParflow(self):
         for f in self.directory.iterdir():
             if f.suffix.endswith("pfb"):
                 self.parflowConfig.dist(f.name)
