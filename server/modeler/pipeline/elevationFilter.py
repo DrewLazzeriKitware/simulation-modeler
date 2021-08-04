@@ -22,9 +22,7 @@ class ElevationFilter:
         elevationReader = PFData(self.demFilename)
         elevationReader.loadHeader()
         elevationReader.loadData()
-        print(dir(elevationReader))
-        print(elevationReader.viewDataArray())
-        elevation = elevationReader.getDataAsArray()
+        elevation = elevationReader.viewDataArray()
         self.minElevation = elevation.min()
 
         # Transfer elevations to lower-left points, copying last top and last right

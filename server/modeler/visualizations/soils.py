@@ -57,7 +57,7 @@ class SoilVisualization(AbstractVisualization):
 
         a.loadHeader()
         a.loadData()
-        indicator = a.getDataAsArray()
+        indicator = a.viewDataArray()
 
         # Add soil value on cells
         indicator.reshape(indicator.size)
