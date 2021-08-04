@@ -4,7 +4,7 @@
     "endpoint": "paraview",
     "sessionURL": "SESSION_URL_ROOT/proxy?sessionId=${id}&path=ws",
     "proxy_file": "/opt/launcher/proxy-mapping.txt",
-    "log_dir" : "/pvw/launcher/logs",
+    "log_dir" : "/opt/launcher/logs",
     "timeout" : 45,
     "fields" : ["id"]
   },

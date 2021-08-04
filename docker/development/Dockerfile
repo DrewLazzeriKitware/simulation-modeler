@@ -13,7 +13,7 @@
 #
 # -----------------------------------------------------------------------------
 
-ARG BASE_IMAGE=ubuntu:18.04
+ARG BASE_IMAGE=ubuntu:20.04
 FROM ${BASE_IMAGE}
 
 ARG BUILD_TYPE=Release
@@ -131,27 +131,27 @@ USER ubuntu
 # -----------------------------------------------------------------------------
 
 RUN cd /opt/paraview && \
-    curl -L https://www.paraview.org/files/v5.7/ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit.tar.gz | tar --strip-components=1 -xzv
-
-
-# Build
-RUN /usr/bin/make
-RUN install -m 755 -o ubuntu -g ubuntu EcoSLIM.exe /opt/ecoslim
-
+    curl -L https://www.paraview.org/files/v5.9/ParaView-5.9.0-osmesa-MPI-Linux-Python3.8-64bit.tar.gz | tar --strip-components=1 -xzv
+    
 # -----------------------------------------------------------------------------
-# Simulation Modeler Client
+# Simulation Modeler Client / Server
 # -----------------------------------------------------------------------------
 
 # Copy the simulation modeler repo, install the client, and move it
 COPY --chown=ubuntu:ubuntu . /home/ubuntu/simulation-modeler
 RUN SIM_MOD_DIR=/home/ubuntu/simulation-modeler && \
-    rm -rf $SIM_MOD_DIR/client/node_modules && \
-    rm -rf $SIM_MOD_DIR/deploy/pvw/www && \
-    cd $SIM_MOD_DIR/client && \
+    cd $SIM_MOD_DIR && \
     npm install && \
     npm run build && \
-    mv $SIM_MOD_DIR/deploy/pvw/* /pvw/ && \
+    mv $SIM_MOD_DIR/dist/ /pvw/www && \
     rm -rf $SIM_MOD_DIR
+
+# Install python packages with system python
+# Then add to pythonpath so pvpython can find them
+COPY server /pvw/server
+RUN cd /pvw/server && \
+    pip3 install -r requirements.txt && \
+    PYTHONPATH=/home/ubuntu/.local/python3.8/site-packages:$PYTHONPATH
 
 # -----------------------------------------------------------------------------
 # Environment
@@ -159,6 +159,5 @@ RUN SIM_MOD_DIR=/home/ubuntu/simulation-modeler && \
 
 ENV PARFLOW_DIR /opt/parflow
 ENV LD_LIBRARY_PATH /opt/parflow/lib/
-ENV PATH /opt/ecoslim:/opt/parflow/bin:/opt/paraview/bin:/opt/cmake/bin:$PATH
 
 USER ubuntu

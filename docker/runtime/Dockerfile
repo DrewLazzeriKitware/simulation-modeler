@@ -3,10 +3,10 @@
 # -----------------------------------------------------------------------------
 #
 #  BASE_IMAGE
-#    *  ubuntu:18.04
+#    *  ubuntu:20.04
 #
 #  DEV_IMAGE
-#    *  sandtank-dev
+#    *  simulation-modeler-dev
 #
 #  BUILD_TYPE
 #    *  Release
@@ -16,8 +16,8 @@
 #
 # -----------------------------------------------------------------------------
 
-ARG BASE_IMAGE=ubuntu:18.04
-ARG DEV_IMAGE=sandtank-dev
+ARG BASE_IMAGE=ubuntu:20.04
+ARG DEV_IMAGE=simulation-modeler-dev
 
 FROM ${DEV_IMAGE} AS devimage
 
@@ -63,17 +63,14 @@ RUN groupadd ubuntu && \
     mkhomedir_helper ubuntu && \
     mkdir -p /opt/paraview && chown -R ubuntu:ubuntu /opt/paraview && \
     mkdir -p /opt/hypre && chown -R ubuntu:ubuntu /opt/hypre && \
-    mkdir -p /opt/parflow && chown -R ubuntu:ubuntu /opt/parflow && \
-    mkdir -p /opt/ecoslim && chown -R ubuntu:ubuntu /opt/ecoslim
+    mkdir -p /opt/parflow && chown -R ubuntu:ubuntu /opt/parflow
 
 USER ubuntu
 
 COPY --from=devimage  /opt/paraview  /opt/paraview
 COPY --from=devimage  /opt/hypre     /opt/hypre
 COPY --from=devimage  /opt/parflow   /opt/parflow
-COPY --from=devimage  /opt/ecoslim   /opt/ecoslim
 COPY --from=devimage  /pvw           /pvw
 
 ENV PARFLOW_DIR      /opt/parflow
 ENV LD_LIBRARY_PATH  /opt/parflow/lib/
-ENV PATH             /opt/ecoslim:/opt/parflow/bin:/opt/paraview/bin:/opt/cmake/bin:$PATH

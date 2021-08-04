@@ -3,11 +3,11 @@
 # -----------------------------------------------------------------------------
 #
 #  BASE_IMAGE
-#    *  sandtank-runtime
+#    * simulation-modeler-runtime 
 #
 # -----------------------------------------------------------------------------
 
-ARG BASE_IMAGE=sandtank-runtime
+ARG BASE_IMAGE=simulation-modeler-runtime
 FROM ${BASE_IMAGE}
 
 USER root
@@ -26,7 +26,7 @@ RUN groupadd proxy-mapping && \
     useradd --system -g pvw-user -G proxy-mapping -s /sbin/nologin pvw-user && \
     usermod -a -G proxy-mapping www-data && \
     useradd admin && echo "admin:admin" | chpasswd && adduser admin sudo && \
-    mkdir -p /opt/launcher/log && \
+    mkdir -p /opt/launcher/logs && \
     chown -R pvw-user:pvw-user /opt/launcher && \
     mkdir -p /opt/paraviewweb/scripts && \
     touch /opt/launcher/proxy-mapping.txt && \
@@ -54,6 +54,7 @@ RUN a2enmod vhost_alias && \
 
 # Open port 80 to the world outside the container
 EXPOSE 80
+
 
 # Start the container.  If we're not running this container, but rather are
 # building other containers based on it, this entry point can/should be
