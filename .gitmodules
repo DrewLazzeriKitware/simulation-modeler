@@ -1,0 +1,3 @@
+[submodule "simput/parflow"]
+	path = simput/parflow
+	url = https://github.com/DrewLazzeriKitware/parflow.git
