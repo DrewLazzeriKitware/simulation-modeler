@@ -20,10 +20,6 @@ export default {
       if (this.prop.ui.domain.table_labels[header]) {
         return this.prop.ui.domain.table_labels[header];
       }
-      if (this.prop.ui.id === header) {
-        return this.prop.ui.label;
-      }
-      // FIXME can't find labels for variable_columns unless table has rows
       const matchingColumn = this.prop.ui.domain.columns.find(
         column => column.id === header
       );
