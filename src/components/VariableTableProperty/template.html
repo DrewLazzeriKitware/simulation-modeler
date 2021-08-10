@@ -25,7 +25,7 @@
     <!-- Table body rows-->
     <tr v-for="(row, i) in tableValue.rows" :key="i">
       <td
-        v-for="(allRowValues, rowSection) in prop.ui.domain.row_kinds"
+        v-for="(allRowValues, rowSection) in prop.ui.domain.variable_columns"
         :key="`rowSectionHeader-` + rowSection"
         style="left: 0; position: sticky; text-align: center; z-index: 1"
         class="grey lighten-2 px-4"

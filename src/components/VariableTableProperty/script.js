@@ -23,7 +23,7 @@ export default {
       if (this.prop.ui.id === header) {
         return this.prop.ui.label;
       }
-      // FIXME can't find labels for row_kinds unless table has rows
+      // FIXME can't find labels for variable_columns unless table has rows
       const matchingColumn = this.prop.ui.domain.columns.find(
         column => column.id === header
       );
@@ -51,7 +51,7 @@ export default {
       return columns;
     },
     variableHeaders() {
-      const headers = Object.keys(this.prop.ui.domain.row_kinds);
+      const headers = Object.keys(this.prop.ui.domain.variable_columns);
       return headers.map(this.labelForHeader);
     },
     columnHeaders() {
