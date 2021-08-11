@@ -1,6 +1,0 @@
-[submodule "simput/parflow"]
-	path = simput/parflow
-	url = https://github.com/DrewLazzeriKitware/parflow.git
-[submodule "simput/type-parflow"]
-	path = simput/type-parflow
-	url = https://github.com/DrewLazzeriKitware/simput.git
