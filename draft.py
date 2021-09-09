@@ -5,8 +5,9 @@ from parflow.tools.fs import mkdir, cp, get_absolute_path
 from parflow.tools.settings import set_working_directory
 
 # -----------------------------------------------------------------------------
-# Defaults
+# Baked in decisions - These are the assumptions for anything built with this interface
 # -----------------------------------------------------------------------------
+
 
 # Normal water
 LW_Test.Gravity = 1.0
@@ -18,17 +19,17 @@ LW_Test.Phase.water.Viscosity.Value = 1.0
 LW_Test.Phase.water.Mobility.Type = "Constant"
 LW_Test.Phase.water.Mobility.Value = 1.0
 
-# Disabled - set to empty
+LW_Test.KnownSolution = "NoKnownSolution"
+
+# -----------------------------------------------------------------------------
+# Shortcuts - Users can pick between these on the shortcuts page
+# -----------------------------------------------------------------------------
+# TODO Add interface for non-empty options
 LW_Test.Contaminants.Names = ""
 LW_Test.Wells.Names = ""
 
-LW_Test.KnownSolution = "NoKnownSolution"
-
-LW_Test = Run("LW_Test", __file__)  # Set by indicator name
-LW_Test.FileVersion = 4  # Assumed
-
 # -----------------------------------------------------------------------------
-# File Database
+# Page for File Database
 # -----------------------------------------------------------------------------
 
 mkdir("output")
@@ -73,6 +74,10 @@ LW_Test.TopoSlopesX.FileName = "LW.slopex.pfb"
 LW_Test.TopoSlopesY.Type = "PFBFile"
 LW_Test.TopoSlopesY.FileName = "LW.slopey.pfb"
 
+# Indicator file is required
+LW_Test = Run("LW_Test", __file__)  # Set by indicator name
+LW_Test.FileVersion = 4  # Assumed
+
 
 # -----------------------------------------------------------------------------
 # Computational Grid
@@ -93,7 +98,7 @@ LW_Test.ComputationalGrid.NX = 41
 LW_Test.ComputationalGrid.NY = 41
 LW_Test.ComputationalGrid.NZ = 50
 
-# Assume there is one indicator file and one box around it 
+# Assume there is one indicator file and one box around it
 LW_Test.GeomInput.Names = "box_input indi_input"
 # Assume box is domain, lower are 0, upper are multiplied from ComputationalGrid
 LW_Test.GeomInput.box_input.InputType = "Box"
