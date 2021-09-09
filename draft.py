@@ -5,9 +5,14 @@ from parflow.tools.fs import mkdir, cp, get_absolute_path
 from parflow.tools.settings import set_working_directory
 
 # -----------------------------------------------------------------------------
+#  ____        _            _   _
+# | __ )  __ _| | _____  __| | (_)_ __
+# |  _ \ / _` | |/ / _ \/ _` | | | '_ \
+# | |_) | (_| |   <  __/ (_| | | | | | |
+# |____/ \__,_|_|\_\___|\__,_| |_|_| |_|
+#
 # Baked in decisions - These are the assumptions for anything built with this interface
 # -----------------------------------------------------------------------------
-
 
 # Normal water
 LW_Test.Gravity = 1.0
@@ -19,15 +24,34 @@ LW_Test.Phase.water.Viscosity.Value = 1.0
 LW_Test.Phase.water.Mobility.Type = "Constant"
 LW_Test.Phase.water.Mobility.Value = 1.0
 
+# We will require an indicator file through the File Database below
+# Assume there is one indicator file and one box around it
+LW_Test.GeomInput.Names = "box_input indi_input"
+
 LW_Test.KnownSolution = "NoKnownSolution"
 
+
 # -----------------------------------------------------------------------------
+#  ____  _                _             _
+# / ___|| |__   ___  _ __| |_ ___ _   _| |_ ___
+# \___ \| '_ \ / _ \| '__| __/ __| | | | __/ __|
+#  ___) | | | | (_) | |  | || (__| |_| | |_\__ \
+# |____/|_| |_|\___/|_|   \__\___|\__,_|\__|___/
+#
 # Shortcuts - Users can pick between these on the shortcuts page
 # -----------------------------------------------------------------------------
 # TODO Add interface for non-empty options
 LW_Test.Contaminants.Names = ""
 LW_Test.Wells.Names = ""
 
+
+# -----------------------------------------------------------------------------
+#  ___       _             __
+# |_ _|_ __ | |_ ___ _ __ / _| __ _  ___ ___
+#  | || '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \
+#  | || | | | ||  __/ |  |  _| (_| | (_|  __/
+# |___|_| |_|\__\___|_|  |_|  \__,_|\___\___|
+#
 # -----------------------------------------------------------------------------
 # Page for File Database
 # -----------------------------------------------------------------------------
@@ -68,22 +92,18 @@ directories = [
 for directory in directories:
     mkdir(f"../../clm_output/{directory}")
 
-# File entries in database
-LW_Test.TopoSlopesX.Type = "PFBFile"
-LW_Test.TopoSlopesX.FileName = "LW.slopex.pfb"
-LW_Test.TopoSlopesY.Type = "PFBFile"
-LW_Test.TopoSlopesY.FileName = "LW.slopey.pfb"
-
-# Indicator file is required
+# Indicator file is required to advance from File Database
+LW_Test.Geom.indi_input.FileName = "IndicatorFile_Gleeson.50z.pfb"
+LW_Test.GeomInput.indi_input.InputType = "IndicatorField"
 LW_Test = Run("LW_Test", __file__)  # Set by indicator name
 LW_Test.FileVersion = 4  # Assumed
 
-
 # -----------------------------------------------------------------------------
-# Computational Grid
+# Page for Geometry
+# -----------------------------------------------------------------------------
 # We can get N{XYZ} from PFImage("Indicator.pfb").size()
 # Initialize xyz to 0, but let them change it
-# Initialize D{xyz} to 1000.0, 1000.0, 2.0
+# Initialize D{xyz} to 1000.0, 1000.0, 2.0 - those seem reasonable for land
 # -----------------------------------------------------------------------------
 
 LW_Test.ComputationalGrid.Lower.X = 0.0
@@ -98,11 +118,10 @@ LW_Test.ComputationalGrid.NX = 41
 LW_Test.ComputationalGrid.NY = 41
 LW_Test.ComputationalGrid.NZ = 50
 
-# Assume there is one indicator file and one box around it
-LW_Test.GeomInput.Names = "box_input indi_input"
 # Assume box is domain, lower are 0, upper are multiplied from ComputationalGrid
 LW_Test.GeomInput.box_input.InputType = "Box"
 LW_Test.GeomInput.box_input.GeomName = "domain"
+LW_Test.Domain.GeomName = "domain"
 LW_Test.Geom.domain.Lower.X = 0.0
 LW_Test.Geom.domain.Lower.Y = 0.0
 LW_Test.Geom.domain.Lower.Z = 0.0
@@ -115,17 +134,27 @@ LW_Test.Geom.domain.Patches = "x_lower x_upper y_lower y_upper z_lower z_upper"
 LW_Test.TopoSlopesY.GeomNames = "domain"
 LW_Test.TopoSlopesX.GeomNames = "domain"
 
+LW_Test.TopoSlopesX.Type = "PFBFile"
+LW_Test.TopoSlopesX.FileName = "LW.slopex.pfb"
+LW_Test.TopoSlopesY.Type = "PFBFile"
+LW_Test.TopoSlopesY.FileName = "LW.slopey.pfb"
+
 
 # -----------------------------------------------------------------------------
-# Indicator Geometry Input
+# Page for Soil Properties
 # -----------------------------------------------------------------------------
+# Might be "none" in interface, then all unfilled
+# -----------------------------------------------------------------------------
+LW_Test.Perm.TensorType = "TensorByGeom"
+LW_Test.Geom.domain.Perm.TensorValX = 1.0
+LW_Test.Geom.domain.Perm.TensorValY = 1.0
+LW_Test.Geom.domain.Perm.TensorValZ = 1.0
+# Set if above are set
+LW_Test.Geom.Perm.TensorByGeom.Names = "domain"
 
-LW_Test.GeomInput.indi_input.InputType = "IndicatorField"
-LW_Test.GeomInput.indi_input.GeomNames = (
-    "s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 g1 g2 g3 g4 g5 g6 g7 g8"
-)
-LW_Test.Geom.indi_input.FileName = "IndicatorFile_Gleeson.50z.pfb"
-
+# -----------------------------------------------------------------------------
+# The Values will prefill a table, and names can be added
+# -----------------------------------------------------------------------------
 LW_Test.GeomInput.s1.Value = 1
 LW_Test.GeomInput.s2.Value = 2
 LW_Test.GeomInput.s3.Value = 3
@@ -148,11 +177,19 @@ LW_Test.GeomInput.g6.Value = 26
 LW_Test.GeomInput.g7.Value = 27
 LW_Test.GeomInput.g8.Value = 28
 
+# Names will be auto filled by presence of values in table
+LW_Test.GeomInput.indi_input.GeomNames = (
+    "s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 g1 g2 g3 g4 g5 g6 g7 g8"
+)
+LW_Test.Geom.Perm.Names = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9 g2 g3 g6 g8"
+LW_Test.Geom.Porosity.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
+LW_Test.Phase.RelPerm.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
+LW_Test.Phase.Saturation.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
+
+
 # -----------------------------------------------------------------------------
 # Permeability (values in m/hr)
 # -----------------------------------------------------------------------------
-
-LW_Test.Geom.Perm.Names = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9 g2 g3 g6 g8"
 
 LW_Test.Geom.domain.Perm.Type = "Constant"
 LW_Test.Geom.domain.Perm.Value = 0.2
@@ -196,17 +233,11 @@ LW_Test.Geom.g6.Perm.Value = 0.2
 LW_Test.Geom.g8.Perm.Type = "Constant"
 LW_Test.Geom.g8.Perm.Value = 0.68
 
-LW_Test.Perm.TensorType = "TensorByGeom"
-LW_Test.Geom.Perm.TensorByGeom.Names = "domain"
-LW_Test.Geom.domain.Perm.TensorValX = 1.0
-LW_Test.Geom.domain.Perm.TensorValY = 1.0
-LW_Test.Geom.domain.Perm.TensorValZ = 1.0
 
 # -----------------------------------------------------------------------------
 # Porosity
 # -----------------------------------------------------------------------------
 
-LW_Test.Geom.Porosity.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
 
 LW_Test.Geom.domain.Porosity.Type = "Constant"
 LW_Test.Geom.domain.Porosity.Value = 0.4
@@ -242,7 +273,6 @@ LW_Test.Geom.s9.Porosity.Value = 0.442
 # -----------------------------------------------------------------------------
 
 LW_Test.Phase.RelPerm.Type = "VanGenuchten"
-LW_Test.Phase.RelPerm.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
 
 LW_Test.Geom.domain.RelPerm.Alpha = 3.5
 LW_Test.Geom.domain.RelPerm.N = 2.0
@@ -279,7 +309,6 @@ LW_Test.Geom.s9.RelPerm.N = 2.413
 # -----------------------------------------------------------------------------
 
 LW_Test.Phase.Saturation.Type = "VanGenuchten"
-LW_Test.Phase.Saturation.GeomNames = "domain s1 s2 s3 s4 s5 s6 s7 s8 s9"
 
 LW_Test.Geom.domain.Saturation.Alpha = 3.5
 LW_Test.Geom.domain.Saturation.N = 2.0
@@ -331,12 +360,11 @@ LW_Test.Geom.s9.Saturation.N = 2.413
 LW_Test.Geom.s9.Saturation.SRes = 0.000001
 LW_Test.Geom.s9.Saturation.SSat = 1.0
 
-
-# -----------------------------------------------------------------------------
-# Domain
-# -----------------------------------------------------------------------------
-
-LW_Test.Domain.GeomName = "domain"
+#                  _           _     _          _
+#  _   _ _ __   __| | ___  ___(_) __| | ___  __| |
+# | | | | '_ \ / _` |/ _ \/ __| |/ _` |/ _ \/ _` |
+# | |_| | | | | (_| |  __/ (__| | (_| |  __/ (_| |
+#  \__,_|_| |_|\__,_|\___|\___|_|\__,_|\___|\__,_|
 
 
 # -----------------------------------------------------------------------------
@@ -371,15 +399,6 @@ LW_Test.Patch.z_upper.BCPressure.rain.Value = -0.1
 LW_Test.Patch.z_upper.BCPressure.rec.Value = 0.0000
 
 # -----------------------------------------------------------------------------
-# Specific Storage
-# -----------------------------------------------------------------------------
-
-LW_Test.SpecificStorage.Type = "Constant"
-LW_Test.SpecificStorage.GeomNames = "domain"
-LW_Test.Geom.domain.SpecificStorage.Value = 1.0e-5
-
-
-# -----------------------------------------------------------------------------
 # Time Cycles
 # -----------------------------------------------------------------------------
 
@@ -392,6 +411,15 @@ LW_Test.Cycle.rainrec.Names = "rain rec"
 LW_Test.Cycle.rainrec.rain.Length = 10.0
 LW_Test.Cycle.rainrec.rec.Length = 150.0
 LW_Test.Cycle.rainrec.Repeat = -1
+
+# -----------------------------------------------------------------------------
+# Specific Storage
+# -----------------------------------------------------------------------------
+
+LW_Test.SpecificStorage.Type = "Constant"
+LW_Test.SpecificStorage.GeomNames = "domain"
+LW_Test.Geom.domain.SpecificStorage.Value = 1.0e-5
+
 
 # -----------------------------------------------------------------------------
 # Mannings coefficient
@@ -493,7 +521,7 @@ LW_Test.Solver.Linear.Preconditioner = "PFMG"
 
 # -----------------------------------------------------------------------------
 # Set Processor topology
-# Fold into topology
+# Fold into solver
 # -----------------------------------------------------------------------------
 
 LW_Test.Process.Topology.P = 1
