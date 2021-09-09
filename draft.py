@@ -360,57 +360,47 @@ LW_Test.Geom.s9.Saturation.N = 2.413
 LW_Test.Geom.s9.Saturation.SRes = 0.000001
 LW_Test.Geom.s9.Saturation.SSat = 1.0
 
+
+# -----------------------------------------------------------------------------
+# Solver page
+# -----------------------------------------------------------------------------
+# The VariablySaturated | FullySaturated shortcut may set some of these following DomainBuilder
+# They'll all appear in the Solver page regardless
+# -----------------------------------------------------------------------------
+
+LW_Test.Solver = "Richards"
+LW_Test.Solver.TerrainFollowingGrid = True
+LW_Test.Solver.Nonlinear.VariableDz = False
+
+LW_Test.Solver.MaxIter = 25000
+LW_Test.Solver.Drop = 1e-20
+LW_Test.Solver.AbsTol = 1e-8
+LW_Test.Solver.MaxConvergenceFailures = 8
+LW_Test.Solver.Nonlinear.MaxIter = 80
+LW_Test.Solver.Nonlinear.ResidualTol = 1e-6
+
+## new solver settings for Terrain Following Grid
+LW_Test.Solver.Nonlinear.EtaChoice = "EtaConstant"
+LW_Test.Solver.Nonlinear.EtaValue = 0.001
+LW_Test.Solver.Nonlinear.UseJacobian = True
+LW_Test.Solver.Nonlinear.DerivativeEpsilon = 1e-16
+LW_Test.Solver.Nonlinear.StepTol = 1e-30
+LW_Test.Solver.Nonlinear.Globalization = "LineSearch"
+LW_Test.Solver.Linear.KrylovDimension = 70
+LW_Test.Solver.Linear.MaxRestarts = 2
+
+LW_Test.Solver.Linear.Preconditioner = "PFMG"
+
 #                  _           _     _          _
 #  _   _ _ __   __| | ___  ___(_) __| | ___  __| |
 # | | | | '_ \ / _` |/ _ \/ __| |/ _` |/ _ \/ _` |
 # | |_| | | | | (_| |  __/ (__| | (_| |  __/ (_| |
 #  \__,_|_| |_|\__,_|\___|\___|_|\__,_|\___|\__,_|
-
-
 # -----------------------------------------------------------------------------
-# Boundary Conditions
+# Maybe put these under the Soil Properties? A la homogeneous subsurface? OR!
+# Do these contradict the subsurface we're talking about in the table?
+# It's a case by case basis - they might be in the table unless they're floating.
 # -----------------------------------------------------------------------------
-
-LW_Test.BCPressure.PatchNames = LW_Test.Geom.domain.Patches
-
-LW_Test.Patch.x_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.x_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.x_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.y_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.y_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.y_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.z_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.z_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.z_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.x_upper.BCPressure.Type = "FluxConst"
-LW_Test.Patch.x_upper.BCPressure.Cycle = "constant"
-LW_Test.Patch.x_upper.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.y_upper.BCPressure.Type = "FluxConst"
-LW_Test.Patch.y_upper.BCPressure.Cycle = "constant"
-LW_Test.Patch.y_upper.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.z_upper.BCPressure.Type = "OverlandFlow"
-LW_Test.Patch.z_upper.BCPressure.Cycle = "rainrec"
-LW_Test.Patch.z_upper.BCPressure.rain.Value = -0.1
-LW_Test.Patch.z_upper.BCPressure.rec.Value = 0.0000
-
-# -----------------------------------------------------------------------------
-# Time Cycles
-# -----------------------------------------------------------------------------
-
-LW_Test.Cycle.Names = "constant rainrec"
-LW_Test.Cycle.constant.Names = "alltime"
-LW_Test.Cycle.constant.alltime.Length = 1
-LW_Test.Cycle.constant.Repeat = -1
-
-LW_Test.Cycle.rainrec.Names = "rain rec"
-LW_Test.Cycle.rainrec.rain.Length = 10.0
-LW_Test.Cycle.rainrec.rec.Length = 150.0
-LW_Test.Cycle.rainrec.Repeat = -1
 
 # -----------------------------------------------------------------------------
 # Specific Storage
@@ -492,34 +482,6 @@ LW_Test.TimeStep.Type = "Constant"
 LW_Test.TimeStep.Value = 1.0
 
 # -----------------------------------------------------------------------------
-# Set solver parameters
-# These look simput-like in the interface.
-# -----------------------------------------------------------------------------
-
-LW_Test.Solver = "Richards"
-LW_Test.Solver.TerrainFollowingGrid = True
-LW_Test.Solver.Nonlinear.VariableDz = False
-
-LW_Test.Solver.MaxIter = 25000
-LW_Test.Solver.Drop = 1e-20
-LW_Test.Solver.AbsTol = 1e-8
-LW_Test.Solver.MaxConvergenceFailures = 8
-LW_Test.Solver.Nonlinear.MaxIter = 80
-LW_Test.Solver.Nonlinear.ResidualTol = 1e-6
-
-## new solver settings for Terrain Following Grid
-LW_Test.Solver.Nonlinear.EtaChoice = "EtaConstant"
-LW_Test.Solver.Nonlinear.EtaValue = 0.001
-LW_Test.Solver.Nonlinear.UseJacobian = True
-LW_Test.Solver.Nonlinear.DerivativeEpsilon = 1e-16
-LW_Test.Solver.Nonlinear.StepTol = 1e-30
-LW_Test.Solver.Nonlinear.Globalization = "LineSearch"
-LW_Test.Solver.Linear.KrylovDimension = 70
-LW_Test.Solver.Linear.MaxRestarts = 2
-
-LW_Test.Solver.Linear.Preconditioner = "PFMG"
-
-# -----------------------------------------------------------------------------
 # Set Processor topology
 # Fold into solver
 # -----------------------------------------------------------------------------
@@ -527,6 +489,51 @@ LW_Test.Solver.Linear.Preconditioner = "PFMG"
 LW_Test.Process.Topology.P = 1
 LW_Test.Process.Topology.Q = 1
 LW_Test.Process.Topology.R = 1
+
+# -----------------------------------------------------------------------------
+# Boundary Conditions
+# -----------------------------------------------------------------------------
+
+LW_Test.BCPressure.PatchNames = LW_Test.Geom.domain.Patches
+
+LW_Test.Patch.x_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.x_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.x_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.y_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.y_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.y_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.z_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.z_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.z_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.x_upper.BCPressure.Type = "FluxConst"
+LW_Test.Patch.x_upper.BCPressure.Cycle = "constant"
+LW_Test.Patch.x_upper.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.y_upper.BCPressure.Type = "FluxConst"
+LW_Test.Patch.y_upper.BCPressure.Cycle = "constant"
+LW_Test.Patch.y_upper.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.z_upper.BCPressure.Type = "OverlandFlow"
+LW_Test.Patch.z_upper.BCPressure.Cycle = "rainrec"
+LW_Test.Patch.z_upper.BCPressure.rain.Value = -0.1
+LW_Test.Patch.z_upper.BCPressure.rec.Value = 0.0000
+
+# -----------------------------------------------------------------------------
+# Time Cycles
+# -----------------------------------------------------------------------------
+
+LW_Test.Cycle.Names = "constant rainrec"
+LW_Test.Cycle.constant.Names = "alltime"
+LW_Test.Cycle.constant.alltime.Length = 1
+LW_Test.Cycle.constant.Repeat = -1
+
+LW_Test.Cycle.rainrec.Names = "rain rec"
+LW_Test.Cycle.rainrec.rain.Length = 10.0
+LW_Test.Cycle.rainrec.rec.Length = 150.0
+LW_Test.Cycle.rainrec.Repeat = -1
 
 
 # -----------------------------------------------------------------------------
