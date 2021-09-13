@@ -1,20 +1,30 @@
 # SCRIPT TO RUN LITTLE WASHITA DOMAIN WITH TERRAIN-FOLLOWING GRID
+#
+# This script has been reorganized and commented on to draft a
+# parflow-web interface, but should still function as a script.
 
 from parflow import Run
 from parflow.tools.fs import mkdir, cp, get_absolute_path
 from parflow.tools.settings import set_working_directory
 
 # -----------------------------------------------------------------------------
-#  ____        _            _   _
-# | __ )  __ _| | _____  __| | (_)_ __
-# |  _ \ / _` | |/ / _ \/ _` | | | '_ \
-# | |_) | (_| |   <  __/ (_| | | | | | |
-# |____/ \__,_|_|\_\___|\__,_| |_|_| |_|
+#  ____        _            _     _
+# | __ )  __ _| | _____  __| |   (_)_ __
+# |  _ \ / _` | |/ / _ \/ _` |   | | '_ \
+# | |_) | (_| |   <  __/ (_| |   | | | | |
+# |____/ \__,_|_|\_\___|\__,_|   |_|_| |_|
 #
 # Baked in decisions - These are the assumptions for anything built with this interface
 # -----------------------------------------------------------------------------
 
-# Normal water
+
+# We require an indicator file through the File Database below
+# Assume there is one indicator file and one box around it
+LW_Test.GeomInput.Names = "box_input indi_input"
+
+# We base a "domain" box geometry on the required indicator
+# through the File Database below
+# Normal water (using DomainBuilder.water("domain"))
 LW_Test.Gravity = 1.0
 LW_Test.Phase.Names = "water"
 LW_Test.Phase.water.Density.Type = "Constant"
@@ -23,13 +33,9 @@ LW_Test.Phase.water.Viscosity.Type = "Constant"
 LW_Test.Phase.water.Viscosity.Value = 1.0
 LW_Test.Phase.water.Mobility.Type = "Constant"
 LW_Test.Phase.water.Mobility.Value = 1.0
-
-# We will require an indicator file through the File Database below
-# Assume there is one indicator file and one box around it
-LW_Test.GeomInput.Names = "box_input indi_input"
-
-LW_Test.KnownSolution = "NoKnownSolution"
-
+LW_Test.PhaseSources.water.Type = "Constant"
+LW_Test.PhaseSources.water.GeomNames = "domain"
+LW_Test.PhaseSources.water.Geom.domain.Value = 0.0
 
 # -----------------------------------------------------------------------------
 #  ____  _                _             _
@@ -41,9 +47,11 @@ LW_Test.KnownSolution = "NoKnownSolution"
 # Shortcuts - Users can pick between these on the shortcuts page
 # -----------------------------------------------------------------------------
 # TODO Add interface for non-empty options
-LW_Test.Contaminants.Names = ""
-LW_Test.Wells.Names = ""
+LW_Test.Contaminants.Names = ""  # Via DomainBuilder.no_contaminants()
+LW_Test.Wells.Names = ""  # Via DomainBuilder.no_wells()
 
+# DB.full_saturated() and variably_saturated() are options here too,
+# but this script customizes them more so they appear in the solver.
 
 # -----------------------------------------------------------------------------
 #  ___       _             __
@@ -139,11 +147,24 @@ LW_Test.TopoSlopesX.FileName = "LW.slopex.pfb"
 LW_Test.TopoSlopesY.Type = "PFBFile"
 LW_Test.TopoSlopesY.FileName = "LW.slopey.pfb"
 
+LW_Test.Mannings.Type = "Constant"
+LW_Test.Mannings.GeomNames = "domain"
+LW_Test.Mannings.Geom.domain.Value = 5.52e-6
 
 # -----------------------------------------------------------------------------
-# Page for Soil Properties
+# Initial conditions: water pressure
 # -----------------------------------------------------------------------------
-# Might be "none" in interface, then all unfilled
+
+LW_Test.ICPressure.Type = "PFBFile"
+LW_Test.ICPressure.GeomNames = "domain"
+LW_Test.Geom.domain.ICPressure.RefPatch = "z_upper"
+LW_Test.Geom.domain.ICPressure.FileName = "press.init.pfb"
+
+
+# -----------------------------------------------------------------------------
+# Page for Subsurface
+# -----------------------------------------------------------------------------
+# Initial Soil properties page allows all inputs to DomainBuilder.homogeneous_subsurface.
 # -----------------------------------------------------------------------------
 LW_Test.Perm.TensorType = "TensorByGeom"
 LW_Test.Geom.domain.Perm.TensorValX = 1.0
@@ -151,6 +172,7 @@ LW_Test.Geom.domain.Perm.TensorValY = 1.0
 LW_Test.Geom.domain.Perm.TensorValZ = 1.0
 # Set if above are set
 LW_Test.Geom.Perm.TensorByGeom.Names = "domain"
+
 
 # -----------------------------------------------------------------------------
 # The Values will prefill a table, and names can be added
@@ -391,42 +413,29 @@ LW_Test.Solver.Linear.MaxRestarts = 2
 
 LW_Test.Solver.Linear.Preconditioner = "PFMG"
 
+LW_Test.Solver.PrintSubsurfData = False
+LW_Test.Solver.PrintPressure = True
+LW_Test.Solver.PrintSaturation = True
+LW_Test.Solver.PrintMask = True
+LW_Test.KnownSolution = "NoKnownSolution"
+LW_Test.TimingInfo.BaseUnit = 1.0
+LW_Test.TimingInfo.StartCount = 0.0
+LW_Test.TimingInfo.StartTime = 0.0
+LW_Test.TimingInfo.StopTime = 1000.0
+LW_Test.TimingInfo.DumpInterval = 1.0
+LW_Test.TimeStep.Type = "Constant"
+LW_Test.TimeStep.Value = 1.0
+LW_Test.Process.Topology.P = 1
+LW_Test.Process.Topology.Q = 1
+LW_Test.Process.Topology.R = 1
+
+
 #                  _           _     _          _
 #  _   _ _ __   __| | ___  ___(_) __| | ___  __| |
 # | | | | '_ \ / _` |/ _ \/ __| |/ _` |/ _ \/ _` |
 # | |_| | | | | (_| |  __/ (__| | (_| |  __/ (_| |
 #  \__,_|_| |_|\__,_|\___|\___|_|\__,_|\___|\__,_|
 # -----------------------------------------------------------------------------
-# Maybe put these under the Soil Properties? A la homogeneous subsurface? OR!
-# Do these contradict the subsurface we're talking about in the table?
-# It's a case by case basis - they might be in the table unless they're floating.
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-# Specific Storage
-# -----------------------------------------------------------------------------
-
-LW_Test.SpecificStorage.Type = "Constant"
-LW_Test.SpecificStorage.GeomNames = "domain"
-LW_Test.Geom.domain.SpecificStorage.Value = 1.0e-5
-
-
-# -----------------------------------------------------------------------------
-# Mannings coefficient
-# -----------------------------------------------------------------------------
-
-LW_Test.Mannings.Type = "Constant"
-LW_Test.Mannings.GeomNames = "domain"
-LW_Test.Mannings.Geom.domain.Value = 5.52e-6
-
-# -----------------------------------------------------------------------------
-# Phase sources:
-# -----------------------------------------------------------------------------
-
-LW_Test.PhaseSources.water.Type = "Constant"
-LW_Test.PhaseSources.water.GeomNames = "domain"
-LW_Test.PhaseSources.water.Geom.domain.Value = 0.0
-
 # ----------------------------------------------------------------
 # CLM Settings:
 # ----------------------------------------------------------------
@@ -449,49 +458,10 @@ LW_Test.Solver.CLM.ResSat = 0.1
 LW_Test.Solver.CLM.WiltingPoint = 0.12
 LW_Test.Solver.CLM.FieldCapacity = 0.98
 LW_Test.Solver.CLM.IrrigationType = "none"
-
-# -----------------------------------------------------------------------------
-# Initial conditions: water pressure
-# -----------------------------------------------------------------------------
-
-LW_Test.ICPressure.Type = "PFBFile"
-LW_Test.ICPressure.GeomNames = "domain"
-LW_Test.Geom.domain.ICPressure.RefPatch = "z_upper"
-LW_Test.Geom.domain.ICPressure.FileName = "press.init.pfb"
-
-# -----------------------------------------------------------------------------
-# Outputs
-# -----------------------------------------------------------------------------
-
-LW_Test.Solver.PrintSubsurfData = False
-LW_Test.Solver.PrintPressure = True
-LW_Test.Solver.PrintSaturation = True
-LW_Test.Solver.PrintMask = True
-
-# -----------------------------------------------------------------------------
-# Timing (time units is set by units of permeability)
-# Fold into solver
-# -----------------------------------------------------------------------------
-
-LW_Test.TimingInfo.BaseUnit = 1.0
-LW_Test.TimingInfo.StartCount = 0.0
-LW_Test.TimingInfo.StartTime = 0.0
-LW_Test.TimingInfo.StopTime = 1000.0
-LW_Test.TimingInfo.DumpInterval = 1.0
-LW_Test.TimeStep.Type = "Constant"
-LW_Test.TimeStep.Value = 1.0
-
-# -----------------------------------------------------------------------------
-# Set Processor topology
-# Fold into solver
-# -----------------------------------------------------------------------------
-
-LW_Test.Process.Topology.P = 1
-LW_Test.Process.Topology.Q = 1
-LW_Test.Process.Topology.R = 1
-
 # -----------------------------------------------------------------------------
 # Boundary Conditions
+# -----------------------------------------------------------------------------
+#
 # -----------------------------------------------------------------------------
 
 LW_Test.BCPressure.PatchNames = LW_Test.Geom.domain.Patches
