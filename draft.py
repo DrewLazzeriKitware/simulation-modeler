@@ -107,7 +107,7 @@ LW_Test = Run("LW_Test", __file__)  # Set by indicator name
 LW_Test.FileVersion = 4  # Assumed
 
 # -----------------------------------------------------------------------------
-# Page for Geometry
+# Page for Domain
 # -----------------------------------------------------------------------------
 # We can get N{XYZ} from PFImage("Indicator.pfb").size()
 # Initialize xyz to 0, but let them change it
@@ -159,6 +159,53 @@ LW_Test.ICPressure.Type = "PFBFile"
 LW_Test.ICPressure.GeomNames = "domain"
 LW_Test.Geom.domain.ICPressure.RefPatch = "z_upper"
 LW_Test.Geom.domain.ICPressure.FileName = "press.init.pfb"
+
+# -----------------------------------------------------------------------------
+# Boundary Conditions
+# -----------------------------------------------------------------------------
+#
+# -----------------------------------------------------------------------------
+
+LW_Test.BCPressure.PatchNames = LW_Test.Geom.domain.Patches
+
+LW_Test.Patch.x_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.x_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.x_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.y_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.y_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.y_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.z_lower.BCPressure.Type = "FluxConst"
+LW_Test.Patch.z_lower.BCPressure.Cycle = "constant"
+LW_Test.Patch.z_lower.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.x_upper.BCPressure.Type = "FluxConst"
+LW_Test.Patch.x_upper.BCPressure.Cycle = "constant"
+LW_Test.Patch.x_upper.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.y_upper.BCPressure.Type = "FluxConst"
+LW_Test.Patch.y_upper.BCPressure.Cycle = "constant"
+LW_Test.Patch.y_upper.BCPressure.alltime.Value = 0.0
+
+LW_Test.Patch.z_upper.BCPressure.Type = "OverlandFlow"
+LW_Test.Patch.z_upper.BCPressure.Cycle = "rainrec"
+LW_Test.Patch.z_upper.BCPressure.rain.Value = -0.1
+LW_Test.Patch.z_upper.BCPressure.rec.Value = 0.0000
+
+# -----------------------------------------------------------------------------
+# Time Cycles
+# -----------------------------------------------------------------------------
+
+LW_Test.Cycle.Names = "constant rainrec"
+LW_Test.Cycle.constant.Names = "alltime"
+LW_Test.Cycle.constant.alltime.Length = 1
+LW_Test.Cycle.constant.Repeat = -1
+
+LW_Test.Cycle.rainrec.Names = "rain rec"
+LW_Test.Cycle.rainrec.rain.Length = 10.0
+LW_Test.Cycle.rainrec.rec.Length = 150.0
+LW_Test.Cycle.rainrec.Repeat = -1
 
 
 # -----------------------------------------------------------------------------
@@ -418,6 +465,11 @@ LW_Test.Solver.PrintPressure = True
 LW_Test.Solver.PrintSaturation = True
 LW_Test.Solver.PrintMask = True
 LW_Test.KnownSolution = "NoKnownSolution"
+LW_Test.Process.Topology.P = 1
+LW_Test.Process.Topology.Q = 1
+LW_Test.Process.Topology.R = 1
+
+# Timing info in solver
 LW_Test.TimingInfo.BaseUnit = 1.0
 LW_Test.TimingInfo.StartCount = 0.0
 LW_Test.TimingInfo.StartTime = 0.0
@@ -425,19 +477,10 @@ LW_Test.TimingInfo.StopTime = 1000.0
 LW_Test.TimingInfo.DumpInterval = 1.0
 LW_Test.TimeStep.Type = "Constant"
 LW_Test.TimeStep.Value = 1.0
-LW_Test.Process.Topology.P = 1
-LW_Test.Process.Topology.Q = 1
-LW_Test.Process.Topology.R = 1
 
-
-#                  _           _     _          _
-#  _   _ _ __   __| | ___  ___(_) __| | ___  __| |
-# | | | | '_ \ / _` |/ _ \/ __| |/ _` |/ _ \/ _` |
-# | |_| | | | | (_| |  __/ (__| | (_| |  __/ (_| |
-#  \__,_|_| |_|\__,_|\___|\___|_|\__,_|\___|\__,_|
-# -----------------------------------------------------------------------------
 # ----------------------------------------------------------------
 # CLM Settings:
+# These are similar to the DM.clm(), and adjustable through CLM interface
 # ----------------------------------------------------------------
 
 LW_Test.Solver.LSM = "CLM"
@@ -458,54 +501,6 @@ LW_Test.Solver.CLM.ResSat = 0.1
 LW_Test.Solver.CLM.WiltingPoint = 0.12
 LW_Test.Solver.CLM.FieldCapacity = 0.98
 LW_Test.Solver.CLM.IrrigationType = "none"
-# -----------------------------------------------------------------------------
-# Boundary Conditions
-# -----------------------------------------------------------------------------
-#
-# -----------------------------------------------------------------------------
-
-LW_Test.BCPressure.PatchNames = LW_Test.Geom.domain.Patches
-
-LW_Test.Patch.x_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.x_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.x_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.y_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.y_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.y_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.z_lower.BCPressure.Type = "FluxConst"
-LW_Test.Patch.z_lower.BCPressure.Cycle = "constant"
-LW_Test.Patch.z_lower.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.x_upper.BCPressure.Type = "FluxConst"
-LW_Test.Patch.x_upper.BCPressure.Cycle = "constant"
-LW_Test.Patch.x_upper.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.y_upper.BCPressure.Type = "FluxConst"
-LW_Test.Patch.y_upper.BCPressure.Cycle = "constant"
-LW_Test.Patch.y_upper.BCPressure.alltime.Value = 0.0
-
-LW_Test.Patch.z_upper.BCPressure.Type = "OverlandFlow"
-LW_Test.Patch.z_upper.BCPressure.Cycle = "rainrec"
-LW_Test.Patch.z_upper.BCPressure.rain.Value = -0.1
-LW_Test.Patch.z_upper.BCPressure.rec.Value = 0.0000
-
-# -----------------------------------------------------------------------------
-# Time Cycles
-# -----------------------------------------------------------------------------
-
-LW_Test.Cycle.Names = "constant rainrec"
-LW_Test.Cycle.constant.Names = "alltime"
-LW_Test.Cycle.constant.alltime.Length = 1
-LW_Test.Cycle.constant.Repeat = -1
-
-LW_Test.Cycle.rainrec.Names = "rain rec"
-LW_Test.Cycle.rainrec.rain.Length = 10.0
-LW_Test.Cycle.rainrec.rec.Length = 150.0
-LW_Test.Cycle.rainrec.Repeat = -1
-
-
 # -----------------------------------------------------------------------------
 # Distribute inputs
 # -----------------------------------------------------------------------------
