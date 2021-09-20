@@ -23,3 +23,7 @@ pnpm-debug.log*
 *.sw?
 
 /py-env
+
+__pycache__
+*egg-info
+*pyc

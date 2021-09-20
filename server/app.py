@@ -1,3 +1,15 @@
+import sys
+
+# -----------------------------------------------------------------------------
+# Virtual Environment handling
+# -----------------------------------------------------------------------------
+
+if "--virtual-env" in sys.argv:
+    virtualEnvPath = sys.argv[sys.argv.index("--virtual-env") + 1]
+    virtualEnv = virtualEnvPath + "/bin/activate_this.py"
+    exec(open(virtualEnv).read(), {"__file__": virtualEnv})
+
+# -----------------------------------------------------------------------------
 from pywebvue import App
 from pywebvue.modules import VTK
 
@@ -11,6 +23,8 @@ from vtkmodules.vtkRenderingCore import (
 )
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch
 
+import pfweb
+
 # -----------------------------------------------------------------------------
 # Web App setup
 # -----------------------------------------------------------------------------
@@ -18,6 +32,7 @@ from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch
 app = App("VTK Remote Rendering")
 app.state = {"resolution": 6}
 app.enableModule(VTK)
+app.enableModule(pfweb)
 
 # -----------------------------------------------------------------------------
 # VTK pipeline
@@ -60,4 +75,3 @@ def update_cone():
 if __name__ == "__main__":
     app.on_ready = update_cone
     app.run_server()
-

@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 # perform the install
 setup(
-    name="pf-web",
+    name="pfweb",
     license="BSD-3-Clause",
     classifiers=[],
     keywords="Pywebvue components for parflow",
