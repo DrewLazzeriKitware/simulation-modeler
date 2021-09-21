@@ -1,10 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app >
+    <div class="text-h6"> Parflow Web </div>
     </v-app-bar>
 
     <v-main>
