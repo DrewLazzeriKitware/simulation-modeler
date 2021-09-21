@@ -1,17 +1,26 @@
-<div>
-  <div class="text-h2">What do you want to Model?</div>
-  <div class="text-h4">
+<div class="pa-4 ">
+  <div class="text-h4">What do you want to Model?</div>
+  <div class="text pt-2">
     These shortcuts will fill in a few keys before you start.
   </div>
-  <v-container>
-    <v-row>
-      <v-checkbox label="Wells"> </v-checkbox>
-      <v-checkbox label="Climate"> </v-checkbox>
-      <v-checkbox label="Contaminants"> </v-checkbox>
+  <v-container class="fill-height pa-6">
+    <v-row class="justify-center">
+      <v-checkbox class="pa-2" v-model="shortcuts.wells" label="Wells">
+      </v-checkbox>
+      <v-checkbox class="pa-2" v-model="shortcuts.climate" label="Climate">
+      </v-checkbox>
+      <v-checkbox
+        class="pa-2"
+        v-model="shortcuts.contaminants"
+        label="Contaminants"
+      >
+      </v-checkbox>
+    </v-row>
+    <v-row class="justify-center">
+      <v-radio-group row>
+        <v-radio label="Variably Saturated" />
+        <v-radio label="Fully Saturated" />
+      </v-radio-group>
     </v-row>
   </v-container>
-  <v-radio-group row>
-    <v-radio label="Variably Saturated" />
-    <v-radio label="Fully Saturated" />
-  </v-radio-group>
 </div>
