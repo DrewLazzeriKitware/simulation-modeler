@@ -1,9 +1,9 @@
 <div class="d-flex pt-4">
-  <v-btn icon>
+  <v-btn icon disabled>
     <v-icon v-text="`$navigationBackward`" />
   </v-btn>
-  <v-select outlined :items='views' v-model='currentView.view' dense class="pt-1"/>
-  <v-btn icon>
+  <v-select outlined :items='views' v-model='currentView.view' dense class="pt-1" />
+  <v-btn icon color="primary">
     <v-icon v-text="`$navigationForward`" />
   </v-btn>
 </div>
