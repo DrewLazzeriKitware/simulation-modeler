@@ -1,8 +1,8 @@
-<div>
+<div class="d-flex pt-4">
   <v-btn icon>
     <v-icon v-text="`$navigationBackward`" />
   </v-btn>
-  NavigationDropDown
+  <v-select outlined :items='views' v-model='currentView.view' dense class="pt-1"/>
   <v-btn icon>
     <v-icon v-text="`$navigationForward`" />
   </v-btn>
