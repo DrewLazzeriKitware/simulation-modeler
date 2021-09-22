@@ -2,6 +2,9 @@
   <v-app>
     <v-app-bar app >
     <div class="text-h6"> Parflow Web </div>
+    <v-spacer />
+    <NavigationDropDown />
+    <v-spacer />
     </v-app-bar>
 
     <v-main>
@@ -12,6 +15,7 @@
 
 <script>
 import SimulationType from './components/SimulationType';
+import NavigationDropDown from './components/NavigationDropDown'
 import MockData from './MockData'
 
 export default {
@@ -19,6 +23,7 @@ export default {
 
   components: {
     SimulationType,
+    NavigationDropDown 
   },
 
   data: () => ({
