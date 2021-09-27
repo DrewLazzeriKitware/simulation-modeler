@@ -30,7 +30,11 @@ import pfweb
 # -----------------------------------------------------------------------------
 
 app = App("VTK Remote Rendering")
-app.state = {"resolution": 6}
+app.state = {
+    "resolution": 6,
+    "views": ["This", "That", "The other"],
+    "currentView": {"view": "This"},
+}
 app.enableModule(VTK)
 app.enableModule(pfweb)
 
