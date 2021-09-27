@@ -14,11 +14,15 @@
         v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
         :shortcuts="mock.SimulationType.shortcuts" 
       />
-      <FileDatabaseErrors 
+      <OverlayDatabaseErrors 
         v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
-        :errors="mock.FileDatabaseErrors.errors"
-        :workingDirectory="mock.FileDatabaseErrors.workingDirectory"
-        :fileDB="mock.FileDatabaseErrors.fileDB"
+        :errors="mock.OverlayDatabaseErrors.errors"
+        :workingDirectory="mock.OverlayDatabaseErrors.workingDirectory"
+        :fileDB="mock.OverlayDatabaseErrors.fileDB"
+      />
+      <FileDatabase
+        v-if="mock.NavigationDropDown.currentView.view === 'File Database'" 
+        :files="mock.FileDatabase.files"
       />
     </v-main>
   </v-app>
@@ -27,16 +31,21 @@
 <script>
 import SimulationType from './components/SimulationType';
 import NavigationDropDown from './components/NavigationDropDown'
-import FileDatabaseErrors from './components/FileDatabaseErrors'
+import OverlayDatabaseErrors from './components/OverlayDatabaseErrors'
+import FileDatabase from './components/FileDatabase'
 import MockData from './MockData'
 
 export default {
   name: 'App',
 
   components: {
+    // Views
+    FileDatabase,
     SimulationType,
+
+    // Helpers
     NavigationDropDown,
-    FileDatabaseErrors 
+    OverlayDatabaseErrors,
   },
 
   data: () => ({

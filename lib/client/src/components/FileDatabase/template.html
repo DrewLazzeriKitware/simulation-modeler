@@ -1,0 +1,37 @@
+<v-container class="fill-height" fluid>
+  <v-row class="fill-height">
+    <v-col
+      cols="12"
+      sm="3"
+      class="fill-height"
+      style="border-right: 1px solid grey;"
+    >
+      <v-toolbar dense flat>
+        <v-text-field label="Search"></v-text-field>
+        <v-spacer />
+        <v-btn outlined small icon>
+          <v-icon> mdi-plus</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-divider />
+      <v-list>
+        <template v-for="(file, index) in files">
+          <v-list-item :key="index">
+            <v-list-item-avatar color="grey darken-1"> </v-list-item-avatar>
+
+            <v-list-item-content>
+              <v-list-item-title>{{file.name}}</v-list-item-title>
+
+              <v-list-item-subtitle>
+                {{file.description}}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider :key="`divider-${index}`" inset></v-divider>
+        </template>
+      </v-list>
+    </v-col>
+    <v-col cols="12" sm="9"> </v-col>
+  </v-row>
+</v-container>
