@@ -10,7 +10,16 @@
     </v-app-bar>
 
     <v-main>
-      <SimulationType :shortcuts="mock.SimulationType.shortcuts"/>
+      <SimulationType 
+        v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
+        :shortcuts="mock.SimulationType.shortcuts" 
+      />
+      <FileDatabaseErrors 
+        v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
+        :errors="mock.FileDatabaseErrors.errors"
+        :workingDirectory="mock.FileDatabaseErrors.workingDirectory"
+        :fileDB="mock.FileDatabaseErrors.fileDB"
+      />
     </v-main>
   </v-app>
 </template>
@@ -18,6 +27,7 @@
 <script>
 import SimulationType from './components/SimulationType';
 import NavigationDropDown from './components/NavigationDropDown'
+import FileDatabaseErrors from './components/FileDatabaseErrors'
 import MockData from './MockData'
 
 export default {
@@ -25,7 +35,8 @@ export default {
 
   components: {
     SimulationType,
-    NavigationDropDown 
+    NavigationDropDown,
+    FileDatabaseErrors 
   },
 
   data: () => ({
