@@ -15,7 +15,7 @@
       <v-divider />
       <v-list>
         <template v-for="(file, index) in files">
-          <v-list-item :key="index">
+          <v-list-item :key="index" @click="currentFileIndex.index=index">
             <div class="d-flex flex-column align-start py-2">
               <v-icon class="pr-2">
                 {{iconFromType(file.type)}}
@@ -42,6 +42,56 @@
         </template>
       </v-list>
     </v-col>
-    <v-col cols="12" sm="9"> </v-col>
+    <v-col cols="12" sm="8">
+      <v-container class="fill-height" v-if="currentFile">
+        <v-row class="justify-space-around flex-nowrap">
+          <v-text-field
+            label="Name"
+            :value="currentFile.name"
+            outlined
+            class="flex-grow-0"
+          />
+          <v-select
+            label="Category"
+            :items="['CLM', 'Indicator', 'Etc']"
+            filled
+            class="flex-grow-0"
+          />
+        </v-row>
+        <v-row class="justify-space-around flex-nowrap ">
+          <DragAndDropFiles class="pa-4" />
+          <table class="pa-4 flex-grow-0">
+            <tr>
+              <td>Origin</td>
+              <td>{{currentFile.origin}}</td>
+            </tr>
+            <tr>
+              <td>Date Uploaded</td>
+              <td>{{currentFile.dateUploaded.toLocaleDateString()}}</td>
+            </tr>
+            <tr>
+              <td>Date Created</td>
+              <td>{{currentFile.dateCreated.toLocaleDateString()}}</td>
+            </tr>
+            <tr>
+              <td>Type</td>
+              <td>{{currentFile.type}}</td>
+            </tr>
+            <tr>
+              <td>Size</td>
+              <td>{{currentFile.size}}</td>
+            </tr>
+          </table>
+        </v-row>
+        <v-row>
+          <v-textarea label="Description" />
+        </v-row>
+        <v-row class="mt-auto">
+          <v-btn> Download </v-btn>
+          <v-btn class="ml-auto"> Cancel </v-btn>
+          <v-btn> Save </v-btn>
+        </v-row>
+      </v-container>
+    </v-col>
   </v-row>
 </v-container>

@@ -23,6 +23,7 @@
       <FileDatabase
         v-if="mock.NavigationDropDown.currentView.view === 'File Database'" 
         :files="mock.FileDatabase.files"
+        :currentFileIndex="mock.FileDatabase.currentFileIndex"
       />
       <Domain
         v-if="mock.NavigationDropDown.currentView.view === 'Domain'" 
