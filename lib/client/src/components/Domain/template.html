@@ -1,0 +1,27 @@
+<div class="fill-height">
+  <!-- Double toolbar with first fixed, second invisible to align height -->
+  <v-toolbar
+    flat
+    class="fill-width align-center grey lighten-2"
+    style="position: fixed; width: 100%; z-index: 1;"
+  >
+    <v-toolbar-title> Domain Parameters </v-toolbar-title>
+    <v-spacer />
+    <v-btn-toggle smal rounded mandatory>
+      <v-btn small>
+        <v-icon small>mdi-format-align-left</v-icon> Parameters
+      </v-btn>
+
+      <v-btn small> <v-icon small>mdi-eye</v-icon> Preview </v-btn>
+    </v-btn-toggle>
+  </v-toolbar>
+
+  <v-toolbar flat style="opacity: 0; border-bottom: 1px solid grey">
+    <v-toolbar-title> Domain Parameters </v-toolbar-title>
+    <v-spacer />
+  </v-toolbar>
+
+  <!-- End double  toolbar -->
+
+  <div style="overflow: scroll;"></div>
+</div>

@@ -24,6 +24,16 @@
         v-if="mock.NavigationDropDown.currentView.view === 'File Database'" 
         :files="mock.FileDatabase.files"
       />
+      <Domain
+        v-if="mock.NavigationDropDown.currentView.view === 'Domain'" 
+      />
+      <BoundaryConditions
+        v-if="mock.NavigationDropDown.currentView.view === 'Boundary Conditions'" 
+      />
+      <SubSurface
+        v-if="mock.NavigationDropDown.currentView.view === 'Subsurface Properties'" 
+      />
+
     </v-main>
   </v-app>
 </template>
@@ -33,6 +43,10 @@ import SimulationType from './components/SimulationType';
 import NavigationDropDown from './components/NavigationDropDown'
 import OverlayDatabaseErrors from './components/OverlayDatabaseErrors'
 import FileDatabase from './components/FileDatabase'
+import Domain from './components/Domain'
+import BoundaryConditions from './components/BoundaryConditions'
+import SubSurface from './components/SubSurface'
+
 import MockData from './MockData'
 
 export default {
@@ -42,6 +56,9 @@ export default {
     // Views
     FileDatabase,
     SimulationType,
+    Domain,
+    BoundaryConditions,
+    SubSurface,
 
     // Helpers
     NavigationDropDown,
