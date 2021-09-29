@@ -37,6 +37,10 @@
       <Solver 
         v-if="mock.NavigationDropDown.currentView.view === 'Solver'" 
       />
+      <ProjectGeneration
+        v-if="mock.NavigationDropDown.currentView.view === 'Project Generation'" 
+        :validation="mock.ProjectGeneration.validation"
+        />
     </v-main>
   </v-app>
 </template>
@@ -50,6 +54,7 @@ import Domain from './components/Domain'
 import BoundaryConditions from './components/BoundaryConditions'
 import SubSurface from './components/SubSurface'
 import Solver from './components/Solver'
+import ProjectGeneration from './components/ProjectGeneration'
 
 import MockData from './MockData'
 
@@ -64,6 +69,7 @@ export default {
     BoundaryConditions,
     SubSurface,
     Solver,
+    ProjectGeneration,
 
     // Helpers
     NavigationDropDown,

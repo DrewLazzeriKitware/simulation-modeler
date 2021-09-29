@@ -1,0 +1,21 @@
+<div class="d-flex flex-column fill-height justify-space-around">
+  <div v-if="!validation.valid" class="mx-6">
+    <span class="text-h5"> Running Validation... </span>
+    <v-card dark outlined class="pa-2">
+      <v-card-title>
+        Console output
+      </v-card-title>
+      <v-divider />
+      <v-textarea dark readonly class="consoleText" :value="validation.output">
+      </v-textarea>
+    </v-card>
+  </div>
+  <div class="ma-6" v-if="validation.valid">
+    <span class="text-h5"> Run Validated </span>
+    <SimputStandin />
+  </div>
+
+  <div class="d-flex justify-end mx-6">
+    <v-btn :disabled="!validation.valid" color="primary"> Generate </v-btn>
+  </div>
+</div>
