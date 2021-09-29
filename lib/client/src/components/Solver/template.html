@@ -1,0 +1,20 @@
+<div class="d-flex flex-column fill-height">
+  <div class="flex-grow-0 mx-4">
+    <v-text-field label="Search" prepend-inner-icon="mdi-magnify">
+    </v-text-field>
+  </div>
+  <!-- 
+    Flexbox sets min-height to auto.
+    This was making the flex-item bigger than parent.
+    `min-height:0` fixes this.
+    (from https://stackoverflow.com/questions/34144972)
+  -->
+  <div class="d-flex flex-grow-1" style="min-height:0;">
+    <v-col cols="12" sm="3" style="border-right: 1px solid grey;">
+      <SimputStandin />
+    </v-col>
+    <v-col cols="12" sm="9">
+      <SimputStandin />
+    </v-col>
+  </div>
+</div>

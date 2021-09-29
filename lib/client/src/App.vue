@@ -34,7 +34,9 @@
       <SubSurface
         v-if="mock.NavigationDropDown.currentView.view === 'Subsurface Properties'" 
       />
-
+      <Solver 
+        v-if="mock.NavigationDropDown.currentView.view === 'Solver'" 
+      />
     </v-main>
   </v-app>
 </template>
@@ -47,6 +49,7 @@ import FileDatabase from './components/FileDatabase'
 import Domain from './components/Domain'
 import BoundaryConditions from './components/BoundaryConditions'
 import SubSurface from './components/SubSurface'
+import Solver from './components/Solver'
 
 import MockData from './MockData'
 
@@ -60,6 +63,7 @@ export default {
     Domain,
     BoundaryConditions,
     SubSurface,
+    Solver,
 
     // Helpers
     NavigationDropDown,
