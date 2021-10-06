@@ -58,38 +58,54 @@
             class="flex-grow-0"
           />
         </v-row>
-        <v-row class="justify-space-around flex-nowrap ">
-          <DragAndDropFiles class="pa-4" />
-          <table class="pa-4 flex-grow-0">
-            <tr>
-              <td>Origin</td>
-              <td>{{currentFile.origin}}</td>
-            </tr>
-            <tr>
-              <td>Date Uploaded</td>
-              <td>{{currentFile.dateUploaded.toLocaleDateString()}}</td>
-            </tr>
-            <tr>
-              <td>Date Created</td>
-              <td>{{currentFile.dateCreated.toLocaleDateString()}}</td>
-            </tr>
-            <tr>
-              <td>Type</td>
-              <td>{{currentFile.type}}</td>
-            </tr>
-            <tr>
-              <td>Size</td>
-              <td>{{currentFile.size}}</td>
-            </tr>
-          </table>
+        <v-row class="justify-space-around flex-nowrap text-caption">
+          <DragAndDropFiles class="pa-4 flex-grow-1" />
+          <v-list dense class="flex-grow">
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title> {{currentFile.origin}} </v-list-item-title>
+                <v-list-item-subtitle> Origin </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{currentFile.dateUploaded.toLocaleDateString()}}
+                </v-list-item-title>
+                <v-list-item-subtitle> Uploaded</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{currentFile.dateCreated.toLocaleDateString()}}
+                </v-list-item-title>
+                <v-list-item-subtitle> Created</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title> {{currentFile.type}} </v-list-item-title>
+                <v-list-item-subtitle> Type</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title> {{currentFile.size}} </v-list-item-title>
+                <v-list-item-subtitle> Size</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
         </v-row>
         <v-row>
           <v-textarea label="Description" />
         </v-row>
         <v-row class="mt-auto">
-          <v-btn> Download </v-btn>
-          <v-btn class="ml-auto"> Cancel </v-btn>
-          <v-btn> Save </v-btn>
+          <v-btn text elevation="2"> Download </v-btn>
+          <v-btn text elevation="2" color="red" class="ml-auto mr-2 ">
+            Cancel
+          </v-btn>
+          <v-btn text elevation="2" color="primary"> Save </v-btn>
         </v-row>
       </v-container>
     </v-col>
