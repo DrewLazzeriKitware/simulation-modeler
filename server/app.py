@@ -1,4 +1,5 @@
 import sys
+import pfweb
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -10,72 +11,45 @@ if "--virtual-env" in sys.argv:
     exec(open(virtualEnv).read(), {"__file__": virtualEnv})
 
 # -----------------------------------------------------------------------------
-from pywebvue import App
-from pywebvue.modules import VTK
-
-from vtkmodules.vtkFiltersSources import vtkConeSource
-from vtkmodules.vtkRenderingCore import (
-    vtkRenderer,
-    vtkRenderWindow,
-    vtkRenderWindowInteractor,
-    vtkPolyDataMapper,
-    vtkActor,
-)
-from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch
-
-import pfweb
+from trame import start, change, update_state, get_app_instance
+from trame.layouts import SinglePage
+from trame.html import vuetify, Div
 
 # -----------------------------------------------------------------------------
 # Web App setup
 # -----------------------------------------------------------------------------
-
-app = App("VTK Remote Rendering")
-app.state = {
-    "resolution": 6,
-    "views": ["This", "That", "The other"],
-    "currentView": {"view": "This"},
-}
-app.enableModule(VTK)
+app = get_app_instance()
 app.enableModule(pfweb)
 
-# -----------------------------------------------------------------------------
-# VTK pipeline
-# -----------------------------------------------------------------------------
-
-renderer = vtkRenderer()
-renderWindow = vtkRenderWindow()
-renderWindow.AddRenderer(renderer)
-
-renderWindowInteractor = vtkRenderWindowInteractor()
-renderWindowInteractor.SetRenderWindow(renderWindow)
-renderWindowInteractor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
-renderWindowInteractor.EnableRenderOff()
-
-cone_source = vtkConeSource()
-mapper = vtkPolyDataMapper()
-actor = vtkActor()
-mapper.SetInputConnection(cone_source.GetOutputPort())
-actor.SetMapper(mapper)
-renderer.AddActor(actor)
-renderer.ResetCamera()
-renderWindow.Render()
-
-# -----------------------------------------------------------------------------
-# Callbacks
-# -----------------------------------------------------------------------------
-
-
-@app.change("resolution")
-def update_cone():
-    cone_source.SetResolution(app.get("resolution"))
-    app.set("scene", VTK.scene(renderWindow))
-
-
+layout = SinglePage("Parflow Web")
+layout.title.content = "Parflow Web"
+layout.toolbar.children += [
+    vuetify.VSpacer(),
+    '<NavigationDropDown v-model="currentView" :views="views"/>',
+    vuetify.VSpacer(),
+]
+layout.state = {
+    "currentView": "File Database",
+    "views": [
+        "File Database",
+        "Simulation Type",
+        "Domain",
+        "Boundary Conditions",
+        "Subsurface Properties",
+        "Solver",
+        "Project Generation",
+    ],
+}
 # -----------------------------------------------------------------------------
 # Main
 # /opt/paraview/bin/pvpython ./examples/.../app.py --port 1234 --virtual-env ~/Documents/code/Web/vue-py/py-lib
 # -----------------------------------------------------------------------------
 
+
+@change("currentView")
+def logView(currentView, **kwargs):
+    print(currentView)
+
+
 if __name__ == "__main__":
-    app.on_ready = update_cone
-    app.run_server()
+    start(layout)

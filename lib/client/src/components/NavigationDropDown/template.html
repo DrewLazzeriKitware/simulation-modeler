@@ -15,7 +15,8 @@
     <v-select
       outlined
       :items="views"
-      v-model="currentView.view"
+      :value="value"
+      @change="$emit('input', $event)"
       dense
       style="width: 15em;"
     />
