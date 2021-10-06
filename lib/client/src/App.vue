@@ -3,9 +3,12 @@
     <v-app-bar app >
     <div class="text-h6"> Parflow Web </div>
     <v-spacer />
+    <v-spacer />
     <NavigationDropDown 
       :currentView="mock.NavigationDropDown.currentView" 
       :views="mock.NavigationDropDown.views"/>
+    <v-spacer />
+    <v-spacer />
     <v-spacer />
     </v-app-bar>
 
