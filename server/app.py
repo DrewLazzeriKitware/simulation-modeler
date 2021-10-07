@@ -4,6 +4,7 @@ import pfweb
 import yaml
 
 import os.path as path
+from ArgumentValidator import ArgumentValidator
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -59,15 +60,19 @@ if __name__ == "__main__":
     }
 
     parser = get_cli_parser()
-    parser.add_argument("-I", "--input")  # -i taken by paraviewweb
-    parser.add_argument("-D", "--datastore")
-    parser.add_argument("-O", "--output")
+    parser.add_argument("-O", "--output", help="A working directory for the build")
+    parser.add_argument(
+        "-I", "--input", help="An existing build directory to clone"
+    )  # -i taken by paraviewweb
+    parser.add_argument(
+        "-D", "--datastore", help="A directory for tracking simulation input files"
+    )
 
     args = parser.parse_args()
     validator = ArgumentValidator(args)
     if not validator.args_valid():
         # Crash app and show usage
-        parser.parse_args("--invalid-args-show-usage")
+        parser.parse_args("\t")
 
     newState.update(validator.get_args())
     layout.state = newState
