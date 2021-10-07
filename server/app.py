@@ -1,6 +1,9 @@
 import argparse
 import sys
 import pfweb
+import yaml
+
+import os.path as path
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -42,13 +45,7 @@ def logView(currentView, **kwargs):
 
 
 if __name__ == "__main__":
-    parser = get_cli_parser()
-    parser.add_argument("-I", "--input") # -i taken by paraviewweb
-    parser.add_argument("-f", "--file-db")
-    parser.add_argument("-o", "--output")
-
-    args = parser.parse_args()
-    layout.state = {
+    newState = {
         "currentView": "File Database",
         "views": [
             "File Database",
@@ -59,9 +56,20 @@ if __name__ == "__main__":
             "Solver",
             "Project Generation",
         ],
-        "output": args.output,
-        "fileDatabase": args.file_db,
-        "input": args.input,
     }
+
+    parser = get_cli_parser()
+    parser.add_argument("-I", "--input")  # -i taken by paraviewweb
+    parser.add_argument("-D", "--datastore")
+    parser.add_argument("-O", "--output")
+
+    args = parser.parse_args()
+    validator = ArgumentValidator(args)
+    if not validator.args_valid():
+        # Crash app and show usage
+        parser.parse_args("--invalid-args-show-usage")
+
+    newState.update(validator.get_args())
+    layout.state = newState
 
     start(layout)
