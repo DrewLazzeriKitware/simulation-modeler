@@ -5,9 +5,8 @@
     <v-spacer />
     <v-spacer />
     <NavigationDropDown 
-      :value="mock.NavigationDropDown.currentView" 
       :views="mock.NavigationDropDown.views"
-      @input="mock.NavigationDropDown.currentView = $event"
+      v-model="mock.NavigationDropDown.currentView" 
       />
     <v-spacer />
     <v-spacer />
@@ -28,7 +27,7 @@
       <FileDatabase
         v-if="mock.NavigationDropDown.currentView === 'File Database'" 
         :files="mock.FileDatabase.files"
-        :value="mock.FileDatabase.currentFileIndex"
+        v-model="mock.FileDatabase.currentFileIndex"
       />
       <Domain
         v-if="mock.NavigationDropDown.currentView === 'Domain'" 
