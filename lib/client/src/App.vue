@@ -5,8 +5,10 @@
     <v-spacer />
     <v-spacer />
     <NavigationDropDown 
-      :currentView="mock.NavigationDropDown.currentView" 
-      :views="mock.NavigationDropDown.views"/>
+      :value="mock.NavigationDropDown.currentView" 
+      :views="mock.NavigationDropDown.views"
+      @input="mock.NavigationDropDown.currentView = $event"
+      />
     <v-spacer />
     <v-spacer />
     <v-spacer />
@@ -14,34 +16,34 @@
 
     <v-main>
       <SimulationType 
-        v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
+        v-if="mock.NavigationDropDown.currentView === 'Simulation Type'" 
         :shortcuts="mock.SimulationType.shortcuts" 
       />
       <OverlayDatabaseErrors 
-        v-if="mock.NavigationDropDown.currentView.view === 'Simulation Type'" 
+        v-if="mock.NavigationDropDown.currentView === 'Simulation Type'" 
         :errors="mock.OverlayDatabaseErrors.errors"
         :workingDirectory="mock.OverlayDatabaseErrors.workingDirectory"
         :fileDB="mock.OverlayDatabaseErrors.fileDB"
       />
       <FileDatabase
-        v-if="mock.NavigationDropDown.currentView.view === 'File Database'" 
+        v-if="mock.NavigationDropDown.currentView === 'File Database'" 
         :files="mock.FileDatabase.files"
-        :currentFileIndex="mock.FileDatabase.currentFileIndex"
+        :value="mock.FileDatabase.currentFileIndex"
       />
       <Domain
-        v-if="mock.NavigationDropDown.currentView.view === 'Domain'" 
+        v-if="mock.NavigationDropDown.currentView === 'Domain'" 
       />
       <BoundaryConditions
-        v-if="mock.NavigationDropDown.currentView.view === 'Boundary Conditions'" 
+        v-if="mock.NavigationDropDown.currentView === 'Boundary Conditions'" 
       />
       <SubSurface
-        v-if="mock.NavigationDropDown.currentView.view === 'Subsurface Properties'" 
+        v-if="mock.NavigationDropDown.currentView === 'Subsurface Properties'" 
       />
       <Solver 
-        v-if="mock.NavigationDropDown.currentView.view === 'Solver'" 
+        v-if="mock.NavigationDropDown.currentView === 'Solver'" 
       />
       <ProjectGeneration
-        v-if="mock.NavigationDropDown.currentView.view === 'Project Generation'" 
+        v-if="mock.NavigationDropDown.currentView === 'Project Generation'" 
         :validation="mock.ProjectGeneration.validation"
         />
     </v-main>
