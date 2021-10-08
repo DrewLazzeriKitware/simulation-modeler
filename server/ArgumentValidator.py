@@ -1,5 +1,6 @@
 import yaml
 import distutils.dir_util as dir_util
+import os.path as path
 
 
 class ArgumentValidator:
@@ -21,8 +22,9 @@ class ArgumentValidator:
 
         # Make sure we have a file in work_dir, set datastore, check agreement
         # Check datastore and work_dir agree
-        with open(self._work_dir) as work_dir_file:
-            work_dir = yaml.load(work_dir_file)
+        settings_file = path.join(self._work_dir, "pf_settings.yaml")
+        with open(settings_file) as work_dir_file:
+            work_dir = yaml.safe_load(work_dir_file)
             if work_dir.get("datastore") != self._datastore:
                 self._warning = (
                     "This working directory is based on a different datastore."
@@ -41,19 +43,18 @@ class ArgumentValidator:
         }
 
     def validate_settings_file(self):
-        # TODO Could check schema
-        settings_path = path.join(self._work_dir, "pf_settings.json")
+        settings_path = path.join(self._work_dir, "pf_settings.yaml")
         if not path.isfile(settings_path):
             new_settings = {"datastore": self._datastore}
-            with open(settings_path) as settings_file:
-                yaml.dump(settings_file, new_settings)
+            with open(settings_path, "w") as settings_file:
+                yaml.dump(new_settings, settings_file)
 
     def validate_datastore_file(self):
         datastore_path = path.join(self._datastore, "pf_datastore.yaml")
         if not path.isfile(datastore_path):
             new_datastore = {"files": []}
-            with open(datastore_path) as datastore_file:
-                yaml.dump(datastore_file, new_datastore)
+            with open(datastore_path, "w") as datastore_file:
+                yaml.dump(new_datastore, datastore_file)
 
     def maybe_clone_input(self, input_dir):
         if not path.isdir(str(input_dir)):
@@ -61,7 +62,7 @@ class ArgumentValidator:
             return
 
         input_path = path.join(str(input_dir), "pf_settings.yaml")
-        output_path = path.join(str(self.datastore), "pf_settings.yaml")
+        output_path = path.join(str(self._datastore), "pf_settings.yaml")
         if path.isfile(input_path):
             if path.isfile(output_path):
                 print(
@@ -79,12 +80,13 @@ class ArgumentValidator:
 
             # Try to get datastore from settings in _work_dir
             work_dir_path = path.join(str(self._work_dir), "pf_settings.yaml")
-            with open(work_dir_path) as work_dir_file:
-                settings = yaml.load(work_dir_file)
-            work_dir_datastore = settings.get("datastore")
-            if path.isdir(str(work_dir_datastore)):
-                self._datastore = work_dir_datastore
-                return
+            if path.isfile(work_dir_path):
+                with open(work_dir_path) as work_dir_file:
+                    settings = yaml.safe_load(work_dir_file)
+                work_dir_datastore = settings.get("datastore")
+                if path.isdir(str(work_dir_datastore)):
+                    self._datastore = work_dir_datastore
+                    return
 
             # Use _work_dir as datastore
             self._datastore = self._work_dir

@@ -3,7 +3,6 @@ import sys
 import pfweb
 import yaml
 
-import os.path as path
 from ArgumentValidator import ArgumentValidator
 
 # -----------------------------------------------------------------------------
