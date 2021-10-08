@@ -58,7 +58,8 @@ class ArgumentValidator:
 
     def maybe_clone_input(self, input_dir):
         if not path.isdir(str(input_dir)):
-            print(f"Ignoring --input {input_dir} because invalid directory")
+            if input_dir:
+                print(f"Ignoring --input {input_dir} because invalid directory")
             return
 
         input_path = path.join(str(input_dir), "pf_settings.yaml")
