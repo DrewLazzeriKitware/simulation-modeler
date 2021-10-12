@@ -2,6 +2,7 @@ import argparse
 import sys
 import pfweb
 import yaml
+import time
 
 from ArgumentValidator import ArgumentValidator
 
@@ -31,6 +32,9 @@ layout.toolbar.children += [
     '<NavigationDropDown v-model="currentView" :views="views"/>',
     vuetify.VSpacer(),
 ]
+layout.content.children += [
+    '<FileDatabase :files="files" v-model="currentFileIndex" />'
+]
 
 
 @change("currentView")
@@ -56,6 +60,33 @@ if __name__ == "__main__":
             "Solver",
             "Project Generation",
         ],
+        "files": [
+            {
+                "name": "MyIndicator",
+                "description": "This is my indicator. I made it. There are many like it, but this one is mine.",
+                "origin": "/oldDrive/oldFolder/originalProject",
+                "path": "/opt/fileDatabases/filedb1",
+                "size": 672716,
+                "dateCreated": time.time(),
+                "dateUploaded": time.time(),
+                "type": "file",
+                "gridSize": [50, 50, 2],
+                "category": "Indicator",
+            },
+            {
+                "name": "Rain Forcing",
+                "description": "This simulates heavy rain across the entire surface. It was made by...",
+                "origin": "/oldDrive/oldFolder/otherProject",
+                "path": "/opt/fileDatabases/filedb1",
+                "size": 5321298,
+                "dateCreated": time.time(),
+                "dateUploaded": time.time(),
+                "type": "zip",
+                "gridSize": None,
+                "category": "CLM",
+            },
+        ],
+        "currentFileIndex": 0,
     }
 
     parser = get_cli_parser()
