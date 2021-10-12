@@ -42,6 +42,11 @@ def logView(currentView, **kwargs):
     print(currentView)
 
 
+@change("files")
+def logFiles(files, **kwargs):
+    print(files)
+
+
 # -----------------------------------------------------------------------------
 # Main
 # /opt/paraview/bin/pvpython ./examples/.../app.py --port 1234 --virtual-env ~/Documents/code/Web/vue-py/py-lib
