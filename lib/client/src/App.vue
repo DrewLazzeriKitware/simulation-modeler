@@ -28,6 +28,7 @@
         v-if="mock.NavigationDropDown.currentView === 'File Database'" 
         :files="mock.FileDatabase.files"
         v-model="mock.FileDatabase.currentFileIndex"
+        @updateFiles='updateFiles'
       />
       <Domain
         v-if="mock.NavigationDropDown.currentView === 'Domain'" 
@@ -83,6 +84,12 @@ export default {
   data: () => ({
     mock: MockData
   }),
+
+  methods: {
+    updateFiles({newFile, index}) {
+      this.mock.FileDatabase.files[index] = newFile;
+    }
+  } 
 };
 </script>
 <style>
