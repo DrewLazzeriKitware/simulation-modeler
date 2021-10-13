@@ -87,7 +87,7 @@ export default {
 
   methods: {
     updateFiles({newFile, index}) {
-      this.mock.FileDatabase.files[index] = newFile;
+      this.$set(this.mock.FileDatabase.files, index, newFile)
     }
   } 
 };

@@ -66,7 +66,10 @@
         <v-row class="justify-start flex-nowrap align-self-start">
           <v-col cols="12" sm="7" class="align-center">
             <v-text-field label="Name" v-model="currentFile.name" outlined />
-            <DragAndDropFiles class="flex-grow-1 text-caption mx-auto" />
+            <DragAndDropFiles
+              class="flex-grow-1 text-caption mx-auto"
+              @uploaded="uploaded"
+            />
           </v-col>
           <v-col cols="12" sm="5">
             <v-select
@@ -84,7 +87,7 @@
               >
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-subtitle> Origin </v-list-item-subtitle>
+                    <v-list-item-subtitle> Origin</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -94,7 +97,7 @@
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-subtitle> Created</v-list-item-subtitle>
+                    <v-list-item-subtitle> Modified</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -119,8 +122,8 @@
                 <v-list-item v-if="currentFile.dateUploaded">
                   {{ new Date(currentFile.dateUploaded).toLocaleDateString()}}
                 </v-list-item>
-                <v-list-item v-if="currentFile.dateCreated">
-                  {{new Date(currentFile.dateCreated).toLocaleDateString()}}
+                <v-list-item v-if="currentFile.dateModified">
+                  {{new Date(currentFile.dateModified).toLocaleDateString()}}
                 </v-list-item>
                 <v-list-item>
                   {{currentFile.type}}
@@ -148,7 +151,9 @@
           >
             Cancel
           </v-btn>
-          <v-btn text elevation="2" color="primary" @click="save"> Save </v-btn>
+          <v-btn text elevation="2" color="primary" @click="save">
+            {{isNewFile ? 'Save' : 'Update Info' }}
+          </v-btn>
         </v-row>
       </v-container>
     </v-col>
