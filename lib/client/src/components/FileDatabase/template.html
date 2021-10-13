@@ -11,7 +11,8 @@
           label="Search"
           v-model="searchQuery"
           prepend-icon="mdi-magnify"
-        ></v-text-field>
+        >
+        </v-text-field>
         <v-btn
           outlined
           small
@@ -28,7 +29,7 @@
           <template v-for="(file, index) in files">
             <v-list-item
               :key="index"
-              @click="$emit('input', index)"
+              @click="$emit('selectFile', file.id)"
               v-if="searchMatch(file)"
             >
               <div class="d-flex flex-column align-start py-2">
@@ -53,7 +54,9 @@
                   {{file.description}}
                 </v-list-item-subtitle>
               </v-list-item-content>
-              <v-icon class="ml-2" @click="remove(index)"> mdi-delete </v-icon>
+              <v-icon class="ml-2" @click="$emit('removeFile', file.id)">
+                mdi-delete
+              </v-icon>
             </v-list-item>
 
             <v-divider :key="`divider-${index}`"></v-divider>
@@ -62,10 +65,10 @@
       </v-list>
     </v-col>
     <v-col cols="12" sm="8">
-      <v-container class="fill-height" v-if="currentFile">
+      <v-container class="fill-height" v-if="value">
         <v-row class="justify-start flex-nowrap align-self-start">
           <v-col cols="12" sm="7" class="align-center">
-            <v-text-field label="Name" v-model="currentFile.name" outlined />
+            <v-text-field label="Name" v-model="value.name" outlined />
             <DragAndDropFiles
               class="flex-grow-1 text-caption mx-auto"
               @uploaded="uploaded"
@@ -75,16 +78,12 @@
             <v-select
               label="Category"
               :items="['CLM', 'Indicator', 'Etc']"
-              v-model="currentFile.category"
+              v-model="value.category"
               filled
             />
 
             <v-row class="flex-nowrap">
-              <v-list
-                dense
-                class="text-caption"
-                v-if="currentFile.dateUploaded"
-              >
+              <v-list dense class="text-caption">
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-subtitle> Origin</v-list-item-subtitle>
@@ -111,35 +110,27 @@
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
-              <v-list
-                dense
-                class="text-caption font-weight-bold"
-                v-if="currentFile.dateUploaded"
-              >
-                <v-list-item>
-                  {{currentFile.origin}}
-                </v-list-item>
-                <v-list-item v-if="currentFile.dateUploaded">
-                  {{ new Date(currentFile.dateUploaded).toLocaleDateString()}}
-                </v-list-item>
-                <v-list-item v-if="currentFile.dateModified">
-                  {{new Date(currentFile.dateModified).toLocaleDateString()}}
-                </v-list-item>
-                <v-list-item>
-                  {{currentFile.type}}
-                </v-list-item>
-                <v-list-item>
-                  {{currentFile.size}}
-                </v-list-item>
+              <v-list dense class="text-caption font-weight-bold">
+                <v-list-item> {{ origin }} </v-list-item>
+                <v-list-item> {{ dateUploaded }} </v-list-item>
+                <v-list-item> {{ dateModified}} </v-list-item>
+                <v-list-item> {{ type }} </v-list-item>
+                <v-list-item> {{ size }} </v-list-item>
               </v-list>
             </v-row>
           </v-col>
         </v-row>
         <v-row class="pa-4 grey lighten-3">
-          <v-textarea label="Description" v-model="currentFile.description" />
+          <v-textarea label="Description" v-model="value.description" />
         </v-row>
         <v-row class="mt-auto">
-          <v-btn text elevation="2" color="grey" class="white--text">
+          <v-btn
+            text
+            elevation="2"
+            color="grey"
+            class="white--text"
+            @click="$emit('downloadFile')"
+          >
             Download
           </v-btn>
           <v-btn
@@ -147,12 +138,17 @@
             elevation="2"
             color="red"
             class="ml-auto mr-2 white--text"
-            @click="resetEdits"
+            @click="$emit('resetFile')"
           >
             Cancel
           </v-btn>
-          <v-btn text elevation="2" color="primary" @click="save">
-            {{isNewFile ? 'Save' : 'Update Info' }}
+          <v-btn
+            text
+            elevation="2"
+            color="primary"
+            @click="$emit('input', {...value, ...fileStats})"
+          >
+            {{ 'Save' }}
           </v-btn>
         </v-row>
       </v-container>
