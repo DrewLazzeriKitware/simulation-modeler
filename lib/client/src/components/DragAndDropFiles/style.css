@@ -1,8 +1,7 @@
 .dropZone {
-  width: 80%;
   height: 200px;
   position: relative;
-  border: 2px dashed #eee;
+  border: 2px dashed #2e94c4;
 }
 
 .dropZone:hover {
