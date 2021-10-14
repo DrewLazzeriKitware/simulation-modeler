@@ -15,7 +15,8 @@ class ArgumentValidator:
             return
 
         self.maybe_clone_input(args.input)
-        self.decide_datastore()
+        if not self.decide_datastore():
+            return
 
         self.validate_settings_file()
         self.validate_datastore_file()
@@ -73,21 +74,21 @@ class ArgumentValidator:
                 dir_util.copy_tree(input_dir, self._work_dir)
 
     def decide_datastore(self):
-        if not path.isdir(str(self._datastore)):
-            if self._datastore is not None:
-                print(
-                    f"Ignoring --datastore {self._datastore} because invalid directory"
-                )
+        if path.isdir(str(self._datastore)):
+            return True
 
-            # Try to get datastore from settings in _work_dir
-            work_dir_path = path.join(str(self._work_dir), "pf_settings.yaml")
-            if path.isfile(work_dir_path):
-                with open(work_dir_path) as work_dir_file:
-                    settings = yaml.safe_load(work_dir_file)
-                work_dir_datastore = settings.get("datastore")
-                if path.isdir(str(work_dir_datastore)):
-                    self._datastore = work_dir_datastore
-                    return
+        if self._datastore is not None:
+            print(f"Ignoring --datastore {self._datastore} because invalid directory")
 
-            # Use _work_dir as datastore
-            self._datastore = self._work_dir
+        # Try to get datastore from settings in _work_dir
+        work_dir_path = path.join(str(self._work_dir), "pf_settings.yaml")
+        if path.isfile(work_dir_path):
+            with open(work_dir_path) as work_dir_file:
+                settings = yaml.safe_load(work_dir_file)
+            work_dir_datastore = settings.get("datastore")
+            if path.isdir(str(work_dir_datastore)):
+                self._datastore = work_dir_datastore
+                return True
+
+        print(f"Must specify --datastore dir when output dir is empty")
+        return False
