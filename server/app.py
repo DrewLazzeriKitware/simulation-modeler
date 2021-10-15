@@ -1,9 +1,10 @@
 import argparse
 import random
+import yaml
 import sys
 import pfweb
-import yaml
 import time
+import os.path as path
 
 from pprint import pprint
 from ArgumentValidator import ArgumentValidator
@@ -26,6 +27,7 @@ from trame import (
     enable_module,
     trigger,
     get_state,
+    flush_state,
 )
 from trame.layouts import SinglePage
 from trame.html import vuetify, Div
@@ -43,15 +45,7 @@ layout.toolbar.children += [
     vuetify.VSpacer(),
 ]
 file_database = """
-<FileDatabase 
-  :files="files" 
-  v-model="selectedFile"
-  @newFile="trigger('newFile')"
-  @selectFile="trigger('selectFile', $event)"
-  @removeFile="trigger('removeFile', $event)"
-  @downloadFile="trigger('downloadFile')"
-  @resetFile="trigger('resetFile')"
-/>
+<FileDatabase :files="dbFiles" v-model="dbSelectedFile" db-update="updateFiles" /> 
 """
 layout.content.children += [file_database]
 
@@ -61,24 +55,49 @@ def logView(currentView, **kwargs):
     pprint(currentView)
 
 
-@change("selectedFile")
-def changeCurrentFile(selectedFile, **kwargs):
-    (work_dir, files) = get_state("work_dir", "files")
+@trigger("updateFiles")
+def updateFiles(update, fileId=None):
+    (dbFiles, dbSelectedFile) = get_state("dbFiles", "dbSelectedFile")
+
+    if update == "selectFile":
+        if dbFiles.get(fileId):
+            update_state("dbSelectedFile", dbFiles[fileId])
+    elif update == "removeFile":
+        del dbFiles[fileId]
+        flush_state("dbFiles")
+    elif update == "downloadSelectedFile":
+        with open(dbSelectedFile.get("path"), "rb") as selected:
+            update_state("dbFileExchange", dbSelectedFile.selected.read())
+    elif update == "resetSelectedFile":
+        print(dbSelectedFile)
+        flush_state("dbSelectedFile")
+
+
+@change("dbSelectedFile")
+def changeCurrentFile(dbSelectedFile, work_dir, dbFiles, dbFileExchange, **kwargs):
 
     # This might be a new file
-    file_id = selectedFile.get("id")
+    file_id = dbSelectedFile.get("id")
     if not file_id:
         file_id = work_dir + str(random.getrandbits(32))
-        selectedFile = {**selectedFile, "id": file_id, "path": work_dir + "/" + file_id}
+        dbSelectedFile = {**dbSelectedFile, "id": file_id, "path": file_id}
 
-    # We don't want to keep file data in memory
-    if selectedFile.get("file"):
-        with open(selectedFile.get("path"), "w") as current:
-            current.write(selectedFile.file.read())
-    selectedFile["file"] = None
+    update_state("dbSelectedFile", dbSelectedFile)
+    newFiles = {**dbFiles, file_id: dbSelectedFile}
+    update_state("dbFiles", newFiles)
 
-    update_state("selectedFile", selectedFile)
-    update_state("files", {**files, file_id: selectedFile})
+    # Update File Database
+    with open(path.join(work_dir, "pf_datastore.yaml"), "w") as db:
+        yaml.dump(newFiles, db)
+
+
+@change("dbFileExchange")
+def changeFileExchange(dbFileExchange, dbSelectedFile, **kwargs):
+
+    # Update on disk if updated in shared state
+    if dbFileExchange is not None and dbFileExchange.get("content"):
+        with open(dbSelectedFile.get("path"), "wb") as selected:
+            selected.write(dbFileExchange["content"])
 
 
 # -----------------------------------------------------------------------------
@@ -99,8 +118,8 @@ if __name__ == "__main__":
             "Solver",
             "Project Generation",
         ],
-        "files": {},
-        ##"files": {
+        "dbFiles": {},
+        ##"dbFiles": {
         ##    "key1": {
         ##        "name": "MyIndicator",
         ##        "description": "This is my indicator. I made it. There are many like it, but this one is mine.",
@@ -126,7 +145,8 @@ if __name__ == "__main__":
         ##        "category": "CLM",
         ##    },
         ##},
-        "selectedFile": None,
+        "dbSelectedFile": None,
+        "dbFileExchange": None,
     }
 
     parser = get_cli_parser()

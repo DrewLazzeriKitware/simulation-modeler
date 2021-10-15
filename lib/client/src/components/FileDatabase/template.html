@@ -25,11 +25,11 @@
       </v-toolbar>
       <v-divider />
       <v-list>
-        <v-list-item-group :value="value">
+        <v-list-item-group :value="selectedFileIndex">
           <template v-for="(file, index) in files">
             <v-list-item
               :key="index"
-              @click="$emit('selectFile', file.id)"
+              @click="selectFile(file.id)"
               v-if="searchMatch(file)"
             >
               <div class="d-flex flex-column align-start py-2">
@@ -54,7 +54,7 @@
                   {{file.description}}
                 </v-list-item-subtitle>
               </v-list-item-content>
-              <v-icon class="ml-2" @click="$emit('removeFile', file.id)">
+              <v-icon class="ml-2" @click="removeFile(file.id)">
                 mdi-delete
               </v-icon>
             </v-list-item>
@@ -70,14 +70,16 @@
         class="font-weight-medium flex-column d-flex justify-center align-center
         fill-height"
       >
-        No files in database&nbsp;<a @click="newFile">
+        <span v-if="files.length">No file selected. Select one or&nbsp;</span>
+        <span v-else>No files in database&nbsp;</span>
+        <a @click="newFile">
           (Add a file)
         </a>
       </div>
       <v-container v-else class="fill-height">
         <v-row class="justify-start flex-nowrap align-self-start">
           <v-col cols="12" sm="7" class="align-center">
-            <v-text-field label="Name" v-model="value.name" outlined />
+            <v-text-field label="Name" v-model="formContent.name" outlined />
             <DragAndDropFiles
               class="flex-grow-1 text-caption mx-auto"
               @uploaded="uploaded"
@@ -87,7 +89,7 @@
             <v-select
               label="Category"
               :items="['CLM', 'Indicator', 'Etc']"
-              v-model="value.category"
+              v-model="formContent.category"
               filled
             />
 
@@ -130,7 +132,7 @@
           </v-col>
         </v-row>
         <v-row class="pa-4 grey lighten-3">
-          <v-textarea label="Description" v-model="value.description" />
+          <v-textarea label="Description" v-model="formContent.description" />
         </v-row>
         <v-row class="mt-auto">
           <v-btn
@@ -138,7 +140,7 @@
             elevation="2"
             color="grey"
             class="white--text"
-            @click="$emit('downloadFile')"
+            @click="downloadSelectedFile"
           >
             Download
           </v-btn>
@@ -147,16 +149,11 @@
             elevation="2"
             color="red"
             class="ml-auto mr-2 white--text"
-            @click="$emit('resetFile')"
+            @click="resetSelectedFile"
           >
             Cancel
           </v-btn>
-          <v-btn
-            text
-            elevation="2"
-            color="primary"
-            @click="$emit('input', {...value, ...fileStats})"
-          >
+          <v-btn text elevation="2" color="primary" @click="save">
             {{ 'Save' }}
           </v-btn>
         </v-row>
