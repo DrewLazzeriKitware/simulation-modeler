@@ -68,9 +68,6 @@ def updateFiles(update, fileId=None):
     elif update == "downloadSelectedFile":
         with open(dbSelectedFile.get("path"), "rb") as selected:
             update_state("dbFileExchange", dbSelectedFile.selected.read())
-    elif update == "resetSelectedFile":
-        print(dbSelectedFile)
-        flush_state("dbSelectedFile")
 
 
 @change("dbSelectedFile")
