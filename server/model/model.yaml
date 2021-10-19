@@ -1,0 +1,25 @@
+SearchKey: 
+  _label: Search Key
+  key: 
+    _label: Key
+    type: string
+  value: 
+    _label: Value
+    type: string
+  description: 
+    _label: Description
+    type: string 
+
+ParflowKey: 
+  _label: Parflow Key
+  _help: |
+    This describes a value the parflow solver may take into account.
+  key: 
+    _label: Key
+    type: string
+  value: 
+    _label: Value
+    type: string
+  description: 
+    _label: Description
+    type: string

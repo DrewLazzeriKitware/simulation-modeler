@@ -41,6 +41,7 @@ from trame.html import vuetify, Div, simput
 # Model
 # -----------------------------------------------------------------------------
 init = {
+    "showDebug": False,
     "currentView": "File Database",
     "views": [
         "File Database",
@@ -54,6 +55,9 @@ init = {
     "dbFiles": {},
     "dbSelectedFile": None,
     "dbFileExchange": None,
+    "keyIds": [],
+    "solverSearchIndex": {},
+    "solverSearchIds": [],
 }
 
 # Load Simput models and layouts
@@ -63,6 +67,7 @@ ui_manager = UIManager(obj_manager, ui_resolver)
 BASE_DIR = path.abspath(path.dirname(__file__))
 obj_manager.load_model(yaml_file=path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_ui(xml_file=path.join(BASE_DIR, "model/layout.xml"))
+ui_manager.load_language(yaml_file=path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_language(yaml_file=path.join(BASE_DIR, "model/lang/en.yaml"))
 
 # Test simput
@@ -70,9 +75,62 @@ obj_manager.create("ParflowKey")
 ids = list(map(lambda k: k.get("id"), obj_manager.get_type("ParflowKey")))
 init.update({"keyIds": ids})
 
+# Add search index for solver
+obj = obj_manager.create("SearchKey")
+obj_manager.update(
+    [
+        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option1"},
+        {"id": obj.get("id"), "name": "value", "value": "4"},
+        {
+            "id": obj.get("id"),
+            "name": "description",
+            "value": "This is the first option",
+        },
+    ]
+)
+
+obj = obj_manager.create("SearchKey")
+obj_manager.update(
+    [
+        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option2"},
+        {"id": obj.get("id"), "name": "value", "value": "8"},
+        {
+            "id": obj.get("id"),
+            "name": "description",
+            "value": "This is the second option",
+        },
+    ]
+)
+
+obj = obj_manager.create("SearchKey")
+obj_manager.update(
+    [
+        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option3"},
+        {"id": obj.get("id"), "name": "value", "value": "2"},
+        {
+            "id": obj.get("id"),
+            "name": "description",
+            "value": "This is the very lastoption",
+        },
+    ]
+)
+
+
+def text(key):
+    props = key.get("properties")
+    return props.get("description") + props.get("key")
+
+
+index = {s.get("id"): text(s) for s in obj_manager.get_type("SearchKey")}
+solverSearchIds = list(index.keys())
+init.update({"solverSearchIndex": index, "solverSearchIds": solverSearchIds})
+
 # -----------------------------------------------------------------------------
 # Updates
 # -----------------------------------------------------------------------------
+def toggleDebug():
+    (showDebug,) = get_state("showDebug")
+    update_state("showDebug", not showDebug)
 
 
 @change("currentView")
@@ -135,18 +193,21 @@ layout.toolbar.children += [
     vuetify.VSpacer(),
     '<NavigationDropDown v-model="currentView" :views="views"/>',
     vuetify.VSpacer(),
+    vuetify.VBtn("DEBUG", click=toggleDebug),
 ]
 file_database = """
 <FileDatabase :files="dbFiles" v-model="dbSelectedFile" db-update="updateFiles" /> 
 """
-# layout.content.children += [file_database]
+solver = """
+<Solver search="solverSearchIndex" ids="solverSearchIds" />
+"""
 compact_styles = {
     "hide_details": True,
     "dense": True,
 }
 
 
-layout.content.children += [
+simput_test = [
     vuetify.VList(
         **compact_styles,
         children=[
@@ -173,6 +234,9 @@ layout.content.children += [
     )
 ]
 
+layout.content.children += [Div("Debug", v_if="showDebug")]
+layout.content.children += [solver]
+# layout.content.children += simput_test
 
 # -----------------------------------------------------------------------------
 # Validate command line arguments and run app

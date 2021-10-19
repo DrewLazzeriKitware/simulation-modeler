@@ -1,0 +1,14 @@
+<layout>
+  <ui id="ParflowKey">
+    <input name="key" />
+    <input name="value" />
+    <input name="description" />
+  </ui>
+  <ui id="SearchKey">
+    <row>
+      <input name="key" readonly="true"/>
+      <input name="value" />
+      <input name="description" readonly="true"/>
+    </row>
+  </ui>
+</layout>

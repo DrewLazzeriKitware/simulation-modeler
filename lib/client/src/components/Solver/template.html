@@ -1,6 +1,10 @@
 <div class="d-flex flex-column fill-height">
   <div class="flex-grow-0 mx-4">
-    <v-text-field label="Search" prepend-inner-icon="mdi-magnify">
+    <v-text-field
+      label="Search"
+      prepend-inner-icon="mdi-magnify"
+      v-model="searchQuery"
+    >
     </v-text-field>
   </div>
   <!-- 
@@ -11,10 +15,22 @@
   -->
   <div class="d-flex flex-grow-1 pb-2" style="min-height:0;">
     <v-col cols="12" sm="3" style="border-right: 1px solid grey;">
-      <SimputStandin />
+      <v-list>
+        <v-list-item v-for="id in simputIds" v-if="searchMatch(id)">
+          <SimputItem :itemId="id" no-ui="true" #properties="{key}">
+            {{key}}
+          </SimputItem>
+        </v-list-item>
+      </v-list>
     </v-col>
     <v-col cols="12" sm="9">
-      <SimputStandin />
+      <v-list>
+        <v-list-item v-for="id in simputIds" v-if="searchMatch(id)">
+          <SimputItem :itemId="id" no-ui="true" #properties="properties">
+            <SearchItem />
+          </SimputItem>
+        </v-list-item>
+      </v-list>
     </v-col>
   </div>
 </div>
