@@ -9,6 +9,10 @@ import os.path as path
 from pprint import pprint
 from ArgumentValidator import ArgumentValidator
 
+from simput.core import ObjectManager, UIManager
+from simput.ui.web import VuetifyResolver
+from simput.pywebvue.modules import SimPut
+
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
 # -----------------------------------------------------------------------------
@@ -30,24 +34,45 @@ from trame import (
     flush_state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div
+from trame.html import vuetify, Div, simput
+
 
 # -----------------------------------------------------------------------------
-# Web App setup
+# Model
 # -----------------------------------------------------------------------------
-enable_module(pfweb)
+init = {
+    "currentView": "File Database",
+    "views": [
+        "File Database",
+        "Simulation Type",
+        "Domain",
+        "Boundary Conditions",
+        "Subsurface Properties",
+        "Solver",
+        "Project Generation",
+    ],
+    "dbFiles": {},
+    "dbSelectedFile": None,
+    "dbFileExchange": None,
+}
 
-layout = SinglePage("Parflow Web")
-layout.title.content = "Parflow Web"
-layout.toolbar.children += [
-    vuetify.VSpacer(),
-    '<NavigationDropDown v-model="currentView" :views="views"/>',
-    vuetify.VSpacer(),
-]
-file_database = """
-<FileDatabase :files="dbFiles" v-model="dbSelectedFile" db-update="updateFiles" /> 
-"""
-layout.content.children += [file_database]
+# Load Simput models and layouts
+obj_manager = ObjectManager()
+ui_resolver = VuetifyResolver()
+ui_manager = UIManager(obj_manager, ui_resolver)
+BASE_DIR = path.abspath(path.dirname(__file__))
+obj_manager.load_model(yaml_file=path.join(BASE_DIR, "model/model.yaml"))
+ui_manager.load_ui(xml_file=path.join(BASE_DIR, "model/layout.xml"))
+ui_manager.load_language(yaml_file=path.join(BASE_DIR, "model/lang/en.yaml"))
+
+# Test simput
+obj_manager.create("ParflowKey")
+ids = list(map(lambda k: k.get("id"), obj_manager.get_type("ParflowKey")))
+init.update({"keyIds": ids})
+
+# -----------------------------------------------------------------------------
+# Updates
+# -----------------------------------------------------------------------------
 
 
 @change("currentView")
@@ -67,7 +92,7 @@ def updateFiles(update, fileId=None):
         flush_state("dbFiles")
     elif update == "downloadSelectedFile":
         with open(dbSelectedFile.get("path"), "rb") as selected:
-            update_state("dbFileExchange", dbSelectedFile.selected.read())
+            update_state("dbFileExchange", selected.read())
 
 
 @change("dbSelectedFile")
@@ -98,54 +123,63 @@ def changeFileExchange(dbFileExchange, dbSelectedFile, **kwargs):
 
 
 # -----------------------------------------------------------------------------
-# Main
-# /opt/paraview/bin/pvpython ./examples/.../app.py --port 1234 --virtual-env ~/Documents/code/Web/vue-py/py-lib
+# Views
 # -----------------------------------------------------------------------------
+html_simput = simput.Simput(ui_manager, prefix="ab")
+enable_module(pfweb)
+
+layout = SinglePage("Parflow Web")
+layout.root = html_simput
+layout.title.content = "Parflow Web"
+layout.toolbar.children += [
+    vuetify.VSpacer(),
+    '<NavigationDropDown v-model="currentView" :views="views"/>',
+    vuetify.VSpacer(),
+]
+file_database = """
+<FileDatabase :files="dbFiles" v-model="dbSelectedFile" db-update="updateFiles" /> 
+"""
+# layout.content.children += [file_database]
+compact_styles = {
+    "hide_details": True,
+    "dense": True,
+}
 
 
-if __name__ == "__main__":
-    newState = {
-        "currentView": "File Database",
-        "views": [
-            "File Database",
-            "Simulation Type",
-            "Domain",
-            "Boundary Conditions",
-            "Subsurface Properties",
-            "Solver",
-            "Project Generation",
+layout.content.children += [
+    vuetify.VList(
+        **compact_styles,
+        children=[
+            vuetify.VListItemGroup(
+                color="primary",
+                children=[
+                    vuetify.VListItem(
+                        v_for="(id, i) in keyIds",
+                        key="i",
+                        value=["id"],
+                        children=[
+                            vuetify.VListItemContent(
+                                vuetify.VListItemTitle(
+                                    simput.SimputItem(
+                                        itemId="id",
+                                    )
+                                )
+                            )
+                        ],
+                    )
+                ],
+            )
         ],
-        "dbFiles": {},
-        ##"dbFiles": {
-        ##    "key1": {
-        ##        "name": "MyIndicator",
-        ##        "description": "This is my indicator. I made it. There are many like it, but this one is mine.",
-        ##        "origin": "/oldDrive/oldFolder/originalProject",
-        ##        "path": "/opt/fileDatabases/filedb1",
-        ##        "size": 672716,
-        ##        "dateModified": time.time(),
-        ##        "dateUploaded": time.time(),
-        ##        "type": "file",
-        ##        "gridSize": [50, 50, 2],
-        ##        "category": "Indicator",
-        ##    },
-        ##    "key2": {
-        ##        "name": "Rain Forcing",
-        ##        "description": "This simulates heavy rain across the entire surface. It was made by...",
-        ##        "origin": "/oldDrive/oldFolder/otherProject",
-        ##        "path": "/opt/fileDatabases/filedb1",
-        ##        "size": 5321298,
-        ##        "dateModified": time.time(),
-        ##        "dateUploaded": time.time(),
-        ##        "type": "zip",
-        ##        "gridSize": None,
-        ##        "category": "CLM",
-        ##    },
-        ##},
-        "dbSelectedFile": None,
-        "dbFileExchange": None,
-    }
+    )
+]
 
+
+# -----------------------------------------------------------------------------
+# Validate command line arguments and run app
+# -----------------------------------------------------------------------------
+if __name__ == "__main__":
+
+    # Add our args to parser
     parser = get_cli_parser()
     parser.add_argument("-O", "--output", help="A working directory for the build")
     parser.add_argument(
@@ -154,14 +188,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "-D", "--datastore", help="A directory for tracking simulation input files"
     )
-
     args = parser.parse_args()
+
+    # Add validated args to initial state
     validator = ArgumentValidator(args)
     if not validator.args_valid():
         # Crash app and show usage
         parser.parse_args("\t")
+    init.update(validator.get_args())
 
-    newState.update(validator.get_args())
-    layout.state = newState
-
+    # Begin
+    layout.state = init
     start(layout)
