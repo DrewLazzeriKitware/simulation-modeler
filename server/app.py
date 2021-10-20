@@ -8,6 +8,7 @@ import os.path as path
 
 from pprint import pprint
 from ArgumentValidator import ArgumentValidator
+from SimputLoader import SimputLoader
 
 from simput.core import ObjectManager, UIManager
 from simput.ui.web import VuetifyResolver
@@ -75,54 +76,11 @@ obj_manager.create("ParflowKey")
 ids = list(map(lambda k: k.get("id"), obj_manager.get_type("ParflowKey")))
 init.update({"keyIds": ids})
 
-# Add search index for solver
-obj = obj_manager.create("SearchKey")
-obj_manager.update(
-    [
-        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option1"},
-        {"id": obj.get("id"), "name": "value", "value": "4"},
-        {
-            "id": obj.get("id"),
-            "name": "description",
-            "value": "This is the first option",
-        },
-    ]
-)
+# Add solver keys with search index
+loader = SimputLoader(obj_manager)
+solverSearchIds = loader.load_keys()
+index = loader.generate_search_index()
 
-obj = obj_manager.create("SearchKey")
-obj_manager.update(
-    [
-        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option2"},
-        {"id": obj.get("id"), "name": "value", "value": "8"},
-        {
-            "id": obj.get("id"),
-            "name": "description",
-            "value": "This is the second option",
-        },
-    ]
-)
-
-obj = obj_manager.create("SearchKey")
-obj_manager.update(
-    [
-        {"id": obj.get("id"), "name": "key", "value": "/Solver/Option3"},
-        {"id": obj.get("id"), "name": "value", "value": "2"},
-        {
-            "id": obj.get("id"),
-            "name": "description",
-            "value": "This is the very lastoption",
-        },
-    ]
-)
-
-
-def text(key):
-    props = key.get("properties")
-    return props.get("description") + props.get("key")
-
-
-index = {s.get("id"): text(s) for s in obj_manager.get_type("SearchKey")}
-solverSearchIds = list(index.keys())
 init.update({"solverSearchIndex": index, "solverSearchIds": solverSearchIds})
 
 # -----------------------------------------------------------------------------
