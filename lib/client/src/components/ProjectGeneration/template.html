@@ -16,6 +16,9 @@
   </div>
 
   <div class="d-flex justify-end mx-6">
+    <v-btn color="primary" @click="trigger(validateOn)"> Validate </v-btn>
+  </div>
+  <div class="d-flex justify-end mx-6">
     <v-btn :disabled="!validation.valid" color="primary"> Generate </v-btn>
   </div>
 </div>

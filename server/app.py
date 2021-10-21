@@ -10,6 +10,7 @@ from simput.pywebvue.modules import SimPut
 from ArgumentValidator import ArgumentValidator
 from SimputLoader import SimputLoader
 from FileDatabase import FileDatabase
+from ParflowWrapper import ParflowWrapper
 
 from pprint import pprint  # Debug
 
@@ -134,6 +135,16 @@ def updateFiles(update, entryId=None):
         update_state("dbFileExchange", FILEDB.getEntryData())
 
 
+@trigger("validateRun")
+def validateRun():
+    (work_dir,) = get_state("work_dir")
+    parflow = ParflowWrapper(work_dir)
+    parflow.extract_run(obj_manager)
+    validation = parflow.validate_run()
+
+    update_state("projGenValidation", {"output": validation, "valid": False})
+
+
 def toggleDebug():
     (showDebug,) = get_state("showDebug")
     update_state("showDebug", not showDebug)
@@ -192,6 +203,7 @@ subSurface = """
 projectGeneration = """
 <ProjectGeneration
   :validation="projGenValidation"
+  validateOn="validateRun"
   v-if="currentView=='Project Generation'" />
 """
 
