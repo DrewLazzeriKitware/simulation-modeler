@@ -1,18 +1,17 @@
 import argparse
-import random
-import yaml
 import sys
 import pfweb
-import time
-import os.path as path
-
-from pprint import pprint
-from ArgumentValidator import ArgumentValidator
-from SimputLoader import SimputLoader
+import os.path
 
 from simput.core import ObjectManager, UIManager
 from simput.ui.web import VuetifyResolver
 from simput.pywebvue.modules import SimPut
+
+from ArgumentValidator import ArgumentValidator
+from SimputLoader import SimputLoader
+from FileDatabase import FileDatabase
+
+from pprint import pprint  # Debug
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -61,15 +60,17 @@ init = {
     "solverSearchIds": [],
 }
 
+FILEDB = None
+
 # Load Simput models and layouts
 obj_manager = ObjectManager()
 ui_resolver = VuetifyResolver()
 ui_manager = UIManager(obj_manager, ui_resolver)
-BASE_DIR = path.abspath(path.dirname(__file__))
-obj_manager.load_model(yaml_file=path.join(BASE_DIR, "model/model.yaml"))
-ui_manager.load_ui(xml_file=path.join(BASE_DIR, "model/layout.xml"))
-ui_manager.load_language(yaml_file=path.join(BASE_DIR, "model/model.yaml"))
-ui_manager.load_language(yaml_file=path.join(BASE_DIR, "model/lang/en.yaml"))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+obj_manager.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
+ui_manager.load_ui(xml_file=os.path.join(BASE_DIR, "model/layout.xml"))
+ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
+ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 
 # Test simput
 obj_manager.create("ParflowKey")
@@ -86,56 +87,46 @@ init.update({"solverSearchIndex": index, "solverSearchIds": solverSearchIds})
 # -----------------------------------------------------------------------------
 # Updates
 # -----------------------------------------------------------------------------
-def toggleDebug():
-    (showDebug,) = get_state("showDebug")
-    update_state("showDebug", not showDebug)
-
-
-@change("currentView")
-def logView(currentView, **kwargs):
-    pprint(currentView)
-
-
-@trigger("updateFiles")
-def updateFiles(update, fileId=None):
-    (dbFiles, dbSelectedFile) = get_state("dbFiles", "dbSelectedFile")
-
-    if update == "selectFile":
-        if dbFiles.get(fileId):
-            update_state("dbSelectedFile", dbFiles[fileId])
-    elif update == "removeFile":
-        del dbFiles[fileId]
-        flush_state("dbFiles")
-    elif update == "downloadSelectedFile":
-        with open(dbSelectedFile.get("path"), "rb") as selected:
-            update_state("dbFileExchange", selected.read())
-
-
 @change("dbSelectedFile")
-def changeCurrentFile(dbSelectedFile, work_dir, dbFiles, dbFileExchange, **kwargs):
-
-    # This might be a new file
+def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     file_id = dbSelectedFile.get("id")
+
     if not file_id:
-        file_id = work_dir + str(random.getrandbits(32))
-        dbSelectedFile = {**dbSelectedFile, "id": file_id, "path": file_id}
+        dbSelectedFile = FILEDB.addNewEntry(dbSelectedFile)
+    else:
+        FILEDB.writeEntry(file_id, dbSelectedFile)
 
+    flush_state("dbSelectedFile")
     update_state("dbSelectedFile", dbSelectedFile)
-    newFiles = {**dbFiles, file_id: dbSelectedFile}
-    update_state("dbFiles", newFiles)
-
-    # Update File Database
-    with open(path.join(work_dir, "pf_datastore.yaml"), "w") as db:
-        yaml.dump(newFiles, db)
+    update_state("dbFiles", FILEDB.getEntries())
 
 
 @change("dbFileExchange")
-def changeFileExchange(dbFileExchange, dbSelectedFile, **kwargs):
-
-    # Update on disk if updated in shared state
+def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
-        with open(dbSelectedFile.get("path"), "wb") as selected:
-            selected.write(dbFileExchange["content"])
+        FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
+
+
+@trigger("updateFiles")
+def updateFiles(update, entryId=None):
+    (dbFiles, dbSelectedFile) = get_state("dbFiles", "dbSelectedFile")
+
+    if update == "selectFile":
+        if dbFiles.get(entryId):
+            update_state("dbSelectedFile", FILEDB.getEntry(entryId))
+
+    elif update == "removeFile":
+        FILEDB.deleteEntry(entryId)
+        del dbFiles[entryId]
+        flush_state("dbFiles")
+
+    elif update == "downloadSelectedFile":
+        update_state("dbFileExchange", FILEDB.getEntryData())
+
+
+def toggleDebug():
+    (showDebug,) = get_state("showDebug")
+    update_state("showDebug", not showDebug)
 
 
 # -----------------------------------------------------------------------------
@@ -193,7 +184,7 @@ simput_test = [
 ]
 
 layout.content.children += [Div("Debug", v_if="showDebug")]
-layout.content.children += [solver]
+layout.content.children += [file_database]
 # layout.content.children += simput_test
 
 # -----------------------------------------------------------------------------
@@ -218,6 +209,8 @@ if __name__ == "__main__":
         # Crash app and show usage
         parser.parse_args("\t")
     init.update(validator.get_args())
+
+    FILEDB = FileDatabase(init)
 
     # Begin
     layout.state = init

@@ -53,7 +53,7 @@ class ArgumentValidator:
     def validate_datastore_file(self):
         datastore_path = path.join(self._datastore, "pf_datastore.yaml")
         if not path.isfile(datastore_path):
-            new_datastore = {"files": []}
+            new_datastore = {}
             with open(datastore_path, "w") as datastore_file:
                 yaml.dump(new_datastore, datastore_file)
 
