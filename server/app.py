@@ -58,6 +58,16 @@ init = {
     "keyIds": [],
     "solverSearchIndex": {},
     "solverSearchIds": [],
+    "simTypeShortcuts": {
+        "wells": False,
+        "climate": True,
+        "contaminants": False,
+        "saturated": "Variably Saturated",
+    },
+    "projGenValidation": {
+        "valid": False,
+        "output": "Parflow run did not validate.\nSolver.TimeStep must be type Int, found 3.14159",
+    },
 }
 
 FILEDB = None
@@ -144,48 +154,58 @@ layout.toolbar.children += [
     vuetify.VSpacer(),
     vuetify.VBtn("DEBUG", click=toggleDebug),
 ]
+
 file_database = """
-<FileDatabase :files="dbFiles" v-model="dbSelectedFile" db-update="updateFiles" /> 
+<FileDatabase 
+  :files="dbFiles" 
+  v-model="dbSelectedFile" 
+  db-update="updateFiles" 
+  v-if="currentView == 'File Database'"/> 
 """
 solver = """
-<Solver search="solverSearchIndex" ids="solverSearchIds" />
+<Solver 
+  search="solverSearchIndex" 
+  ids="solverSearchIds" 
+  v-if="currentView == 'Solver'"/>
 """
-compact_styles = {
-    "hide_details": True,
-    "dense": True,
-}
+simulation_type = """
+<SimulationType 
+  :shortcuts="simTypeShortcuts"
+  v-if="currentView=='Simulation Type'"/>
+"""
+
+domain = """
+<Domain
+  v-if="currentView=='Domain'" />
+"""
+
+boundaryConditions = """
+<BoundaryConditions
+  v-if="currentView=='Boundary Conditions'" />
+"""
+
+subSurface = """
+<SubSurface
+  v-if="currentView=='Subsurface Properties'" />
+"""
+
+projectGeneration = """
+<ProjectGeneration
+  :validation="projGenValidation"
+  v-if="currentView=='Project Generation'" />
+"""
 
 
-simput_test = [
-    vuetify.VList(
-        **compact_styles,
-        children=[
-            vuetify.VListItemGroup(
-                color="primary",
-                children=[
-                    vuetify.VListItem(
-                        v_for="(id, i) in keyIds",
-                        key="i",
-                        value=["id"],
-                        children=[
-                            vuetify.VListItemContent(
-                                vuetify.VListItemTitle(
-                                    simput.SimputItem(
-                                        itemId="id",
-                                    )
-                                )
-                            )
-                        ],
-                    )
-                ],
-            )
-        ],
-    )
+layout.content.children += [
+    Div("Debug", v_if="showDebug"),
+    file_database,
+    simulation_type,
+    solver,
+    domain,
+    boundaryConditions,
+    subSurface,
+    projectGeneration,
 ]
-
-layout.content.children += [Div("Debug", v_if="showDebug")]
-layout.content.children += [file_database]
-# layout.content.children += simput_test
 
 # -----------------------------------------------------------------------------
 # Validate command line arguments and run app
