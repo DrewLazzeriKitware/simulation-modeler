@@ -2,7 +2,7 @@ import json
 
 
 class SimputLoader:
-    def __init__(self, simput, keyFile="run.json", modelFile="flattened.json"):
+    def __init__(self, simput, keyFile="data/washita_run.json", modelFile="data/flattened_pf_keys.json"):
         self.simput = simput
         self.keyFile = keyFile
         self.modelFile = modelFile
