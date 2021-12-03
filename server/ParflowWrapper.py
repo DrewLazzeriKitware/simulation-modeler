@@ -24,7 +24,6 @@ TRAME_PARFLOW_MAPPING = {
     "DX": "ComputationalGrid.DX",
     "DY": "ComputationalGrid.DY",
     "DZ": "ComputationalGrid.DZ",
-
 }
 
 
@@ -36,8 +35,7 @@ class ParflowWrapper:
     def read_from_simput(self, pxm):
         all_keys = pxm.get_instances_of_type("SearchKey")
         extracted_keys = {
-            key.get_property("key")
-            .replace("/", "."): key.get_property("value")
+            key.get_property("key").replace("/", "."): key.get_property("value")
             for key in all_keys
         }
 
@@ -61,7 +59,8 @@ class ParflowWrapper:
             # Redirect stdout to capture validation msg
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
-            run.validate()
+            if run.validate() == 0:
+                print("Validation passed.")
         finally:
             sys.stdout = old_stdout
 

@@ -31,19 +31,21 @@ class FileDatabase:
     def getEntries(self):
         return self.entries
 
-    def getEntryData(self, entryId):
+    def getEntryPath(self, entryId):
         if entryId is None:
-            print("Failed to read data to empty entryId")
+            print("Failed to find path for empty entryId")
             return
-
         entry = self.entries[entryId]
         dataId = entry.get("dataId")
 
         if dataId is None:
-            print("Could not find dataId for entry while reading data", entryId)
+            print("Could not find dataId for entry while finding path", entryId)
             return
 
-        path = os.path.join(self.datastore, dataId)
+        return os.path.join(self.datastore, dataId)
+
+    def getEntryData(self, entryId):
+        path = getEntryPath(entryId)
         with open(path, "rb") as entryFile:
             return entryFile.read()
 

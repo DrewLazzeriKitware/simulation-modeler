@@ -11,6 +11,8 @@ from SimputLoader import SimputLoader
 from FileDatabase import FileDatabase
 from ParflowWrapper import ParflowWrapper
 
+from parflowio.pyParflowio import PFData
+
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
 # -----------------------------------------------------------------------------
@@ -32,7 +34,7 @@ from trame import (
     flush_state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div, Span, simput
+from trame.html import vuetify, Div, Span, simput, Element
 
 import pfweb
 
@@ -55,7 +57,7 @@ init = {
         "Project Generation",
     ],
     "dbFiles": {},
-    "dbSelectedFile": None,
+    "dbSelectedFile": {},
     "dbFileExchange": None,
     "solverSearchIndex": {},
     "solverSearchIds": [],
@@ -107,6 +109,38 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     update_state("dbFiles", FILEDB.getEntries())
 
 
+@change("indicatorFile")
+def updateComputationalGrid(indicatorFile, **kwargs):
+    entry = FILEDB.getEntry(indicatorFile)
+    update_state("indicatorFileDescription", entry.get("description"))
+
+    filename = FILEDB.getEntryPath(indicatorFile)
+    try:
+        handle = PFData(filename)
+    except:
+        print(f"Could not find pfb: {filename}")
+    handle.loadHeader()
+    handle.loadData()
+
+    array = handle.moveDataArray()
+
+    (z, y, x) = array.shape  # Fortran order
+
+    spacing, lower = (10, 0)
+
+    update_state("NX", x)
+    update_state("NY", y)
+    update_state("NZ", z)
+
+    update_state("LX", lower)
+    update_state("LY", lower)
+    update_state("LZ", lower)
+
+    update_state("DX", spacing)
+    update_state("DY", spacing)
+    update_state("DZ", spacing)
+
+
 @change("dbFileExchange")
 def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
@@ -150,7 +184,7 @@ def toggleDebug():
 # -----------------------------------------------------------------------------
 html_simput = simput.Simput(ui_manager, prefix="ab")
 layout.root = html_simput
-layout.title.content = "Parflow Web"
+layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
     '<NavigationDropDown v-model="currentView" :views="views"/>',
@@ -177,20 +211,57 @@ simulation_type = """
   v-if="currentView=='Simulation Type'"/>
 """
 
+domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
+domainGrid = [Element("H1", "Indicator"), domainGridRow]
+with domainGridRow:
+    with Div():
+        vuetify.VSelect(
+            v_model=("indicatorFile", ""),
+            placeholder="Select an indicator file",
+            items=("Object.values(dbFiles)",),
+            item_text="name",
+            item_value="id",
+        )
+        with vuetify.VRow():
+            with vuetify.VCol():
+                vuetify.VTextField(v_model=("LX", 1.0), label="lx", readonly=True)
+                vuetify.VTextField(v_model=("DX", 1.0), label="dx", readonly=True)
+                vuetify.VTextField(v_model=("NX", 1.0), label="nx", readonly=True)
+            with vuetify.VCol():
+                vuetify.VTextField(v_model=("LY", 1.0), label="ly", readonly=True)
+                vuetify.VTextField(v_model=("DY", 1.0), label="dy", readonly=True)
+                vuetify.VTextField(v_model=("NY", 1.0), label="ny", readonly=True)
+            with vuetify.VCol():
+                vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
+                vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
+                vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
+    with Div(classes="ma-6"):
+        Span("Lorem Ipsum documentation for Indicator file")
+        vuetify.VTextarea(
+            v_if="indicatorFileDescription",
+            value=("indicatorFileDescription", ""),
+            readonly=True,
+            style="font-family: monospace;",
+        )
+
 domain = Div(classes="d-flex flex-column fill-height", v_if="currentView=='Domain'")
 with domain:
-    with vuetify.VToolbar(flat=True, classes = "fill-width align-center grey lighten-2 flex-grow-0"):
+    with vuetify.VToolbar(
+        flat=True, classes="fill-width align-center grey lighten-2 flex-grow-0"
+    ):
         vuetify.VToolbarTitle("Domain Parameters")
         vuetify.VSpacer()
         with vuetify.VBtnToggle(rounded=True, mandatory=True):
             with vuetify.VBtn(small=True):
-                vuetify.VIcon("mdi-format-align-left", small=True, classes = "mr-1" )
+                vuetify.VIcon("mdi-format-align-left", small=True, classes="mr-1")
                 Span("Parameters")
             with vuetify.VBtn(small=True):
-                vuetify.VIcon("mdi-eye", small=True, classes = "mr-1" )
+                vuetify.VIcon("mdi-eye", small=True, classes="mr-1")
                 Span("Preview")
-    with Div(classes="fill-height fill-width flex-grow-1"):
-        vuetify.VSelect(v_model=("indicatorFile", "select file"), items=("Object.values(dbFiles)",), item_text="name", item_value="id", style=("window.coffee = this;"))
+    Div(
+        domainGrid,
+        classes="fill-height fill-width flex-grow-1 ma-6",
+    )
 
 boundaryConditions = """
 <BoundaryConditions
@@ -269,9 +340,17 @@ if __name__ == "__main__":
     if not validator.args_valid():
         # Crash app and show usage
         parser.parse_args("\t")
-    init.update(validator.get_args())
+    validated_args = validator.get_args()
+    FILEDB = FileDatabase(validated_args)
+    entries = FILEDB.getEntries()
 
-    FILEDB = FileDatabase(init)
+    init.update(
+        {
+            **validated_args,
+            "dbFiles": entries,
+            "dbSelectedFile": {} if not entries else list(entries.values())[0],
+        }
+    )
 
     # Begin
     layout.state = init
