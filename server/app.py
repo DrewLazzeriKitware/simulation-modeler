@@ -34,17 +34,19 @@ from trame import (
     flush_state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div, simput
+from trame.html import vuetify, Div, Span, simput
 
 import pfweb
+
 enable_module(pfweb)
+layout = SinglePage("Parflow Web")
 
 # -----------------------------------------------------------------------------
 # Model
 # -----------------------------------------------------------------------------
 init = {
     "showDebug": False,
-    "currentView": "File Database",
+    "currentView": "Project Generation",
     "views": [
         "File Database",
         "Simulation Type",
@@ -130,11 +132,11 @@ def updateFiles(update, entryId=None):
         update_state("dbFileExchange", FILEDB.getEntryData())
 
 
-@trigger("validateRun")
 def validateRun():
     (work_dir,) = get_state("work_dir")
     parflow = ParflowWrapper(work_dir)
     parflow.read_from_simput(obj_manager)
+    parflow.read_from_trame(layout.state)
     validation = parflow.validate_run()
 
     update_state("projGenValidation", {"output": validation, "valid": False})
@@ -149,8 +151,6 @@ def toggleDebug():
 # Views
 # -----------------------------------------------------------------------------
 html_simput = simput.Simput(ui_manager, prefix="ab")
-
-layout = SinglePage("Parflow Web")
 layout.root = html_simput
 layout.title.content = "Parflow Web"
 layout.toolbar.children += [
@@ -194,13 +194,40 @@ subSurface = """
   v-if="currentView=='Subsurface Properties'" />
 """
 
-projectGeneration = """
-<ProjectGeneration
-  :validation="projGenValidation"
-  validateOn="validateRun"
-  v-if="currentView=='Project Generation'" />
-"""
+projectGeneration = Div(
+    classes="d-flex flex-column fill-height justify-space-around",
+    v_if="currentView=='Project Generation'",
+)
+with projectGeneration:
+    with Div(v_if="!projGenValidation.valid", classes="mx-6"):
+        with vuetify.VCard(outlined=True, classes="pa-2 my-4"):
+            vuetify.VCardTitle("Run variables")
+            vuetify.VTextField(v_model=("BaseUnit", 1.0), label="TimingInfo.BaseUnit")
+            vuetify.VTextField(
+                v_model=("DumpInterval", 1.0),
+                label="TimingInfo.DumpInterval",
+            )
+            vuetify.VTextField(v_model=("StartCount", 0), label="TimingInfo.StartCount")
+            vuetify.VTextField(v_model=("StartTime", 0.0), label="TimingInfo.StartTime")
+            vuetify.VTextField(
+                v_model=("StopTime", 1000.0), label="TimingInfo.StopTime"
+            )
+        with vuetify.VCard(dark=True, outlined=True, classes="pa-2 my-4"):
+            vuetify.VCardTitle("Validation console output")
+            vuetify.VDivider()
+            vuetify.VTextarea(
+                value=("projGenValidation.output",),
+                dark=True,
+                readonly=True,
+                style="font-family: monospace;",
+            )
+        vuetify.VSpacer()
 
+    with Div(v_if="projGenValidation.valid", classes="mx-6"):
+        Span("Run Validated", classes="text-h5")
+    with Div(classes="d-flex justify-end ma-6"):
+        vuetify.VBtn("Validate", click=validateRun, color="primary", classes="mx-2")
+        vuetify.VBtn("Generate", disabled=("!projGenValidation.valid"), color="primary")
 
 layout.content.children += [
     Div("Debug", v_if="showDebug"),

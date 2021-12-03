@@ -7,25 +7,47 @@ from io import StringIO
 
 from pprint import pprint
 
+DEFAULT_KEYS = {"Gravity": 1.0}
+
+TRAME_PARFLOW_MAPPING = {
+    "BaseUnit": "TimingInfo.BaseUnit",
+    "DumpInterval": "TimingInfo.DumpInterval",
+    "StartCount": "TimingInfo.StartCount",
+    "StartTime": "TimingInfo.StartTime",
+    "StopTime": "TimingInfo.StopTime",
+}
+
 
 class ParflowWrapper:
     def __init__(self, work_dir):
         self.work_dir = work_dir
+        self.key_value_store = DEFAULT_KEYS
 
     def read_from_simput(self, simput):
         all_keys = simput.get_type("SearchKey")
         extracted_keys = {
-            key.get("properties").get("key"): key.get("properties").get("value")
+            key.get("properties")
+            .get("key")
+            .replace("/", "."): key.get("properties")
+            .get("value")
             for key in all_keys
         }
 
-        path = os.path.join(self.work_dir, "run.yaml")
-        with open(path, "w") as runFile:
-            yaml.dump(extracted_keys, runFile)
+        self.key_value_store.update(extracted_keys)
+
+    def read_from_trame(self, trame_state):
+        keys = {
+            pf_key: trame_state[trame_key]
+            for (trame_key, pf_key) in TRAME_PARFLOW_MAPPING.items()
+        }
+        self.key_value_store.update(keys)
 
     def validate_run(self):
         path = os.path.join(self.work_dir, "run.yaml")
-        run = Run(path)
+        with open(path, "w") as runFile:
+            yaml.dump(self.key_value_store, runFile)
+
+        run = Run.from_definition(path)
 
         try:
             # Redirect stdout to capture validation msg
