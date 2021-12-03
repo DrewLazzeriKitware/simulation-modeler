@@ -13,7 +13,8 @@ class SimputLoader:
         """
         ids = []
         with open(self.keyFile) as runKeys:
-            keys = json.load(runKeys).keys()
+            pf_keys = json.load(runKeys)
+            keys = pf_keys.keys()
 
         with open(self.modelFile) as flatModel:
             solverKeys = {
@@ -26,14 +27,15 @@ class SimputLoader:
                 model = solverKeys.get(solverKey)
                 if model and model.get("help"):
                     obj = self.simput.create("SearchKey")
-                    self.set(obj.get("id"), "key", solverKey)
-                    self.set(obj.get("id"), "description", model.get("help"))
+                    self._set(obj.get("id"), "key", solverKey)
+                    self._set(obj.get("id"), "description", model.get("help"))
                     ids.append(obj.get("id"))
                 else:
-                    print("Couldn't place ", key)
+                    print("Couldn't place", key)
+                    print("corresponding to value", pf_keys[key])
         return ids
 
-    def set(self, entry_id, name, value):
+    def _set(self, entry_id, name, value):
         self.simput.update([{"id": entry_id, "name": name, "value": value}])
 
     def generate_search_index(self):

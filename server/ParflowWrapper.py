@@ -12,7 +12,7 @@ class ParflowWrapper:
     def __init__(self, work_dir):
         self.work_dir = work_dir
 
-    def extract_run(self, simput):
+    def read_from_simput(self, simput):
         all_keys = simput.get_type("SearchKey")
         extracted_keys = {
             key.get("properties").get("key"): key.get("properties").get("value")

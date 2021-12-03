@@ -1,6 +1,5 @@
 import argparse
 import sys
-import pfweb
 import os.path
 
 from simput.core import ObjectManager, UIManager
@@ -37,6 +36,8 @@ from trame import (
 from trame.layouts import SinglePage
 from trame.html import vuetify, Div, simput
 
+import pfweb
+enable_module(pfweb)
 
 # -----------------------------------------------------------------------------
 # Model
@@ -56,7 +57,6 @@ init = {
     "dbFiles": {},
     "dbSelectedFile": None,
     "dbFileExchange": None,
-    "keyIds": [],
     "solverSearchIndex": {},
     "solverSearchIds": [],
     "simTypeShortcuts": {
@@ -72,21 +72,16 @@ init = {
 }
 
 FILEDB = None
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Load Simput models and layouts
 obj_manager = ObjectManager()
 ui_resolver = VuetifyResolver()
 ui_manager = UIManager(obj_manager, ui_resolver)
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 obj_manager.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_ui(xml_file=os.path.join(BASE_DIR, "model/layout.xml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
-
-# Test simput
-obj_manager.create("ParflowKey")
-ids = list(map(lambda k: k.get("id"), obj_manager.get_type("ParflowKey")))
-init.update({"keyIds": ids})
 
 # Add solver keys with search index
 loader = SimputLoader(obj_manager)
@@ -139,7 +134,7 @@ def updateFiles(update, entryId=None):
 def validateRun():
     (work_dir,) = get_state("work_dir")
     parflow = ParflowWrapper(work_dir)
-    parflow.extract_run(obj_manager)
+    parflow.read_from_simput(obj_manager)
     validation = parflow.validate_run()
 
     update_state("projGenValidation", {"output": validation, "valid": False})
@@ -154,7 +149,6 @@ def toggleDebug():
 # Views
 # -----------------------------------------------------------------------------
 html_simput = simput.Simput(ui_manager, prefix="ab")
-enable_module(pfweb)
 
 layout = SinglePage("Parflow Web")
 layout.root = html_simput
