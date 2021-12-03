@@ -2,17 +2,13 @@ import os.path
 import random
 import yaml
 
-from pprint import pprint
-
 
 class FileDatabase:
     def __init__(self, state):
         self.datastore = state.get("datastore")
         path = os.path.join(self.datastore, "pf_datastore.yaml")
-        print(path)
         with open(path) as entriesFile:
             self.entries = yaml.safe_load(entriesFile) or {}
-            pprint(self.entries)
 
     def addNewEntry(self, newFile):
         entryId = str(random.getrandbits(32))
@@ -23,7 +19,6 @@ class FileDatabase:
         return newFile
 
     def writeEntry(self, entryId, metadata):
-        pprint([self.entries, entryId, metadata])
         self.entries = {**self.entries, entryId: metadata}
         # Update data on disk
         path = os.path.join(self.datastore, "pf_datastore.yaml")

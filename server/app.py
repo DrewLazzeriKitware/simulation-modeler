@@ -2,7 +2,7 @@ import argparse
 import sys
 import os.path
 
-from simput.core import ObjectManager, UIManager
+from simput.core import ProxyManager, UIManager
 from simput.ui.web import VuetifyResolver
 from simput.pywebvue.modules import SimPut
 
@@ -10,8 +10,6 @@ from ArgumentValidator import ArgumentValidator
 from SimputLoader import SimputLoader
 from FileDatabase import FileDatabase
 from ParflowWrapper import ParflowWrapper
-
-from pprint import pprint  # Debug
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -77,16 +75,16 @@ FILEDB = None
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Load Simput models and layouts
-obj_manager = ObjectManager()
+pxm = ProxyManager()
 ui_resolver = VuetifyResolver()
-ui_manager = UIManager(obj_manager, ui_resolver)
-obj_manager.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
+ui_manager = UIManager(pxm, ui_resolver)
+pxm.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_ui(xml_file=os.path.join(BASE_DIR, "model/layout.xml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 
 # Add solver keys with search index
-loader = SimputLoader(obj_manager)
+loader = SimputLoader(pxm)
 solverSearchIds = loader.load_keys()
 index = loader.generate_search_index()
 
@@ -135,7 +133,7 @@ def updateFiles(update, entryId=None):
 def validateRun():
     (work_dir,) = get_state("work_dir")
     parflow = ParflowWrapper(work_dir)
-    parflow.read_from_simput(obj_manager)
+    parflow.read_from_simput(pxm)
     parflow.read_from_trame(layout.state)
     validation = parflow.validate_run()
 

@@ -1,6 +1,5 @@
 import json
 
-
 class SimputLoader:
     def __init__(self, simput, keyFile="data/washita_run.json", modelFile="data/flattened_pf_keys.json"):
         self.simput = simput
@@ -27,9 +26,9 @@ class SimputLoader:
                 model = solverKeys.get(solverKey)
                 if model and model.get("help"):
                     obj = self.simput.create("SearchKey")
-                    self._set(obj.get("id"), "key", solverKey)
-                    self._set(obj.get("id"), "description", model.get("help"))
-                    ids.append(obj.get("id"))
+                    self._set(obj.id, "key", solverKey)
+                    self._set(obj.id, "description", model.get("help"))
+                    ids.append(obj.id)
                 else:
                     print("Couldn't place", key)
                     print("corresponding to value", pf_keys[key])
@@ -40,11 +39,10 @@ class SimputLoader:
 
     def generate_search_index(self):
         index = {
-            s.get("id"): self.searchText(s) for s in self.simput.get_type("SearchKey")
+            s.id: self.searchText(s) for s in self.simput.get_instances_of_type("SearchKey")
         }
         solverSearchIds = list(index.keys())
         return index
 
-    def searchText(self, key):
-        props = key.get("properties")
-        return props.get("description") + props.get("key")
+    def searchText(self, proxy):
+        return proxy.get_property("description") + proxy.get_property("key")

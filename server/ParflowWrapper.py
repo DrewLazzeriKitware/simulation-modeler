@@ -23,13 +23,11 @@ class ParflowWrapper:
         self.work_dir = work_dir
         self.key_value_store = DEFAULT_KEYS
 
-    def read_from_simput(self, simput):
-        all_keys = simput.get_type("SearchKey")
+    def read_from_simput(self, pxm):
+        all_keys = pxm.get_instances_of_type("SearchKey")
         extracted_keys = {
-            key.get("properties")
-            .get("key")
-            .replace("/", "."): key.get("properties")
-            .get("value")
+            key.get_property("key")
+            .replace("/", "."): key.get_property("value")
             for key in all_keys
         }
 
