@@ -7,7 +7,7 @@ from io import StringIO
 
 from pprint import pprint
 
-DEFAULT_KEYS = {"Gravity": 1.0}
+DEFAULT_KEYS = {"Gravity": 1.0, "Domain.GeomName": "domain"}
 
 TRAME_PARFLOW_MAPPING = {
     "BaseUnit": "TimingInfo.BaseUnit",
@@ -15,6 +15,16 @@ TRAME_PARFLOW_MAPPING = {
     "StartCount": "TimingInfo.StartCount",
     "StartTime": "TimingInfo.StartTime",
     "StopTime": "TimingInfo.StopTime",
+    "LX": "ComputationalGrid.Lower.X",
+    "LY": "ComputationalGrid.Lower.Y",
+    "LZ": "ComputationalGrid.Lower.Z",
+    "NX": "ComputationalGrid.NX",
+    "NY": "ComputationalGrid.NY",
+    "NZ": "ComputationalGrid.NZ",
+    "DX": "ComputationalGrid.DX",
+    "DY": "ComputationalGrid.DY",
+    "DZ": "ComputationalGrid.DZ",
+
 }
 
 

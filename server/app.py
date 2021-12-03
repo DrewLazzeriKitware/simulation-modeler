@@ -44,7 +44,7 @@ layout = SinglePage("Parflow Web")
 # -----------------------------------------------------------------------------
 init = {
     "showDebug": False,
-    "currentView": "Project Generation",
+    "currentView": "File Database",
     "views": [
         "File Database",
         "Simulation Type",
@@ -177,10 +177,20 @@ simulation_type = """
   v-if="currentView=='Simulation Type'"/>
 """
 
-domain = """
-<Domain
-  v-if="currentView=='Domain'" />
-"""
+domain = Div(classes="d-flex flex-column fill-height", v_if="currentView=='Domain'")
+with domain:
+    with vuetify.VToolbar(flat=True, classes = "fill-width align-center grey lighten-2 flex-grow-0"):
+        vuetify.VToolbarTitle("Domain Parameters")
+        vuetify.VSpacer()
+        with vuetify.VBtnToggle(rounded=True, mandatory=True):
+            with vuetify.VBtn(small=True):
+                vuetify.VIcon("mdi-format-align-left", small=True, classes = "mr-1" )
+                Span("Parameters")
+            with vuetify.VBtn(small=True):
+                vuetify.VIcon("mdi-eye", small=True, classes = "mr-1" )
+                Span("Preview")
+    with Div(classes="fill-height fill-width flex-grow-1"):
+        vuetify.VSelect(v_model=("indicatorFile", "select file"), items=("Object.values(dbFiles)",), item_text="name", item_value="id", style=("window.coffee = this;"))
 
 boundaryConditions = """
 <BoundaryConditions
