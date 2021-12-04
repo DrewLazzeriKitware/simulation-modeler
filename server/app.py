@@ -120,25 +120,18 @@ def updateComputationalGrid(indicatorFile, **kwargs):
     except:
         print(f"Could not find pfb: {filename}")
     handle.loadHeader()
-    handle.loadData()
 
-    array = handle.moveDataArray()
+    update_state("NX", handle.getNX())
+    update_state("NY", handle.getNY())
+    update_state("NZ", handle.getNZ())
 
-    (z, y, x) = array.shape  # Fortran order
+    update_state("LX", handle.getX())
+    update_state("LY", handle.getY())
+    update_state("LZ", handle.getZ())
 
-    spacing, lower = (10, 0)
-
-    update_state("NX", x)
-    update_state("NY", y)
-    update_state("NZ", z)
-
-    update_state("LX", lower)
-    update_state("LY", lower)
-    update_state("LZ", lower)
-
-    update_state("DX", spacing)
-    update_state("DY", spacing)
-    update_state("DZ", spacing)
+    update_state("DX", handle.getDX())
+    update_state("DY", handle.getDY())
+    update_state("DZ", handle.getDZ())
 
 
 @change("dbFileExchange")
