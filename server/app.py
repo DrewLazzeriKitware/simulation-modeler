@@ -157,6 +157,11 @@ def updateFiles(update, entryId=None):
         update_state("dbFileExchange", FILEDB.getEntryData())
 
 
+@trigger("simputWrite")
+def simputWrite(*args, **kwargs):
+    print(args, kwargs)
+
+
 def validateRun():
     (work_dir,) = get_state("work_dir")
     parflow = SimulationManager(work_dir, loader, FILEDB)
@@ -175,7 +180,7 @@ def toggleDebug():
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager, prefix="ab")
+html_simput = simput.Simput(ui_manager)
 layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
@@ -228,6 +233,21 @@ with domainGridRow:
                 vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
                 vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
                 vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
+        with vuetify.VRow():
+            vuetify.VTextField(
+                v_model="exampleSimput", label="Pick which simput id to describe"
+            )
+        with vuetify.VRow():
+            with simput.SimputItem(
+                itemId=("exampleSimput", "2"),
+                no_ui=True,
+                extract=["id", "properties"],
+            ):
+                vuetify.VTextarea(
+                    value=("properties.description",),
+                    input="trigger('simputWrite', [id, 'description', $event])",
+                )
+
     with Div(classes="ma-6"):
         Span("Lorem Ipsum documentation for Indicator file")
         vuetify.VTextarea(
@@ -344,7 +364,6 @@ if __name__ == "__main__":
             "dbSelectedFile": {} if not entries else list(entries.values())[0],
         }
     )
-
     # Begin
     layout.state = init
     start(layout)
