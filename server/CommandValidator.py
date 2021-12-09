@@ -3,7 +3,7 @@ import distutils.dir_util as dir_util
 import os.path as path
 
 
-class ArgumentValidator:
+class CommandValidator:
     def __init__(self, args):
         self._work_dir = args.output
         self._datastore = args.datastore

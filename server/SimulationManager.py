@@ -7,30 +7,13 @@ from io import StringIO
 
 from pprint import pprint
 
-DEFAULT_KEYS = {"Gravity": 1.0, "Domain.GeomName": "domain"}
 
-TRAME_PARFLOW_MAPPING = {
-    "BaseUnit": "TimingInfo.BaseUnit",
-    "DumpInterval": "TimingInfo.DumpInterval",
-    "StartCount": "TimingInfo.StartCount",
-    "StartTime": "TimingInfo.StartTime",
-    "StopTime": "TimingInfo.StopTime",
-    "LX": "ComputationalGrid.Lower.X",
-    "LY": "ComputationalGrid.Lower.Y",
-    "LZ": "ComputationalGrid.Lower.Z",
-    "NX": "ComputationalGrid.NX",
-    "NY": "ComputationalGrid.NY",
-    "NZ": "ComputationalGrid.NZ",
-    "DX": "ComputationalGrid.DX",
-    "DY": "ComputationalGrid.DY",
-    "DZ": "ComputationalGrid.DZ",
-}
-
-
-class ParflowWrapper:
-    def __init__(self, work_dir):
+class SimulationManager:
+    def __init__(self, work_dir, loader, filedb):
         self.work_dir = work_dir
-        self.key_value_store = DEFAULT_KEYS
+        self.key_value_store = loader.default_keys
+        self.trame_parflow_mapping = loader.trame_parflow_mapping
+        self.domain_set_keys = loader.domain_set_keys
 
     def read_from_simput(self, pxm):
         all_keys = pxm.get_instances_of_type("SearchKey")
@@ -42,11 +25,17 @@ class ParflowWrapper:
         self.key_value_store.update(extracted_keys)
 
     def read_from_trame(self, trame_state):
-        keys = {
+        trame_keys = {
             pf_key: trame_state[trame_key]
-            for (trame_key, pf_key) in TRAME_PARFLOW_MAPPING.items()
+            for (trame_key, pf_key) in self.trame_parflow_mapping.items()
         }
-        self.key_value_store.update(keys)
+        self.key_value_store.update(trame_keys)
+
+        domain_set_keys = {
+            domain_key: self.key_value_store[trame_key]
+            for domain_key, trame_key in self.domain_set_keys.items()
+        }
+        self.key_value_store.update(domain_set_keys)
 
     def validate_run(self):
         path = os.path.join(self.work_dir, "run.yaml")
@@ -54,12 +43,16 @@ class ParflowWrapper:
             yaml.dump(self.key_value_store, runFile)
 
         run = Run.from_definition(path)
+        run.dist("IndicatorFile_Gleeson.50z.pfb")
+        run.run()
 
         try:
             # Redirect stdout to capture validation msg
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
-            if run.validate() == 0:
+            valid = run.validate() == 0
+
+            if valid:
                 print("Validation passed.")
         finally:
             sys.stdout = old_stdout

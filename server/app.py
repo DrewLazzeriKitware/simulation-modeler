@@ -6,10 +6,10 @@ from simput.core import ProxyManager, UIManager
 from simput.ui.web import VuetifyResolver
 from simput.pywebvue.modules import SimPut
 
-from ArgumentValidator import ArgumentValidator
-from SimputLoader import SimputLoader
+from CommandValidator import CommandValidator
+from ParflowLoader import ParflowLoader
 from FileDatabase import FileDatabase
-from ParflowWrapper import ParflowWrapper
+from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
 
@@ -86,7 +86,7 @@ ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 
 # Add solver keys with search index
-loader = SimputLoader(pxm)
+loader = ParflowLoader(pxm)
 solverSearchIds = loader.load_keys()
 index = loader.generate_search_index()
 
@@ -159,7 +159,7 @@ def updateFiles(update, entryId=None):
 
 def validateRun():
     (work_dir,) = get_state("work_dir")
-    parflow = ParflowWrapper(work_dir)
+    parflow = SimulationManager(work_dir, loader, FILEDB)
     parflow.read_from_simput(pxm)
     parflow.read_from_trame(layout.state)
     validation = parflow.validate_run()
@@ -329,7 +329,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Add validated args to initial state
-    validator = ArgumentValidator(args)
+    validator = CommandValidator(args)
     if not validator.args_valid():
         # Crash app and show usage
         parser.parse_args("\t")
