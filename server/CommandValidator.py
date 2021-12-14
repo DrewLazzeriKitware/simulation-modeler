@@ -12,6 +12,7 @@ class CommandValidator:
 
         # Output must be valid directory
         if self._work_dir is None or not path.isdir(str(self._work_dir)):
+            print(f"Could not find directory {self._work_dir}")
             return
 
         self.maybe_clone_input(args.input)

@@ -21,18 +21,13 @@ simulation-modeler $ source .venv/bin/activate
 (.venv) simulation-modeler $ python server/app.py -O output 
 ```
 
-# Required files
-## washita_run.json
-This describes a run of the little washita project. It is needed to set default values for the solver keys.
-
-## flattened_pf_keys.json
-This comes from the simput generator that is part of parflow's pf-keys. It has all of the domains and documentation for the keys.
-
+# Making parflow changes
+If you change the parflow keys, you have to
+1) Remake the pftools module
 ```bash
-jq < generator_output.json '[.definitions | map(.parameters) | .[] | .[]]' > server/model/model.json
+cd parflow
+source .venv/bin/activate
+python pf-keys/generators/pf-python.py pftools/python/parflow/tools/database/generated.py
 ```
-
-
-# Parflow fixes 
-1) The current simput generator for pf-keys ignores top level keys, like Solver.
-2) There are missing domains, like Geom.Domain should have a domains.EnumDomains.location.
+This should update automatically if you're using `pip install -e parflow/pftools/python/parflow` for pftools.
+2) Remake anything depending on pf-keys

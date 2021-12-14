@@ -1,13 +1,14 @@
 import argparse
 import sys
 import os.path
+import yaml
 
-from simput.core import ProxyManager, UIManager
+from simput.core import ProxyManager, UIManager, ProxyDomainManager
 from simput.ui.web import VuetifyResolver
 from simput.pywebvue.modules import SimPut
+from simput.domains import register_domains
 
 from CommandValidator import CommandValidator
-from ParflowLoader import ParflowLoader
 from FileDatabase import FileDatabase
 from SimulationManager import SimulationManager
 
@@ -39,6 +40,7 @@ from trame.html import vuetify, Div, Span, simput, Element
 import pfweb
 
 enable_module(pfweb)
+register_domains()
 layout = SinglePage("Parflow Web")
 
 # -----------------------------------------------------------------------------
@@ -46,7 +48,7 @@ layout = SinglePage("Parflow Web")
 # -----------------------------------------------------------------------------
 init = {
     "showDebug": False,
-    "currentView": "File Database",
+    "currentView": "Solver",
     "views": [
         "File Database",
         "Simulation Type",
@@ -80,17 +82,12 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 pxm = ProxyManager()
 ui_resolver = VuetifyResolver()
 ui_manager = UIManager(pxm, ui_resolver)
+pdm = ProxyDomainManager()
+pxm.add_life_cycle_listener(pdm)
 pxm.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_ui(xml_file=os.path.join(BASE_DIR, "model/layout.xml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
 ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
-
-# Add solver keys with search index
-loader = ParflowLoader(pxm)
-solverSearchIds = loader.load_keys()
-index = loader.generate_search_index()
-
-init.update({"solverSearchIndex": index, "solverSearchIds": solverSearchIds})
 
 # -----------------------------------------------------------------------------
 # Updates
@@ -157,11 +154,6 @@ def updateFiles(update, entryId=None):
         update_state("dbFileExchange", FILEDB.getEntryData())
 
 
-@trigger("simputWrite")
-def simputWrite(*args, **kwargs):
-    print(args, kwargs)
-
-
 def validateRun():
     (work_dir,) = get_state("work_dir")
     parflow = SimulationManager(work_dir, loader, FILEDB)
@@ -177,6 +169,43 @@ def toggleDebug():
     update_state("showDebug", not showDebug)
 
 
+def saveSimput():
+    (work_dir,) = get_state("work_dir")
+    settings_path = os.path.join(work_dir, "pf_settings.yaml")
+    with open(settings_path, "r+") as settings_file:
+        settings = yaml.safe_load(settings_file)
+        settings["save"] = pxm.save()
+        yaml.dump(settings, settings_file)
+
+
+def initSimputModel(work_dir):
+    settings_path = os.path.join(work_dir, "pf_settings.yaml")
+    with open(settings_path, "r") as settings_file:
+        settings = yaml.safe_load(settings_file)
+
+    grid_id = None
+    solver_id = None
+
+    # Either load from previous save or instantiate models
+    if settings.get("save"):
+        pxm.load(file_content=settings.get("save"))
+        [grid] = pxm.get_instances_of_type("Grid")
+        [solver] = pxm.get_instances_of_type("Solver")
+        grid_id = grid.id
+        solver_id = solver.id
+    else:
+        # Add solver keys with search index
+        grid_id = pxm.create("Grid").id
+        solver_id = pxm.create("Solver").id
+
+    init.update(
+        {
+            "simputDomainId": grid_id,
+            "simputSolverId": solver_id,
+        }
+    )
+
+
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
@@ -186,6 +215,9 @@ layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
     '<NavigationDropDown v-model="currentView" :views="views"/>',
+    vuetify.VSpacer(),
+    Span("Simput", classes="text mx-1"),
+    vuetify.VBtn("Save", click=saveSimput, classes="mx-1"),
     vuetify.VSpacer(),
     vuetify.VBtn("DEBUG", click=toggleDebug),
 ]
@@ -197,84 +229,91 @@ file_database = """
   db-update="updateFiles" 
   v-if="currentView == 'File Database'"/> 
 """
+
 solver = """
-<Solver 
-  search="solverSearchIndex" 
-  ids="solverSearchIds" 
-  v-if="currentView == 'Solver'"/>
+<SimputItem
+  v-if="currentView == 'Solver'"
+  :itemId="simputSolverId"
+  />
 """
+
 simulation_type = """
 <SimulationType 
   :shortcuts="simTypeShortcuts"
   v-if="currentView=='Simulation Type'"/>
 """
 
-domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
-domainGrid = [Element("H1", "Indicator"), domainGridRow]
-with domainGridRow:
-    with Div():
-        vuetify.VSelect(
-            v_model=("indicatorFile", ""),
-            placeholder="Select an indicator file",
-            items=("Object.values(dbFiles)",),
-            item_text="name",
-            item_value="id",
-        )
-        with vuetify.VRow():
-            with vuetify.VCol():
-                vuetify.VTextField(v_model=("LX", 1.0), label="lx", readonly=True)
-                vuetify.VTextField(v_model=("DX", 1.0), label="dx", readonly=True)
-                vuetify.VTextField(v_model=("NX", 1.0), label="nx", readonly=True)
-            with vuetify.VCol():
-                vuetify.VTextField(v_model=("LY", 1.0), label="ly", readonly=True)
-                vuetify.VTextField(v_model=("DY", 1.0), label="dy", readonly=True)
-                vuetify.VTextField(v_model=("NY", 1.0), label="ny", readonly=True)
-            with vuetify.VCol():
-                vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
-                vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
-                vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
-        with vuetify.VRow():
-            vuetify.VTextField(
-                v_model="exampleSimput", label="Pick which simput id to describe"
-            )
-        with vuetify.VRow():
-            with simput.SimputItem(
-                itemId=("exampleSimput", "2"),
-                no_ui=True,
-                extract=["id", "properties"],
-            ):
-                vuetify.VTextarea(
-                    value=("properties.description",),
-                    input="trigger('simputWrite', [id, 'description', $event])",
-                )
+domain = """
+<SimputItem
+:itemId="simputDomainId"
+v-if="currentView=='Domain'"/>
+"""
 
-    with Div(classes="ma-6"):
-        Span("Lorem Ipsum documentation for Indicator file")
-        vuetify.VTextarea(
-            v_if="indicatorFileDescription",
-            value=("indicatorFileDescription", ""),
-            readonly=True,
-            style="font-family: monospace;",
-        )
-
-domain = Div(classes="d-flex flex-column fill-height", v_if="currentView=='Domain'")
-with domain:
-    with vuetify.VToolbar(
-        flat=True, classes="fill-width align-center grey lighten-2 flex-grow-0"
-    ):
-        vuetify.VToolbarTitle("Domain Parameters")
-        vuetify.VSpacer()
-        with vuetify.VBtnToggle(rounded=True, mandatory=True):
-            with vuetify.VBtn(small=True):
-                vuetify.VIcon("mdi-format-align-left", small=True, classes="mr-1")
-                Span("Parameters")
-            with vuetify.VBtn(small=True):
-                vuetify.VIcon("mdi-eye", small=True, classes="mr-1")
-                Span("Preview")
-    Div(
-        domainGrid,
-        classes="fill-height fill-width flex-grow-1 ma-6",
-    )
+# domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
+# domainGrid = [Element("H1", "Indicator"), domainGridRow]
+# with domainGridRow:
+#     with Div():
+#         vuetify.VSelect(
+#             v_model=("indicatorFile", ""),
+#             placeholder="Select an indicator file",
+#             items=("Object.values(dbFiles)",),
+#             item_text="name",
+#             item_value="id",
+#         )
+#         with vuetify.VRow():
+#             with vuetify.VCol():
+#                 vuetify.VTextField(v_model=("LX", 1.0), label="lx", readonly=True)
+#                 vuetify.VTextField(v_model=("DX", 1.0), label="dx", readonly=True)
+#                 vuetify.VTextField(v_model=("NX", 1.0), label="nx", readonly=True)
+#             with vuetify.VCol():
+#                 vuetify.VTextField(v_model=("LY", 1.0), label="ly", readonly=True)
+#                 vuetify.VTextField(v_model=("DY", 1.0), label="dy", readonly=True)
+#                 vuetify.VTextField(v_model=("NY", 1.0), label="ny", readonly=True)
+#             with vuetify.VCol():
+#                 vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
+#                 vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
+#                 vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
+#         with vuetify.VRow():
+#             vuetify.VTextField(
+#                 v_model="exampleSimput", label="Pick which simput id to describe"
+#             )
+#         with vuetify.VRow():
+#             with simput.SimputItem(
+#                 itemId=("exampleSimput", "2"),
+#                 no_ui=True,
+#                 extract=["id", "properties"],
+#             ):
+#                 vuetify.VTextarea(
+#                     value=("properties.description",),
+#                 )
+#
+#     with Div(classes="ma-6"):
+#         Span("Lorem Ipsum documentation for Indicator file")
+#         vuetify.VTextarea(
+#             v_if="indicatorFileDescription",
+#             value=("indicatorFileDescription", ""),
+#             readonly=True,
+#             style="font-family: monospace;",
+#         )
+#
+# domain = Div(classes="d-flex flex-column fill-height", v_if="currentView=='Domain'")
+# with domain:
+#    with vuetify.VToolbar(
+#        flat=True, classes="fill-width align-center grey lighten-2 flex-grow-0"
+#    ):
+#        vuetify.VToolbarTitle("Domain Parameters")
+#        vuetify.VSpacer()
+#        with vuetify.VBtnToggle(rounded=True, mandatory=True):
+#            with vuetify.VBtn(small=True):
+#                vuetify.VIcon("mdi-format-align-left", small=True, classes="mr-1")
+#                Span("Parameters")
+#            with vuetify.VBtn(small=True):
+#                vuetify.VIcon("mdi-eye", small=True, classes="mr-1")
+#                Span("Preview")
+#    Div(
+#        domainGrid,
+#        classes="fill-height fill-width flex-grow-1 ma-6",
+#    )
 
 boundaryConditions = """
 <BoundaryConditions
@@ -322,7 +361,7 @@ with projectGeneration:
         vuetify.VBtn("Generate", disabled=("!projGenValidation.valid"), color="primary")
 
 layout.content.children += [
-    Div("Debug", v_if="showDebug"),
+    Div("{{simputDomainId}}", v_if="showDebug"),
     file_database,
     simulation_type,
     solver,
@@ -331,7 +370,6 @@ layout.content.children += [
     subSurface,
     projectGeneration,
 ]
-
 # -----------------------------------------------------------------------------
 # Validate command line arguments and run app
 # -----------------------------------------------------------------------------
@@ -339,7 +377,9 @@ if __name__ == "__main__":
 
     # Add our args to parser
     parser = get_cli_parser()
-    parser.add_argument("-O", "--output", help="A working directory for the build")
+    parser.add_argument(
+        "-O", "--output", help="A working directory for the build", required=True
+    )
     parser.add_argument(
         "-I", "--input", help="An existing build directory to clone"
     )  # -i taken by paraviewweb
@@ -351,8 +391,8 @@ if __name__ == "__main__":
     # Add validated args to initial state
     validator = CommandValidator(args)
     if not validator.args_valid():
-        # Crash app and show usage
-        parser.parse_args("\t")
+        parser.print_help(sys.stderr)
+        exit()
     validated_args = validator.get_args()
     FILEDB = FileDatabase(validated_args)
     entries = FILEDB.getEntries()
@@ -364,6 +404,9 @@ if __name__ == "__main__":
             "dbSelectedFile": {} if not entries else list(entries.values())[0],
         }
     )
+
+    initSimputModel(validated_args["work_dir"])
+
     # Begin
     layout.state = init
     start(layout)

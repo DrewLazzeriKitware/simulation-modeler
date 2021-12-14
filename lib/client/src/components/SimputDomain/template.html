@@ -1,0 +1,61 @@
+<div class="d-flex flex-column fill-height" v-if="available">
+  <v-toolbar flat class="fill-width align-center grey lighten-2 flex-grow-0">
+    <v-toolbar-title> Domain Parameters </v-toolbar-title>
+    <v-spacer />
+    <v-btn-toggle rounded mandatory>
+      <v-btn small>
+        <v-icon small class="mr-1">mdi-format-align-left</v-icon> Parameters
+      </v-btn>
+
+      <v-btn small> <v-icon small class="mr-1">mdi-eye</v-icon> Preview </v-btn>
+    </v-btn-toggle>
+  </v-toolbar>
+  <div class="fill-height fill-width flex-grow-1 ma-6">
+    <h1>
+      Indicator
+    </h1>
+    <v-row class="ma-6 justify-space-between">
+      <div>
+        <!--
+        <v-select
+          :key="`w20-${tts}`"
+          v-model="indicatorFile"
+          item-text="name"
+          item-value="i
+d"
+          :items="Object.values(dbFiles)"
+          placeholder="Select an indicator file"
+        />
+        -->
+        <v-row>
+          <v-col>
+            <v-text-field v-model="properties.lx" label="LX" readonly />
+            <v-text-field v-model="properties.dx" label="DX" readonly />
+            <v-text-field v-model="properties.nx" label="NX" readonly />
+          </v-col>
+          <v-col>
+            <v-text-field v-model="properties.ly" label="LY" readonly />
+            <v-text-field v-model="properties.dy" label="DY" readonly />
+            <v-text-field v-model="properties.ny" label="NY" readonly />
+          </v-col>
+          <v-col>
+            <v-text-field v-model="properties.lz" label="LZ" readonly />
+            <v-text-field v-model="properties.dz" label="DZ" readonly />
+            <v-text-field v-model="properties.nz" label="NZ" readonly />
+          </v-col>
+        </v-row>
+      </div>
+      <div class="ma-6">
+        <span>
+          Lorem Ipsum documentation for Indicator file
+        </span>
+        <v-textarea
+          style="font-family: monospace;"
+          v-if="indicatorFileDescription"
+          readonly
+          :value="indicatorFileDescription"
+        />
+      </div>
+    </v-row>
+  </div>
+</div>
