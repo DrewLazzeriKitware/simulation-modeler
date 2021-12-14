@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --target lib --report --filename parflow --name pfweb src/use.js",
+    "build": "vue-cli-service build --target lib --report --filename parflow --name widgets src/use.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

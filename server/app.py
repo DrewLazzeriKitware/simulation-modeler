@@ -3,11 +3,6 @@ import sys
 import os.path
 import yaml
 
-from simput.core import ProxyManager, UIManager, ProxyDomainManager
-from simput.ui.web import VuetifyResolver
-from simput.pywebvue.modules import SimPut
-from simput.domains import register_domains
-
 from CommandValidator import CommandValidator
 from FileDatabase import FileDatabase
 from SimulationManager import SimulationManager
@@ -29,18 +24,21 @@ from trame import (
     change,
     update_state,
     get_cli_parser,
-    enable_module,
     trigger,
     get_state,
     flush_state,
 )
 from trame.layouts import SinglePage
 from trame.html import vuetify, Div, Span, simput, Element
+import widgets 
 
-import pfweb
+from simput.core import ProxyManager, UIManager, ProxyDomainManager
+from simput.ui.web import VuetifyResolver
+from simput.domains import register_domains
+from simput.values import register_values
 
-enable_module(pfweb)
 register_domains()
+register_values()
 layout = SinglePage("Parflow Web")
 
 # -----------------------------------------------------------------------------
@@ -209,7 +207,7 @@ def initSimputModel(work_dir):
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager)
+html_simput = simput.Simput(ui_manager, pdm, prefix="simput")
 layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
