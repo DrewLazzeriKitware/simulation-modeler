@@ -5,42 +5,28 @@ import yaml
 from parflow import Run
 from io import StringIO
 
-from pprint import pprint
-
 
 class SimulationManager:
-    def __init__(self, work_dir, loader, filedb):
+    def __init__(self, work_dir, filedb):
         self.work_dir = work_dir
-        self.key_value_store = loader.default_keys
-        self.trame_parflow_mapping = loader.trame_parflow_mapping
-        self.domain_set_keys = loader.domain_set_keys
+        self.run = {}
 
     def read_from_simput(self, pxm):
-        all_keys = pxm.get_instances_of_type("SearchKey")
-        extracted_keys = {
-            key.get_property("key").replace("/", "."): key.get_property("value")
-            for key in all_keys
-        }
+        extracted_keys = { }
 
-        self.key_value_store.update(extracted_keys)
+        for proxy_type in pxm.types():
+            for proxy in pxm.get_instances_of_type(proxy_type):
+                for (prop_name, prop) in proxy.definition.items():
+                    value = proxy.get_property(prop_name)
+                    if value is not None:
+                        extracted_keys[prop['_parflowId']] = value
 
-    def read_from_trame(self, trame_state):
-        trame_keys = {
-            pf_key: trame_state[trame_key]
-            for (trame_key, pf_key) in self.trame_parflow_mapping.items()
-        }
-        self.key_value_store.update(trame_keys)
-
-        domain_set_keys = {
-            domain_key: self.key_value_store[trame_key]
-            for domain_key, trame_key in self.domain_set_keys.items()
-        }
-        self.key_value_store.update(domain_set_keys)
+        self.run.update(extracted_keys)
 
     def validate_run(self):
         path = os.path.join(self.work_dir, "run.yaml")
         with open(path, "w") as runFile:
-            yaml.dump(self.key_value_store, runFile)
+            yaml.dump(self.run, runFile)
 
         run = Run.from_definition(path)
         run.dist("IndicatorFile_Gleeson.50z.pfb")

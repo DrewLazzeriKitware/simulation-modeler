@@ -154,9 +154,8 @@ def updateFiles(update, entryId=None):
 
 def validateRun():
     (work_dir,) = get_state("work_dir")
-    parflow = SimulationManager(work_dir, loader, FILEDB)
+    parflow = SimulationManager(work_dir, FILEDB)
     parflow.read_from_simput(pxm)
-    parflow.read_from_trame(layout.state)
     validation = parflow.validate_run()
 
     update_state("projGenValidation", {"output": validation, "valid": False})
