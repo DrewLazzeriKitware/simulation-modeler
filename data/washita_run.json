@@ -259,7 +259,7 @@
   "TimeStep.Value": 1.0,
   "TimingInfo.BaseUnit": 1.0,
   "TimingInfo.DumpInterval": 1.0,
-  "TimingInfo.StartCount": 0.0,
+  "TimingInfo.StartCount": 0,
   "TimingInfo.StartTime": 0.0,
   "TimingInfo.StopTime": 1000.0,
   "TopoSlopesX.FileName": "LW.slopex.pfb",

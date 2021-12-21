@@ -1,8 +1,149 @@
+BaseRun:
+  BaseRun_FileVersion:
+    _exportSuffix: BaseRun.FileVersion
+    _help: This gives the value of the input file version number that this file fits.
+      As development of the ParFlow code continues, the input file format may vary.
+      We have thus included an input file format number as a way of verifying that
+      the correct format type is being used. The user can check in the parflow/config/file_versions.h
+      file to verify that the format number specified in the input file matches the
+      defined value of PFIN_VERSION.
+    type: int8
+  BaseRun_Gravity:
+    _exportSuffix: BaseRun.Gravity
+    _help: Specifies the gravity constant to be used.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  BaseRun_OverlandFlowDiffusive:
+    _exportSuffix: BaseRun.OverlandFlowDiffusive
+    _help: Changes the overland flow formulation to diffusive wave if set to 1.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - 1
+    type: int8
+  BaseRun_OverlandFlowSpinUp:
+    _exportSuffix: BaseRun.OverlandFlowSpinUp
+    _help: This key specifies that a simplified form of the overland flow boundary
+      condition (Equation 5.17) be used in place of the full equation. This formulation
+      removes lateral flow and drives and ponded water pressures to zero using a SeepageFace
+      boundary condition. While this can be helpful in spinning up the subsurface,
+      this is no longer coupled subsurface-surface flow. If set to zero (the default)
+      this key behaves normally.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - 1
+    type: int8
+  BaseRun_OverlandFlowSpinUpDampP1:
+    _exportSuffix: BaseRun.OverlandFlowSpinUpDampP1
+    _help: 'This key sets P1 and provides exponential dampening to the pressure relationship
+      in the overland flow equation by adding the following term: P2*exp[(pressure)*P2]'
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  BaseRun_OverlandFlowSpinUpDampP2:
+    _exportSuffix: BaseRun.OverlandFlowSpinUpDampP2
+    _help: 'This key sets P2 and provides exponential dampening to the pressure relationship
+      in the overland flow equation by adding the following term: P2*exp[(pressure)*P2]'
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  BaseRun_UseClustering:
+    _exportSuffix: BaseRun.UseClustering
+    _help: Run a clustering algorithm to create boxes in index space for iteration.
+      By default an octree representation is used for iteration, this may result in
+      iterating over many nodes in the octree. Th UseClustering key will run a clustering
+      algorithm to build a set of boxes for iteration. This does not always have a
+      significant impact on performance and the clustering algorithm can be expensive
+      to compute. For small problems and short running problems clustering is not
+      recommended. Long running problems may or may not see a benefit. The result
+      varies significantly based on the geometries in the problem. The Berger-Rigoutsos
+      algorithm is currently used for clustering.
+    type: string
+Domain:
+  Domain_GeomName:
+    _exportSuffix: Domain.GeomName
+    _help: This key specifies which of the named geometries is the problem domain.
+    type: string
+GeomInput:
+  GeomInput_Names:
+    _exportSuffix: GeomInput.Names
+    _help: List of names to use for defining geometry regions
+    type: string
+  GeomInput_{geom_input_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: GeomInput_{geom_input_name}
+        type: GeomInput_{geom_input_name}
+GeomInput_{geom_input_name}:
+  FileName:
+    _exportSuffix: FileName
+    _help: For IndicatorField and SolidFile geometry inputs, this key specifies the
+      input filename which contains the field or solid information.
+    type: string
+  GeomName:
+    _exportSuffix: GeomName
+    _help: This is a name of a single geometry defined by the geometry input. This
+      should be used for a geometry input type of Box, which only requires a single
+      name.
+    type: string
+  GeomNames:
+    _exportSuffix: GeomNames
+    _help: This is a list of the names of the geometries defined by the geometry input.
+      For a geometry input type of Box, the singular GeomName should be used. For
+      the SolidFile geometry type this should contain a list with the same number
+      of geometries as were defined using GMS. The order of geometries in the SolidFile
+      should match the names. For IndicatorField types you need to specify the value
+      in the input field which matches the name using GeomInput.geom_input_name.Value.
+    type: string
+  InputType:
+    _exportSuffix: InputType
+    _help: 'This defines the type for the geometry input with the given input name.
+      This key must be one of: SolidFile, IndicatorField, or Box.'
+    domains:
+    - type: LabelList
+      values:
+      - text: SolidFile
+        value: SolidFile
+      - text: IndicatorField
+        value: IndicatorField
+      - text: Box
+        value: Box
+    type: string
+  Value:
+    _exportSuffix: Value
+    _help: For IndicatorField geometry inputs, you need to specify the mapping between
+      values in the input file and the geometry names. The named geometry will be
+      defined wherever the input file is equal to the specified value.
+    type: int8
+  _exportPrefix: GeomInput
+  name:
+    _help: The name distinguishing this instance of GeomInput_{geom_input_name}
+    _ui: skip
+    type: string
 Grid:
   ComputationalGrid_DX:
+    _exportSuffix: ComputationalGrid.DX
     _help: This defines the size of grid cells in the x direction. Units are L and
       are defined by the units of the hydraulic conductivity used in the problem.
-    _parflowId: ComputationalGrid.DX
     domains:
     - level: 1
       type: Range
@@ -11,9 +152,9 @@ Grid:
       - null
     type: float32
   ComputationalGrid_DY:
+    _exportSuffix: ComputationalGrid.DY
     _help: This defines the size of grid cells in the y direction. Units are L and
       are defined by the units of the hydraulic conductivity used in the problem.
-    _parflowId: ComputationalGrid.DY
     domains:
     - level: 1
       type: Range
@@ -22,9 +163,9 @@ Grid:
       - null
     type: float32
   ComputationalGrid_DZ:
+    _exportSuffix: ComputationalGrid.DZ
     _help: This defines the size of grid cells in the z direction. Units are L and
       are defined by the units of the hydraulic conductivity used in the problem.
-    _parflowId: ComputationalGrid.DZ
     domains:
     - level: 1
       type: Range
@@ -33,21 +174,21 @@ Grid:
       - null
     type: float32
   ComputationalGrid_Lower_X:
+    _exportSuffix: ComputationalGrid.Lower.X
     _help: This assigns the lower x coordinate location for the computational grid.
-    _parflowId: ComputationalGrid.Lower.X
     type: float32
   ComputationalGrid_Lower_Y:
+    _exportSuffix: ComputationalGrid.Lower.Y
     _help: This assigns the lower y coordinate location for the computational grid.
-    _parflowId: ComputationalGrid.Lower.Y
     type: float32
   ComputationalGrid_Lower_Z:
+    _exportSuffix: ComputationalGrid.Lower.Z
     _help: This assigns the lower z coordinate location for the computational grid.
-    _parflowId: ComputationalGrid.Lower.Z
     type: float32
   ComputationalGrid_NX:
+    _exportSuffix: ComputationalGrid.NX
     _help: This assigns the number of grid cells in the x direction for the computational
       grid.
-    _parflowId: ComputationalGrid.NX
     domains:
     - level: 1
       type: Range
@@ -56,9 +197,9 @@ Grid:
       - null
     type: int8
   ComputationalGrid_NY:
+    _exportSuffix: ComputationalGrid.NY
     _help: This assigns the number of grid cells in the y direction for the computational
       grid.
-    _parflowId: ComputationalGrid.NY
     domains:
     - level: 1
       type: Range
@@ -67,9 +208,9 @@ Grid:
       - null
     type: int8
   ComputationalGrid_NZ:
+    _exportSuffix: ComputationalGrid.NZ
     _help: This assigns the number of grid cells in the z direction for the computational
       grid.
-    _parflowId: ComputationalGrid.NZ
     domains:
     - level: 1
       type: Range
@@ -79,6 +220,7 @@ Grid:
     type: int8
 Solver:
   Solver:
+    _exportSuffix: Solver
     _help: "ParFlow can operate using a number of different solvers. Two of these\
       \ solvers, IMPES (running in single-phase, fully-saturated mode, not multiphase)\
       \ and RICHARDS (running in variably-saturated mode, not multiphase, with the\
@@ -91,7 +233,6 @@ Solver:
       \ transient conditions, using Richards\u2019 equation, variably/fully saturated,\
       \ transient with compressible storage set the solver to RICHARDS. This is also\
       \ the solver used to simulate surface flow or coupled surface-subsurface flow."
-    _parflowId: Solver
     domains:
     - type: LabelList
       values:
@@ -101,8 +242,8 @@ Solver:
         value: Richards
     type: string
   Solver_AbsTol:
+    _exportSuffix: Solver.AbsTol
     _help: This value gives the absolute tolerance for the linear solve algorithm.
-    _parflowId: Solver.AbsTol
     domains:
     - level: 1
       type: Range
@@ -111,10 +252,10 @@ Solver:
       - null
     type: float32
   Solver_AdvectOrder:
+    _exportSuffix: Solver.AdvectOrder
     _help: This key controls the order of the explicit method used in advancing the
       concentrations. This value can be either 1 for a standard upwind first order
       or 2 for a second order Godunov method.
-    _parflowId: Solver.AdvectOrder
     domains:
     - level: 1
       type: Range
@@ -123,45 +264,45 @@ Solver:
       - 2
     type: int8
   Solver_BetaFluid:
+    _exportSuffix: Solver.BetaFluid
     _help: '[Type: int]'
-    _parflowId: Solver.BetaFluid
     type: float32
   Solver_BetaFracture:
+    _exportSuffix: Solver.BetaFracture
     _help: '[Type: int]'
-    _parflowId: Solver.BetaFracture
     type: float32
   Solver_BetaPerm:
+    _exportSuffix: Solver.BetaPerm
     _help: '[Type: int]'
-    _parflowId: Solver.BetaPerm
     type: float32
   Solver_BetaPore:
+    _exportSuffix: Solver.BetaPore
     _help: '[Type: int]'
-    _parflowId: Solver.BetaPore
     type: float32
   Solver_BoxSizePowerOf2:
+    _exportSuffix: Solver.BoxSizePowerOf2
     _help: '[Type: int]'
-    _parflowId: Solver.BoxSizePowerOf2
     type: float32
   Solver_CFL:
+    _exportSuffix: Solver.CFL
     _help: This key gives the value of the weight put on the computed CFL limit before
       computing a global timestep value. Values greater than 1 are not suggested and
       in fact because this is an approximation, values slightly less than 1 can also
       produce instabilities.
-    _parflowId: Solver.CFL
     type: float32
   Solver_CLM_BinaryOutDir:
+    _exportSuffix: Solver.CLM.BinaryOutDir
     _help: This key specifies whether the CLM writes each set of two dimensional binary
       output files to a corresponding directory. These directories my be created before
       ParFlow is run (using the tcl script, for example). Choices for this key include
       True and False. Note that CLM must be compiled and linked at runtime for this
       option to be active.
-    _parflowId: Solver.CLM.BinaryOutDir
     type: string
   Solver_CLM_CLMDumpInterval:
+    _exportSuffix: Solver.CLM.CLMDumpInterval
     _help: This key specifies how often output from the CLM is written. This key is
       in integer multipliers of the CLM timestep. Note that CLM must be compiled and
       linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.CLMDumpInterval
     domains:
     - level: 1
       type: Range
@@ -170,13 +311,14 @@ Solver:
       - null
     type: int8
   Solver_CLM_CLMFileDir:
+    _exportSuffix: Solver.CLM.CLMFileDir
     _help: This key specifies what directory all output from the CLM is written to.
       This key may be set to "./" or "" to write output to the ParFlow run directory.
       This directory must be created before ParFlow is run. Note that CLM must be
       compiled and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.CLMFileDir
     type: string
   Solver_CLM_DailyRST:
+    _exportSuffix: Solver.CLM.DailyRST
     _help: Controls whether CLM writes daily restart files (default) or at every time
       step when set to False; outputs are numbered according to the istep from ParFlow.
       If ReuseCount=n, with n greater than 1, the output will be written every n steps
@@ -184,12 +326,11 @@ Solver:
       etc...). Fully compatible with WriteLastRST=False so that each daily output
       is overwritten to time 00000 in restart file name.00000.p where p is the processor
       number.
-    _parflowId: Solver.CLM.DailyRST
     type: string
   Solver_CLM_EvapBeta:
+    _exportSuffix: Solver.CLM.EvapBeta
     _help: This key specifies the form of the bare soil evaporation parameter in CLM.
       The valid types for this key are None, Linear, Cosine.
-    _parflowId: Solver.CLM.EvapBeta
     domains:
     - type: LabelList
       values:
@@ -201,11 +342,11 @@ Solver:
         value: Cosine
     type: string
   Solver_CLM_FieldCapacity:
+    _exportSuffix: Solver.CLM.FieldCapacity
     _help: This key specifies the field capacity for the beta-t function in CLM. Note
       that the units for this function are pressure [m] for a Pressure formulation
       and saturation [-] for a Saturation formulation. Note that CLM must be compiled
       and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.FieldCapacity
     domains:
     - level: 1
       type: Range
@@ -214,6 +355,7 @@ Solver:
       - 1.0
     type: float32
   Solver_CLM_ForceVegetation:
+    _exportSuffix: Solver.CLM.ForceVegetation
     _help: 'This key specifies whether vegetation should be forced in CLM. Currently
       this option only works for 1D and 3D forcings, as specified by the key Solver.CLM.MetForcing.
       Choices for this key include True and False. Forced vegetation variables are
@@ -230,68 +372,67 @@ Solver:
       four distincts properly distributed ParFlow binary file (.pfb), the third dimension
       being the timesteps. The files should be named LAI.pfb, SAI.pfb, Z0M.pfb, DISPLA.pfb.
       No vegetation map is needed in this case.'
-    _parflowId: Solver.CLM.ForceVegetation
     type: string
   Solver_CLM_FstepStart:
+    _exportSuffix: Solver.CLM.FstepStart
     _help: '[Type: int]'
-    _parflowId: Solver.CLM.FstepStart
     type: float32
   Solver_CLM_Input_Domain_MaxTiles:
+    _exportSuffix: Solver.CLM.Input.Domain.MaxTiles
     _help: Maximum tiles per grid (originally 3; changed it, because we have one type
       per cell)
-    _parflowId: Solver.CLM.Input.Domain.MaxTiles
     type: int8
   Solver_CLM_Input_Domain_MinGridArea:
+    _exportSuffix: Solver.CLM.Input.Domain.MinGridArea
     _help: Min grid area for tile (%)
-    _parflowId: Solver.CLM.Input.Domain.MinGridArea
     type: float32
   Solver_CLM_Input_Domain_UndefinedValue:
+    _exportSuffix: Solver.CLM.Input.Domain.UndefinedValue
     _help: Undefined value
-    _parflowId: Solver.CLM.Input.Domain.UndefinedValue
     type: int8
   Solver_CLM_Input_Domain_VegClassification:
+    _exportSuffix: Solver.CLM.Input.Domain.VegClassification
     _help: Vegetation Classification Scheme (1=UMD,2=IGBP,etc.) NOT the index
-    _parflowId: Solver.CLM.Input.Domain.VegClassification
     type: int8
   Solver_CLM_Input_File_ActiveRestart:
+    _exportSuffix: Solver.CLM.Input.File.ActiveRestart
     _help: CLM active restart file
-    _parflowId: Solver.CLM.Input.File.ActiveRestart
     type: string
   Solver_CLM_Input_File_MetInput:
+    _exportSuffix: Solver.CLM.Input.File.MetInput
     _help: Meterologic input file- valdai 3 hr
-    _parflowId: Solver.CLM.Input.File.MetInput
     type: string
   Solver_CLM_Input_File_Output:
+    _exportSuffix: Solver.CLM.Input.File.Output
     _help: CLM output file
-    _parflowId: Solver.CLM.Input.File.Output
     type: string
   Solver_CLM_Input_File_ParamOutput:
+    _exportSuffix: Solver.CLM.Input.File.ParamOutput
     _help: CLM 1D Parameter Output File
-    _parflowId: Solver.CLM.Input.File.ParamOutput
     type: string
   Solver_CLM_Input_File_VegTileSpecification:
+    _exportSuffix: Solver.CLM.Input.File.VegTileSpecification
     _help: Vegetation Tile Specification File
-    _parflowId: Solver.CLM.Input.File.VegTileSpecification
     type: string
   Solver_CLM_Input_File_VegTypeParameter:
+    _exportSuffix: Solver.CLM.Input.File.VegTypeParameter
     _help: Vegetation Type Parameter File
-    _parflowId: Solver.CLM.Input.File.VegTypeParameter
     type: string
   Solver_CLM_Input_Forcing_HumObsHeight:
+    _exportSuffix: Solver.CLM.Input.Forcing.HumObsHeight
     _help: Observational height of humidity [m]
-    _parflowId: Solver.CLM.Input.Forcing.HumObsHeight
     type: float32
   Solver_CLM_Input_Forcing_TempObsHeight:
+    _exportSuffix: Solver.CLM.Input.Forcing.TempObsHeight
     _help: Observational height of temperature [m]
-    _parflowId: Solver.CLM.Input.Forcing.TempObsHeight
     type: float32
   Solver_CLM_Input_Forcing_WindObsHeight:
+    _exportSuffix: Solver.CLM.Input.Forcing.WindObsHeight
     _help: Observational height of wind [m]
-    _parflowId: Solver.CLM.Input.Forcing.WindObsHeight
     type: float32
   Solver_CLM_Input_ICSource_Code:
+    _exportSuffix: Solver.CLM.Input.ICSource.Code
     _help: Initial condition specification (1) restart file, (2) drv_clmin.dat file
-    _parflowId: Solver.CLM.Input.ICSource.Code
     domains:
     - level: 1
       type: Range
@@ -300,16 +441,16 @@ Solver:
       - 2
     type: int8
   Solver_CLM_Input_InitCond_SnowCover:
+    _exportSuffix: Solver.CLM.Input.InitCond.SnowCover
     _help: '[Type: int]'
-    _parflowId: Solver.CLM.Input.InitCond.SnowCover
     type: int8
   Solver_CLM_Input_InitCond_Temperature:
+    _exportSuffix: Solver.CLM.Input.InitCond.Temperature
     _help: Initial temperature [K]
-    _parflowId: Solver.CLM.Input.InitCond.Temperature
     type: int8
   Solver_CLM_Input_NumericalParams_CNFactor:
+    _exportSuffix: Solver.CLM.Input.NumericalParams.CNFactor
     _help: Crank Nicholson factor between 0 and 1
-    _parflowId: Solver.CLM.Input.NumericalParams.CNFactor
     domains:
     - level: 1
       type: Range
@@ -318,51 +459,51 @@ Solver:
       - 1
     type: float32
   Solver_CLM_Input_NumericalParams_IrrSnowSat:
+    _exportSuffix: Solver.CLM.Input.NumericalParams.IrrSnowSat
     _help: Irreducible water saturation of snow
-    _parflowId: Solver.CLM.Input.NumericalParams.IrrSnowSat
     type: float32
   Solver_CLM_Input_NumericalParams_MinSoilPotential:
+    _exportSuffix: Solver.CLM.Input.NumericalParams.MinSoilPotential
     _help: Restriction for min of soil poten. (mm)
-    _parflowId: Solver.CLM.Input.NumericalParams.MinSoilPotential
     type: float32
   Solver_CLM_Input_NumericalParams_TuningFactor:
+    _exportSuffix: Solver.CLM.Input.NumericalParams.TuningFactor
     _help: Tuning factor to turn first layer T into surface T
-    _parflowId: Solver.CLM.Input.NumericalParams.TuningFactor
     type: float32
   Solver_CLM_Input_NumericalParams_WaterImpermeable:
+    _exportSuffix: Solver.CLM.Input.NumericalParams.WaterImpermeable
     _help: Water impermeable if porosity < wimp
-    _parflowId: Solver.CLM.Input.NumericalParams.WaterImpermeable
     type: float32
   Solver_CLM_Input_OutputVars_Snow:
+    _exportSuffix: Solver.CLM.Input.OutputVars.Snow
     _help: Number of snow layer diagnostic variables to output
-    _parflowId: Solver.CLM.Input.OutputVars.Snow
     type: int8
   Solver_CLM_Input_OutputVars_Soil:
+    _exportSuffix: Solver.CLM.Input.OutputVars.Soil
     _help: Number of soil layer diagnostic variables to output
-    _parflowId: Solver.CLM.Input.OutputVars.Soil
     type: int8
   Solver_CLM_Input_OutputVars_Surface:
+    _exportSuffix: Solver.CLM.Input.OutputVars.Surface
     _help: Number of surface diagnostic variables to output
-    _parflowId: Solver.CLM.Input.OutputVars.Surface
     type: int8
   Solver_CLM_Input_RoughnessLength_DragCanopySoil:
+    _exportSuffix: Solver.CLM.Input.RoughnessLength.DragCanopySoil
     _help: Drag coefficient for soil under canopy [-]
-    _parflowId: Solver.CLM.Input.RoughnessLength.DragCanopySoil
     type: float32
   Solver_CLM_Input_RoughnessLength_Snow:
+    _exportSuffix: Solver.CLM.Input.RoughnessLength.Snow
     _help: Roughness length for snow [m]
-    _parflowId: Solver.CLM.Input.RoughnessLength.Snow
     type: float32
   Solver_CLM_Input_RoughnessLength_Soil:
+    _exportSuffix: Solver.CLM.Input.RoughnessLength.Soil
     _help: Roughness length for soil [m]
-    _parflowId: Solver.CLM.Input.RoughnessLength.Soil
     type: float32
   Solver_CLM_Input_Timing_EndDate:
+    _exportSuffix: Solver.CLM.Input.Timing.EndDate
     _help: Helper property that will set EndYear/EndMonth/EndDay
-    _parflowId: Solver.CLM.Input.Timing.EndDate
   Solver_CLM_Input_Timing_EndDay:
+    _exportSuffix: Solver.CLM.Input.Timing.EndDay
     _help: Ending day of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndDay
     domains:
     - level: 1
       type: Range
@@ -371,8 +512,8 @@ Solver:
       - 31
     type: int8
   Solver_CLM_Input_Timing_EndHour:
+    _exportSuffix: Solver.CLM.Input.Timing.EndHour
     _help: Ending hour of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndHour
     domains:
     - level: 1
       type: Range
@@ -381,8 +522,8 @@ Solver:
       - 23
     type: int8
   Solver_CLM_Input_Timing_EndMinute:
+    _exportSuffix: Solver.CLM.Input.Timing.EndMinute
     _help: Ending minute of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndMinute
     domains:
     - level: 1
       type: Range
@@ -391,8 +532,8 @@ Solver:
       - 59
     type: int8
   Solver_CLM_Input_Timing_EndMonth:
+    _exportSuffix: Solver.CLM.Input.Timing.EndMonth
     _help: Ending month of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndMonth
     domains:
     - level: 1
       type: Range
@@ -401,8 +542,8 @@ Solver:
       - 12
     type: int8
   Solver_CLM_Input_Timing_EndSecond:
+    _exportSuffix: Solver.CLM.Input.Timing.EndSecond
     _help: Ending second of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndSecond
     domains:
     - level: 1
       type: Range
@@ -411,15 +552,15 @@ Solver:
       - 59
     type: int8
   Solver_CLM_Input_Timing_EndTime:
+    _exportSuffix: Solver.CLM.Input.Timing.EndTime
     _help: Helper property that will set EndHour:EndMinute:EndSecond
-    _parflowId: Solver.CLM.Input.Timing.EndTime
   Solver_CLM_Input_Timing_EndYear:
+    _exportSuffix: Solver.CLM.Input.Timing.EndYear
     _help: Ending year of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.EndYear
     type: int8
   Solver_CLM_Input_Timing_RestartCode:
+    _exportSuffix: Solver.CLM.Input.Timing.RestartCode
     _help: 1 = starting timing from a restart file, 2 = timing is defined in the script
-    _parflowId: Solver.CLM.Input.Timing.RestartCode
     domains:
     - level: 1
       type: Range
@@ -428,11 +569,11 @@ Solver:
       - 2
     type: int8
   Solver_CLM_Input_Timing_StartDate:
+    _exportSuffix: Solver.CLM.Input.Timing.StartDate
     _help: Helper property that will set StartYear/StartMonth/StartDay
-    _parflowId: Solver.CLM.Input.Timing.StartDate
   Solver_CLM_Input_Timing_StartDay:
+    _exportSuffix: Solver.CLM.Input.Timing.StartDay
     _help: Starting day of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartDay
     domains:
     - level: 1
       type: Range
@@ -441,8 +582,8 @@ Solver:
       - 31
     type: int8
   Solver_CLM_Input_Timing_StartHour:
+    _exportSuffix: Solver.CLM.Input.Timing.StartHour
     _help: Starting hour of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartHour
     domains:
     - level: 1
       type: Range
@@ -451,8 +592,8 @@ Solver:
       - 24
     type: int8
   Solver_CLM_Input_Timing_StartMinute:
+    _exportSuffix: Solver.CLM.Input.Timing.StartMinute
     _help: Starting minute of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartMinute
     domains:
     - level: 1
       type: Range
@@ -461,8 +602,8 @@ Solver:
       - 59
     type: int8
   Solver_CLM_Input_Timing_StartMonth:
+    _exportSuffix: Solver.CLM.Input.Timing.StartMonth
     _help: Starting month of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartMonth
     domains:
     - level: 1
       type: Range
@@ -471,8 +612,8 @@ Solver:
       - 12
     type: int8
   Solver_CLM_Input_Timing_StartSecond:
+    _exportSuffix: Solver.CLM.Input.Timing.StartSecond
     _help: Starting second of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartSecond
     domains:
     - level: 1
       type: Range
@@ -481,30 +622,30 @@ Solver:
       - 59
     type: int8
   Solver_CLM_Input_Timing_StartTime:
+    _exportSuffix: Solver.CLM.Input.Timing.StartTime
     _help: Helper property that will set StartHour:StartMinute:StartSecond
-    _parflowId: Solver.CLM.Input.Timing.StartTime
   Solver_CLM_Input_Timing_StartYear:
+    _exportSuffix: Solver.CLM.Input.Timing.StartYear
     _help: Starting year of CLM data.
-    _parflowId: Solver.CLM.Input.Timing.StartYear
     type: int8
   Solver_CLM_Input_Vegetation_MaxDew:
+    _exportSuffix: Solver.CLM.Input.Vegetation.MaxDew
     _help: Maximum allowed dew [mm]
-    _parflowId: Solver.CLM.Input.Vegetation.MaxDew
     type: float32
   Solver_CLM_Input_Vegetation_MaxTranspiration:
+    _exportSuffix: Solver.CLM.Input.Vegetation.MaxTranspiration
     _help: Maximum possible transpiration rate [mm/s]
-    _parflowId: Solver.CLM.Input.Vegetation.MaxTranspiration
     type: float32
   Solver_CLM_Input_Vegetation_RootFraction:
+    _exportSuffix: Solver.CLM.Input.Vegetation.RootFraction
     _help: Root Fraction (depth average)
-    _parflowId: Solver.CLM.Input.Vegetation.RootFraction
     type: float32
   Solver_CLM_IrrigationCycle:
+    _exportSuffix: Solver.CLM.IrrigationCycle
     _help: This key specifies the cycle of the irrigation in CLM. The valid types
       for this key are Constant, Deficit. Note only Constant is currently implemented.
       Constant cycle applies irrigation each day from IrrigationStartTime to IrrigationStopTime
       in GMT.
-    _parflowId: Solver.CLM.IrrigationCycle
     domains:
     - type: LabelList
       values:
@@ -514,8 +655,8 @@ Solver:
         value: Deficit
     type: string
   Solver_CLM_IrrigationRate:
+    _exportSuffix: Solver.CLM.IrrigationRate
     _help: This key specifies the rate of the irrigation in CLM in [mm/s].
-    _parflowId: Solver.CLM.IrrigationRate
     domains:
     - level: 1
       type: Range
@@ -524,8 +665,8 @@ Solver:
       - null
     type: float32
   Solver_CLM_IrrigationStartTime:
+    _exportSuffix: Solver.CLM.IrrigationStartTime
     _help: This key specifies the start time of the irrigation in CLM GMT.
-    _parflowId: Solver.CLM.IrrigationStartTime
     domains:
     - level: 1
       type: Range
@@ -534,8 +675,8 @@ Solver:
       - 2400.0
     type: float32
   Solver_CLM_IrrigationStopTime:
+    _exportSuffix: Solver.CLM.IrrigationStopTime
     _help: This key specifies the stop time of the irrigation in CLM GMT.
-    _parflowId: Solver.CLM.IrrigationStopTime
     domains:
     - level: 1
       type: Range
@@ -544,8 +685,8 @@ Solver:
       - 2400.0
     type: float32
   Solver_CLM_IrrigationThreshold:
+    _exportSuffix: Solver.CLM.IrrigationThreshold
     _help: This key specifies the threshold value for the irrigation in CLM [-].
-    _parflowId: Solver.CLM.IrrigationThreshold
     domains:
     - level: 1
       type: Range
@@ -554,13 +695,13 @@ Solver:
       - null
     type: float32
   Solver_CLM_IrrigationThresholdType:
+    _exportSuffix: Solver.CLM.IrrigationThresholdType
     _help: '[Type: string]'
-    _parflowId: Solver.CLM.IrrigationThresholdType
     type: float32
   Solver_CLM_IrrigationType:
+    _exportSuffix: Solver.CLM.IrrigationType
     _help: This key specifies the form of the irrigation in CLM. The valid types for
       this key are none, Spray, Drip, Instant.
-    _parflowId: Solver.CLM.IrrigationType
     domains:
     - type: LabelList
       values:
@@ -574,17 +715,18 @@ Solver:
         value: Instant
     type: string
   Solver_CLM_IstepStart:
+    _exportSuffix: Solver.CLM.IstepStart
     _help: This key specifies the value of the counter, istep in CLM. This key primarily
       determines the start of the output counter for CLM.It is used to restart a run
       by setting the key to the ending step of the previous run plus one. Note that
       CLM must be compiled and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.IstepStart
     type: int8
   Solver_CLM_MetFileNT:
+    _exportSuffix: Solver.CLM.MetFileNT
     _help: This key specifies the number of timesteps per file for 3D forcing data.
-    _parflowId: Solver.CLM.MetFileNT
     type: int8
   Solver_CLM_MetFileName:
+    _exportSuffix: Solver.CLM.MetFileName
     _help: 'This key specifies defines the file name for 1D, 2D or 3D forcing data.
       1D meteorological forcing files are text files with single columns for each
       variable and each timestep per row, while 2D and 3D forcing files are distributed
@@ -604,20 +746,20 @@ Solver:
       [m/s] VGRD: South-to-North or V-component of wind [m/s] Press: Atmospheric Pressure
       [pa] SPFH: Water-vapor specific humidity [kg/kg] Note that CLM must be compiled
       and linked at runtime for this option to be active.'
-    _parflowId: Solver.CLM.MetFileName
     type: string
   Solver_CLM_MetFilePath:
+    _exportSuffix: Solver.CLM.MetFilePath
     _help: This key specifies defines the location of 1D, 2D or 3D forcing data. For
       1D cases, this is the path to a single forcing file (e.g. narr.1hr.txt). For
       2D and 3D cases, this is the path to the directory containing all forcing files.
       Note that CLM must be compiled and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.MetFilePath
     type: string
   Solver_CLM_MetFileSubdir:
+    _exportSuffix: Solver.CLM.MetFileSubdir
     _help: '[Type: int]'
-    _parflowId: Solver.CLM.MetFileSubdir
     type: float32
   Solver_CLM_MetForcing:
+    _exportSuffix: Solver.CLM.MetForcing
     _help: This key specifies defines whether 1D (uniform over the domain), 2D (spatially
       distributed) or 3D (spatially distributed with multiple timesteps per .pfb forcing
       file) forcing data is used. Choices for this key are 1D, 2D and 3D. This key
@@ -628,7 +770,6 @@ Solver:
       are distributed ParFlow binary files, one for each variable and timestep. File
       names are specified in the Solver.CLM.MetFileName variable below. Note that
       CLM must be compiled and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.MetForcing
     domains:
     - type: LabelList
       values:
@@ -640,45 +781,45 @@ Solver:
         value: 3D
     type: string
   Solver_CLM_OverwriteDrvClmin:
+    _exportSuffix: Solver.CLM.OverwriteDrvClmin
     _help: When False, the `drv_clmin.dat` file will not be overwritten, except when
       it was automatically generated by pftools. If the user modifies variables that
       would have affected the file, and the file is not overwritten, a warning will
       be printed, so the user will know that their changes will not be reflected in
       the calculation.
-    _parflowId: Solver.CLM.OverwriteDrvClmin
     type: string
   Solver_CLM_OverwriteDrvVegm:
+    _exportSuffix: Solver.CLM.OverwriteDrvVegm
     _help: When False, the `drv_vegm.dat` file will not be overwritten, except when
       it was automatically generated by pftools. If the user modifies variables that
       would have affected the file, and the file is not overwritten, a warning will
       be printed, so the user will know that their changes will not be reflected in
       the calculation.
-    _parflowId: Solver.CLM.OverwriteDrvVegm
     type: string
   Solver_CLM_OverwriteDrvVegp:
+    _exportSuffix: Solver.CLM.OverwriteDrvVegp
     _help: When False, the `drv_vegp.dat` file will not be overwritten, except when
       it was automatically generated by pftools. If the user modifies variables that
       would have affected the file, and the file is not overwritten, a warning will
       be printed, so the user will know that their changes will not be reflected in
       the calculation.
-    _parflowId: Solver.CLM.OverwriteDrvVegp
     type: string
   Solver_CLM_Print1dOut:
+    _exportSuffix: Solver.CLM.Print1dOut
     _help: This key specifies whether the CLM one dimensional (averaged over each
       processor) output file is written or not. Choices for this key include True
       and False. Note that CLM must be compiled and linked at runtime for this option
       to be active.
-    _parflowId: Solver.CLM.Print1dOut
     type: string
   Solver_CLM_RZWaterStress:
+    _exportSuffix: Solver.CLM.RZWaterStress
     _help: '[Type: ???]'
-    _parflowId: Solver.CLM.RZWaterStress
     type: string
   Solver_CLM_ResSat:
+    _exportSuffix: Solver.CLM.ResSat
     _help: This key specifies the residual saturation for the saturation function
       in CLM. Note that CLM must be compiled and linked at runtime for this option
       to be active.
-    _parflowId: Solver.CLM.ResSat
     domains:
     - level: 1
       type: Range
@@ -687,6 +828,7 @@ Solver:
       - null
     type: float32
   Solver_CLM_ReuseCount:
+    _exportSuffix: Solver.CLM.ReuseCount
     _help: How many times to reuse a CLM atmospheric forcing file input. For example
       timestep=1, reuse =1 is normal behavior but reuse=2 and timestep=0.5 subdivides
       the time step using the same CLM input for both halves instead of needing two
@@ -694,7 +836,6 @@ Solver:
       wants to run ParFlow at a smaller timestep than the CLM forcing. Forcing files
       will be re-used and total fluxes adjusted accordingly without needing duplicate
       files.
-    _parflowId: Solver.CLM.ReuseCount
     domains:
     - level: 1
       type: Range
@@ -703,12 +844,12 @@ Solver:
       - null
     type: int8
   Solver_CLM_RootZoneNZ:
+    _exportSuffix: Solver.CLM.RootZoneNZ
     _help: This key sets the number of soil layers the ParFlow expects from CLM. It
       will allocate and format all the arrays for passing variables to and from CLM
       accordingly. This value now sets the CLM number as well so recompilation is
       not required anymore. Most likely the key Solver.CLM.SoiLayer will also need
       to be changed.
-    _parflowId: Solver.CLM.RootZoneNZ
     domains:
     - level: 1
       type: Range
@@ -717,6 +858,7 @@ Solver:
       - null
     type: int8
   Solver_CLM_SingleFile:
+    _exportSuffix: Solver.CLM.SingleFile
     _help: "Controls whether ParFlow writes all CLM output variables as a single file\
       \ per time step. When \"True\", this combines the output of all the CLM output\
       \ variables into a special multi-layer PFB with the file extension \".C.pfb\"\
@@ -725,12 +867,11 @@ Solver:
       \ layers will create a SingleFile CLM output with 17 layers at each time step.\
       \ The file pseudo code is given below in \xA7 6.4 and the variables and units\
       \ are as specified in the multiple PFB and SILO formats as above."
-    _parflowId: Solver.CLM.SingleFile
     type: string
   Solver_CLM_SoiLayer:
+    _exportSuffix: Solver.CLM.SoiLayer
     _help: This key sets the soil layer, and thus the soil depth, that CLM uses for
       the seasonal temperature adjustment for all leaf and stem area indices.
-    _parflowId: Solver.CLM.SoiLayer
     domains:
     - level: 1
       type: Range
@@ -739,9 +880,9 @@ Solver:
       - null
     type: int8
   Solver_CLM_VegWaterStress:
+    _exportSuffix: Solver.CLM.VegWaterStress
     _help: This key specifies the form of the plant water stress function parameter
       in CLM. The valid types for this key are None, Saturation, Pressure.
-    _parflowId: Solver.CLM.VegWaterStress
     domains:
     - type: LabelList
       values:
@@ -753,15 +894,15 @@ Solver:
         value: Pressure
     type: string
   Solver_CLM_Vegetation_Map_Clay_FileName:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Clay.FileName
     _help: Specifies the PFB filename of the clay properties for your domain, if Solver.CLM.Vegetation.Map.Clay.Type
       was set to 'PFBFile'. This file should be a gridded PFB file with the longitude
       values (in decimal degrees) in each of the grid cells.
-    _parflowId: Solver.CLM.Vegetation.Map.Clay.FileName
     type: string
   Solver_CLM_Vegetation_Map_Clay_Type:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Clay.Type
     _help: Specifies the type of clay property specification for CLM. Valid types
       are 'Constant' and 'PFBFile'.
-    _parflowId: Solver.CLM.Vegetation.Map.Clay.Type
     domains:
     - type: LabelList
       values:
@@ -771,9 +912,9 @@ Solver:
         value: PFBFile
     type: string
   Solver_CLM_Vegetation_Map_Clay_Value:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Clay.Value
     _help: Specifies the constant value of the percentage of clay for your domain,
       if Solver.CLM.Vegetation.Map.Clay.Type was set to 'Constant'.
-    _parflowId: Solver.CLM.Vegetation.Map.Clay.Value
     domains:
     - level: 1
       type: Range
@@ -782,16 +923,16 @@ Solver:
       - 1.0
     type: float32
   Solver_CLM_Vegetation_Map_Color_FileName:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Color.FileName
     _help: Specifies the PFB filename of the color properties for your domain, if
       Solver.CLM.Vegetation.Map.Color.Type was set to 'PFBFile'. This file should
       be a gridded PFB file with the longitude values (in decimal degrees) in each
       of the grid cells.
-    _parflowId: Solver.CLM.Vegetation.Map.Color.FileName
     type: string
   Solver_CLM_Vegetation_Map_Color_Type:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Color.Type
     _help: Specifies the type of color property specification for CLM. Valid types
       are 'Constant' and 'PFBFile'.
-    _parflowId: Solver.CLM.Vegetation.Map.Color.Type
     domains:
     - type: LabelList
       values:
@@ -801,9 +942,9 @@ Solver:
         value: PFBFile
     type: string
   Solver_CLM_Vegetation_Map_Color_Value:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Color.Value
     _help: Specifies the constant value of the color for your domain, if Solver.CLM.Vegetation.Map.Color.Type
       was set to 'Constant'.
-    _parflowId: Solver.CLM.Vegetation.Map.Color.Value
     domains:
     - level: 1
       type: Range
@@ -811,16 +952,22 @@ Solver:
       - 1
       - 8
     type: int8
+  Solver_CLM_Vegetation_Map_LandFrac_{land_cover_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Solver_CLM_Vegetation_Map_LandFrac_{land_cover_name}
+        type: Solver_CLM_Vegetation_Map_LandFrac_{land_cover_name}
   Solver_CLM_Vegetation_Map_Latitude_FileName:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Latitude.FileName
     _help: Specifies the PFB filename of the latitude for your domain, if Solver.CLM.Vegetation.Map.Latitude.Type
       was set to 'PFBFile'. This file should be a gridded PFB file with the latitude
       values (in decimal degrees) in each of the grid cells.
-    _parflowId: Solver.CLM.Vegetation.Map.Latitude.FileName
     type: string
   Solver_CLM_Vegetation_Map_Latitude_Max:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Latitude.Max
     _help: Specifies the value (in decimal degrees) of the maximum latitude for your
       domain, if Solver.CLM.Vegetation.Map.Latitude.Type was set to 'Linear'.
-    _parflowId: Solver.CLM.Vegetation.Map.Latitude.Max
     domains:
     - level: 1
       type: Range
@@ -829,9 +976,9 @@ Solver:
       - 90.0
     type: float32
   Solver_CLM_Vegetation_Map_Latitude_Min:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Latitude.Min
     _help: Specifies the value (in decimal degrees) of the minimum latitude for your
       domain, if Solver.CLM.Vegetation.Map.Latitude.Type was set to 'Linear'.
-    _parflowId: Solver.CLM.Vegetation.Map.Latitude.Min
     domains:
     - level: 1
       type: Range
@@ -840,9 +987,9 @@ Solver:
       - 90.0
     type: float32
   Solver_CLM_Vegetation_Map_Latitude_Type:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Latitude.Type
     _help: Specifies the type of latitude specification for CLM. Valid types are 'Constant',
       'Linear', and 'PFBFile'.
-    _parflowId: Solver.CLM.Vegetation.Map.Latitude.Type
     domains:
     - type: LabelList
       values:
@@ -854,9 +1001,9 @@ Solver:
         value: PFBFile
     type: string
   Solver_CLM_Vegetation_Map_Latitude_Value:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Latitude.Value
     _help: Specifies the constant value (in decimal degrees) of the latitude for your
       domain, if Solver.CLM.Vegetation.Map.Latitude.Type was set to 'Constant'.
-    _parflowId: Solver.CLM.Vegetation.Map.Latitude.Value
     domains:
     - level: 1
       type: Range
@@ -865,15 +1012,15 @@ Solver:
       - 90.0
     type: float32
   Solver_CLM_Vegetation_Map_Longitude_FileName:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Longitude.FileName
     _help: Specifies the PFB filename of the longitude for your domain, if Solver.CLM.Vegetation.Map.Longitude.Type
       was set to 'PFBFile'. This file should be a gridded PFB file with the longitude
       values (in decimal degrees) in each of the grid cells.
-    _parflowId: Solver.CLM.Vegetation.Map.Longitude.FileName
     type: string
   Solver_CLM_Vegetation_Map_Longitude_Max:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Longitude.Max
     _help: Specifies the value (in decimal degrees) of the maximum longitude for your
       domain, if Solver.CLM.Vegetation.Map.Longitude.Type was set to 'Linear'.
-    _parflowId: Solver.CLM.Vegetation.Map.Longitude.Max
     domains:
     - level: 1
       type: Range
@@ -882,9 +1029,9 @@ Solver:
       - 180.0
     type: float32
   Solver_CLM_Vegetation_Map_Longitude_Min:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Longitude.Min
     _help: Specifies the value (in decimal degrees) of the minimum longitude for your
       domain, if Solver.CLM.Vegetation.Map.Longitude.Type was set to 'Linear'.
-    _parflowId: Solver.CLM.Vegetation.Map.Longitude.Min
     domains:
     - level: 1
       type: Range
@@ -893,9 +1040,9 @@ Solver:
       - 180.0
     type: float32
   Solver_CLM_Vegetation_Map_Longitude_Type:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Longitude.Type
     _help: Specifies the type of longitude specification for CLM. Valid types are
       'Constant', 'Linear', and 'PFBFile'.
-    _parflowId: Solver.CLM.Vegetation.Map.Longitude.Type
     domains:
     - type: LabelList
       values:
@@ -907,9 +1054,9 @@ Solver:
         value: PFBFile
     type: string
   Solver_CLM_Vegetation_Map_Longitude_Value:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Longitude.Value
     _help: Specifies the constant value (in decimal degrees) of the longitude for
       your domain, if Solver.CLM.Vegetation.Map.Longitude.Type was set to 'Constant'.
-    _parflowId: Solver.CLM.Vegetation.Map.Longitude.Value
     domains:
     - level: 1
       type: Range
@@ -918,15 +1065,15 @@ Solver:
       - 180.0
     type: float32
   Solver_CLM_Vegetation_Map_Sand_FileName:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Sand.FileName
     _help: Specifies the PFB filename of the sand properties for your domain, if Solver.CLM.Vegetation.Map.Sand.Type
       was set to 'PFBFile'. This file should be a gridded PFB file with the percentage
       of sand in each of the grid cells.
-    _parflowId: Solver.CLM.Vegetation.Map.Sand.FileName
     type: string
   Solver_CLM_Vegetation_Map_Sand_Type:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Sand.Type
     _help: Specifies the type of sand property specification for CLM. Valid types
       are 'Constant' and 'PFBFile'.
-    _parflowId: Solver.CLM.Vegetation.Map.Sand.Type
     domains:
     - type: LabelList
       values:
@@ -936,9 +1083,9 @@ Solver:
         value: PFBFile
     type: string
   Solver_CLM_Vegetation_Map_Sand_Value:
+    _exportSuffix: Solver.CLM.Vegetation.Map.Sand.Value
     _help: Specifies the constant value of the percentage of sand for your domain,
       if Solver.CLM.Vegetation.Map.Sand.Type was set to 'Constant'.
-    _parflowId: Solver.CLM.Vegetation.Map.Sand.Value
     domains:
     - level: 1
       type: Range
@@ -947,16 +1094,22 @@ Solver:
       - 1.0
     type: float32
   Solver_CLM_Vegetation_Parameters_LandNames:
+    _exportSuffix: Solver.CLM.Vegetation.Parameters.LandNames
     _help: List of names of land use cover types for building the drv_vegp.dat file.
       Defaults to the 18 IGBP classification types.
-    _parflowId: Solver.CLM.Vegetation.Parameters.LandNames
     type: string
+  Solver_CLM_Vegetation_Parameters_{land_cover_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Solver_CLM_Vegetation_Parameters_{land_cover_name}
+        type: Solver_CLM_Vegetation_Parameters_{land_cover_name}
   Solver_CLM_WiltingPoint:
+    _exportSuffix: Solver.CLM.WiltingPoint
     _help: This key specifies the wilting point for the bets-t function in CLM. Note
       that the units for this function are pressure [m] for a Pressure formulation
       and saturation [-] for a Saturation formulation. Note that CLM must be compiled
       and linked at runtime for this option to be active.
-    _parflowId: Solver.CLM.WiltingPoint
     domains:
     - level: 1
       type: Range
@@ -965,42 +1118,42 @@ Solver:
       - null
     type: float32
   Solver_CLM_WriteLastRST:
+    _exportSuffix: Solver.CLM.WriteLastRST
     _help: Controls whether CLM restart files are sequentially written or whether
       a single file restart file name.00000.p is overwritten each time the restart
       file is output, where p is the processor number. If "True" only one file is
       written/overwritten and if "False" outputs are written more frequently. Compatible
       with DailyRST and ReuseCount; for the latter, outputs are written every n steps
       where n is the value of ReuseCount.
-    _parflowId: Solver.CLM.WriteLastRST
     type: string
   Solver_CLM_WriteLogs:
+    _exportSuffix: Solver.CLM.WriteLogs
     _help: 'When False, this disables writing of the CLM output log files for each
       processor. For example, in the clm.tcl test case, if this flag is added False,
       washita.output.txt.p and washita.para.out.dat.p (were p is the processor #)
       are not created, assuming washita is the run name.'
-    _parflowId: Solver.CLM.WriteLogs
     type: string
   Solver_CoarseSolve:
+    _exportSuffix: Solver.CoarseSolve
     _help: '[Type: int]'
-    _parflowId: Solver.CoarseSolve
     type: float32
   Solver_CompCompress:
+    _exportSuffix: Solver.CompCompress
     _help: '[Type: int]'
-    _parflowId: Solver.CompCompress
     type: float32
   Solver_DiagScale:
+    _exportSuffix: Solver.DiagScale
     _help: '[Type: int]'
-    _parflowId: Solver.DiagScale
     type: float32
   Solver_DiagSolver:
+    _exportSuffix: Solver.DiagSolver
     _help: '[Type: int]'
-    _parflowId: Solver.DiagSolver
     type: float32
   Solver_Drop:
+    _exportSuffix: Solver.Drop
     _help: This key gives a clipping value for data written to PFSB files. Data values
       greater than the negative of this value and less than the value itself are treated
       as zero and not written to PFSB files.
-    _parflowId: Solver.Drop
     domains:
     - level: 1
       type: Range
@@ -1009,45 +1162,45 @@ Solver:
       - null
     type: float32
   Solver_DropTol:
+    _exportSuffix: Solver.DropTol
     _help: '[Type: int]'
-    _parflowId: Solver.DropTol
     type: float32
   Solver_EvapTransFile:
+    _exportSuffix: Solver.EvapTransFile
     _help: "This key specifies specifies that the Flux terms for Richards\u2019 equation\
       \ are read in from a .pfb file. This file has [T-1] units. Note this key is\
       \ for a steady-state flux and should not be used in conjunction with the transient\
       \ key below."
-    _parflowId: Solver.EvapTransFile
     type: string
   Solver_EvapTransFileTransient:
+    _exportSuffix: Solver.EvapTransFileTransient
     _help: "This key specifies specifies that the Flux terms for Richards\u2019 equation\
       \ are read in from a series of flux .pfb file. Each file has [T-1] units. Note\
       \ this key should not be used with the key above, only one of these keys should\
       \ be set to True at a time, not both."
-    _parflowId: Solver.EvapTransFileTransient
     type: string
   Solver_EvapTrans_FileLooping:
+    _exportSuffix: Solver.EvapTrans.FileLooping
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.EvapTrans.FileLooping
     type: string
   Solver_EvapTrans_FileName:
+    _exportSuffix: Solver.EvapTrans.FileName
     _help: "This key specifies specifies filename for the distributed .pfb file that\
       \ contains the flux values for Richards\u2019 equation. This file has [T-1]\
       \ units. For the steady-state option (Solver.EvapTransFile=True) this key should\
       \ be the complete filename. For the transient option (Solver.EvapTransFileTransient=True\
       \ then the filename is a header and ParFlow will load one file per timestep,\
       \ with the form filename.00000.pfb."
-    _parflowId: Solver.EvapTrans.FileName
     type: string
   Solver_Jacobian:
+    _exportSuffix: Solver.Jacobian
     _help: '[Type: int]'
-    _parflowId: Solver.Jacobian
     type: float32
   Solver_LSM:
+    _exportSuffix: Solver.LSM
     _help: This key specifies whether a land surface model, such as CLM, will be called
       each solver timestep. Choices for this key include none and CLM. Note that CLM
       must be compiled and linked at runtime for this option to be active.
-    _parflowId: Solver.LSM
     domains:
     - type: LabelList
       values:
@@ -1057,13 +1210,13 @@ Solver:
         value: CLM
     type: string
   Solver_Linear:
+    _exportSuffix: Solver.Linear
     _help: This key specifies the linear solver used for solver IMPES. Choices for
       this key are MGSemi, PPCG, PCG, and CGHS. The choice MGSemi is an algebraic
       mulitgrid linear solver (not a preconditioned conjugate gradient) which may
       be less robust than PCG as described in [3]. The choice PPCG is a preconditioned
       conjugate gradient solver. The choice PCG is a conjugate gradient solver with
       a multigrid preconditioner. The choice CGHS is a conjugate gradient solver.
-    _parflowId: Solver.Linear
     domains:
     - type: LabelList
       values:
@@ -1077,12 +1230,12 @@ Solver:
         value: CGHS
     type: string
   Solver_Linear_KrylovDimension:
+    _exportSuffix: Solver.Linear.KrylovDimension
     _help: This key specifies the maximum number of vectors to be used in setting
       up the Krylov subspace in the GMRES iterative solver. These vectors are of problem
       size and it should be noted that large increases in this parameter can limit
       problem sizes. However, increasing this parameter can sometimes help nonlinear
       solver convergence.
-    _parflowId: Solver.Linear.KrylovDimension
     domains:
     - level: 1
       type: Range
@@ -1091,10 +1244,10 @@ Solver:
       - null
     type: int8
   Solver_Linear_MaxRestart:
+    _exportSuffix: Solver.Linear.MaxRestart
     _help: This key specifies the number of restarts allowed to the GMRES solver.
       Restarts start the development of the Krylov subspace over using the current
       iterate as the initial iterate for the next pass.
-    _parflowId: Solver.Linear.MaxRestart
     domains:
     - level: 1
       type: Range
@@ -1103,10 +1256,10 @@ Solver:
       - null
     type: int8
   Solver_Linear_MaxRestarts:
+    _exportSuffix: Solver.Linear.MaxRestarts
     _help: This key specifies the number of restarts allowed to the GMRES solver.
       Restarts start the development of the Krylov subspace over using the current
       iterate as the initial iterate for the next pass.
-    _parflowId: Solver.Linear.MaxRestarts
     domains:
     - level: 1
       type: Range
@@ -1115,6 +1268,7 @@ Solver:
       - null
     type: int8
   Solver_Linear_Preconditioner:
+    _exportSuffix: Solver.Linear.Preconditioner
     _help: This key specifies which preconditioner to use. Currently, the three choices
       are NoPC, MGSemi, PFMG, PFMGOctree and SMG. The choice NoPC specifies that no
       preconditioner should be used. The choice MGSemi specifies a semi-coarsening
@@ -1123,7 +1277,6 @@ Solver:
       is more robust than MGSemi, but generally requires more memory and compute time.
       The choice PFMGOctree can be more efficient for problems with large numbers
       of inactive cells.
-    _parflowId: Solver.Linear.Preconditioner
     domains:
     - type: LabelList
       values:
@@ -1139,8 +1292,8 @@ Solver:
         value: SMG
     type: string
   Solver_Linear_Preconditioner_PCMatrixType:
+    _exportSuffix: Solver.Linear.Preconditioner.PCMatrixType
     _help: '[Type: string]'
-    _parflowId: Solver.Linear.Preconditioner.PCMatrixType
     domains:
     - type: LabelList
       values:
@@ -1150,13 +1303,13 @@ Solver:
         value: PFSymmetric
     type: string
   Solver_Linear_Preconditioner_SymmetricMat:
+    _exportSuffix: Solver.Linear.Preconditioner.SymmetricMat
     _help: 'This key specifies whether the preconditioning matrix is symmetric. Choices
       fo rthis key are Symmetric and Nonsymmetric. The choice Symmetric specifies
       that the symmetric part of the Jacobian will be used as the preconditioning
       matrix. The choice Nonsymmetric specifies that the full Jacobian will be used
       as the preconditioning matrix. NOTE: ONLY Symmetric CAN BE USED IF MGSemi IS
       THE SPECIFIED PRECONDITIONER!'
-    _parflowId: Solver.Linear.Preconditioner.SymmetricMat
     domains:
     - type: LabelList
       values:
@@ -1165,7 +1318,14 @@ Solver:
       - text: Nonsymmetric
         value: Nonsymmetric
     type: string
+  Solver_Linear_Preconditioner_{precond_method}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Solver_Linear_Preconditioner_{precond_method}
+        type: Solver_Linear_Preconditioner_{precond_method}
   Solver_MaxConvergenceFailures:
+    _exportSuffix: Solver.MaxConvergenceFailures
     _help: This key gives the maximum number of convergence failures allowed. Each
       convergence failure cuts the timestep in half and the solver tries to advance
       the solution with the reduced timestep. The default value is 3. Note that setting
@@ -1175,7 +1335,6 @@ Solver:
       based on time cycles will be change at slightly incorrect times. If the problem
       is failing converge so poorly that a large number of restarts are required,
       consider setting the timestep to a smaller value.
-    _parflowId: Solver.MaxConvergenceFailures
     domains:
     - level: 1
       type: Range
@@ -1184,36 +1343,36 @@ Solver:
       - null
     type: int8
   Solver_MaxIter:
+    _exportSuffix: Solver.MaxIter
     _help: This key gives the maximum number of iterations that will be allowed for
       time-stepping. This is to prevent a run-away simulation.
-    _parflowId: Solver.MaxIter
     type: int8
   Solver_MaxLevels:
+    _exportSuffix: Solver.MaxLevels
     _help: '[Type: int]'
-    _parflowId: Solver.MaxLevels
     type: float32
   Solver_MaxMinNX:
+    _exportSuffix: Solver.MaxMinNX
     _help: '[Type: int]'
-    _parflowId: Solver.MaxMinNX
     type: float32
   Solver_MaxMinNY:
+    _exportSuffix: Solver.MaxMinNY
     _help: '[Type: int]'
-    _parflowId: Solver.MaxMinNY
     type: float32
   Solver_MaxMinNZ:
+    _exportSuffix: Solver.MaxMinNZ
     _help: '[Type: int]'
-    _parflowId: Solver.MaxMinNZ
     type: float32
   Solver_NonlinearSolver:
+    _exportSuffix: Solver.NonlinearSolver
     _help: '[Type: int]'
-    _parflowId: Solver.NonlinearSolver
     type: float32
   Solver_Nonlinear_DerivativeEpsilon:
+    _exportSuffix: Solver.Nonlinear.DerivativeEpsilon
     _help: This key specifies the value of epsilon used in approximating the action
       of the Jacobian on a vector with approximate directional derivatives of the
       nonlinear function. This parameter is only used when the UseJacobian key is
       False.
-    _parflowId: Solver.Nonlinear.DerivativeEpsilon
     domains:
     - level: 1
       type: Range
@@ -1222,8 +1381,8 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_EtaAlpha:
+    _exportSuffix: Solver.Nonlinear.EtaAlpha
     _help: This key specifies the value of alpha for the case of EtaChoice being Walker2.
-    _parflowId: Solver.Nonlinear.EtaAlpha
     domains:
     - level: 1
       type: Range
@@ -1232,6 +1391,7 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_EtaChoice:
+    _exportSuffix: Solver.Nonlinear.EtaChoice
     _help: This key specifies how the linear system tolerance will be selected. The
       linear system is solved until a relative residual reduction of n is achieved.
       Linear residual norms are measured in the l^2 norm. Choices for this key include
@@ -1239,7 +1399,6 @@ Solver:
       n will be taken as constant. The choices Walker1 and Walker2 specify choices
       for n developed by Eisenstat and Walker (see reference in manual). For both
       of the last two choices, n is never allowed to be less than 1e-4.
-    _parflowId: Solver.Nonlinear.EtaChoice
     domains:
     - type: LabelList
       values:
@@ -1251,8 +1410,8 @@ Solver:
         value: Walker2
     type: string
   Solver_Nonlinear_EtaGamma:
+    _exportSuffix: Solver.Nonlinear.EtaGamma
     _help: This key specifies the value of gamma for the case of EtaChoice being Walker2.
-    _parflowId: Solver.Nonlinear.EtaGamma
     domains:
     - level: 1
       type: Range
@@ -1261,8 +1420,8 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_EtaValue:
+    _exportSuffix: Solver.Nonlinear.EtaValue
     _help: This key specifies the constant value of n for the EtaChoice key EtaConstant.
-    _parflowId: Solver.Nonlinear.EtaValue
     domains:
     - level: 1
       type: Range
@@ -1271,30 +1430,30 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_FlowBarrierX:
+    _exportSuffix: Solver.Nonlinear.FlowBarrierX
     _help: This key specifies whether Flow Barriers are to be used in the X direction,
       the default is False. The default indicates a false or FBx value of one [-]
       everywhere in the domain.
-    _parflowId: Solver.Nonlinear.FlowBarrierX
     type: string
   Solver_Nonlinear_FlowBarrierY:
+    _exportSuffix: Solver.Nonlinear.FlowBarrierY
     _help: This key specifies whether Flow Barriers are to be used in the Y direction,
       the default is False. The default indicates a false or FBy value of one [-]
       everywhere in the domain.
-    _parflowId: Solver.Nonlinear.FlowBarrierY
     type: string
   Solver_Nonlinear_FlowBarrierZ:
+    _exportSuffix: Solver.Nonlinear.FlowBarrierZ
     _help: This key specifies whether Flow Barriers are to be used in the Z direction,
       the default is False. The default indicates a false or FBz value of one [-]
       everywhere in the domain.
-    _parflowId: Solver.Nonlinear.FlowBarrierZ
     type: string
   Solver_Nonlinear_Globalization:
+    _exportSuffix: Solver.Nonlinear.Globalization
     _help: This key specifies the type of global strategy to use. Possible choices
       for this key are InexactNewton and LineSearch. The choice InexactNewton specifies
       no global strategy, and the choice LineSearch specifies that a line search strategy
       should be used where the nonlinear step can be lengthened or decreased to satisfy
       certain criteria.
-    _parflowId: Solver.Nonlinear.Globalization
     domains:
     - type: LabelList
       values:
@@ -1304,9 +1463,9 @@ Solver:
         value: InexactNewton
     type: string
   Solver_Nonlinear_MaxIter:
+    _exportSuffix: Solver.Nonlinear.MaxIter
     _help: This key specifies the maximum number of nonlinear iterations allowed before
       iterations stop with a convergence failure.
-    _parflowId: Solver.Nonlinear.MaxIter
     domains:
     - level: 1
       type: Range
@@ -1315,6 +1474,7 @@ Solver:
       - null
     type: int8
   Solver_Nonlinear_PrintFlag:
+    _exportSuffix: Solver.Nonlinear.PrintFlag
     _help: This key specifies the amount of informational data that is printed to
       the *.out.kinsol.log file. Choices for this key are NoVerbosity, LowVerbosity,
       NormalVerbosity and HighVerbosity. The choice NoVerbosity prints no statistics
@@ -1324,7 +1484,6 @@ Solver:
       LowVerbosity and also the global strategy statistics. The choice HighVerbosity
       prints the same as for NormalVerbosity with the addition of further Krylov iteration
       statistics.
-    _parflowId: Solver.Nonlinear.PrintFlag
     domains:
     - type: LabelList
       values:
@@ -1338,10 +1497,10 @@ Solver:
         value: HighVerbosity
     type: string
   Solver_Nonlinear_ResidualTol:
+    _exportSuffix: Solver.Nonlinear.ResidualTol
     _help: This key specifies the tolerance that measures how much the relative reduction
       in the nonlinear residual should be before nonlinear iterations stop. The magnitude
       of the residual is measured with the l1 (max) norm.
-    _parflowId: Solver.Nonlinear.ResidualTol
     domains:
     - level: 1
       type: Range
@@ -1350,9 +1509,9 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_StepTol:
+    _exportSuffix: Solver.Nonlinear.StepTol
     _help: This key specifies the tolerance that measures how small the difference
       between two consecutive nonlinear steps can be before nonlinear iterations stop.
-    _parflowId: Solver.Nonlinear.StepTol
     domains:
     - level: 1
       type: Range
@@ -1361,22 +1520,22 @@ Solver:
       - null
     type: float32
   Solver_Nonlinear_UseJacobian:
+    _exportSuffix: Solver.Nonlinear.UseJacobian
     _help: This key specifies whether the Jacobian will be used in matrix-vector products
       or whether a matrix-free version of the code will run. Choices for this key
       are False and True. Using the Jacobian will most likely decrease the number
       of nonlinear iterations but require more memory to run.
-    _parflowId: Solver.Nonlinear.UseJacobian
     type: string
   Solver_Nonlinear_VariableDz:
+    _exportSuffix: Solver.Nonlinear.VariableDz
     _help: This key specifies whether dZ multipliers are to be used, the default is
       False. The default indicates a false or non-active variable dz and each layer
       thickness is 1.0 [L].
-    _parflowId: Solver.Nonlinear.VariableDz
     type: string
   Solver_OverlandDiffusive_Epsilon:
+    _exportSuffix: Solver.OverlandDiffusive.Epsilon
     _help: This key provides a minimum value for the Sf used in the OverlandDiffusive
       boundary condition.
-    _parflowId: Solver.OverlandDiffusive.Epsilon
     domains:
     - level: 1
       type: Range
@@ -1385,9 +1544,9 @@ Solver:
       - null
     type: float32
   Solver_OverlandKinematic_Epsilon:
+    _exportSuffix: Solver.OverlandKinematic.Epsilon
     _help: This key provides a minimum value for the Sf used in the OverlandKinematic
       boundary condition.
-    _parflowId: Solver.OverlandKinematic.Epsilon
     domains:
     - level: 1
       type: Range
@@ -1396,131 +1555,131 @@ Solver:
       - null
     type: float32
   Solver_PolyDegree:
+    _exportSuffix: Solver.PolyDegree
     _help: '[Type: int]'
-    _parflowId: Solver.PolyDegree
     type: float32
   Solver_PolyPC:
+    _exportSuffix: Solver.PolyPC
     _help: '[Type: int]'
-    _parflowId: Solver.PolyPC
     type: float32
   Solver_PrintCLM:
+    _exportSuffix: Solver.PrintCLM
     _help: This key specifies whether the CLM writes two dimensional binary output
       files to a PFB binary format. Note that CLM must be compiled and linked at runtime
       for this option to be active. These files are all written according to the standard
       format used for all ParFlow variables, using the runname, and istep. Variables
       are either two-dimensional or over the number of CLM layers (default of ten).
-    _parflowId: Solver.PrintCLM
     type: string
   Solver_PrintConcentration:
+    _exportSuffix: Solver.PrintConcentration
     _help: This key is used to turn on printing of the concentration data. The printing
       of the data is controlled by values in the timing information section. The data
       is written as a PFB file.
-    _parflowId: Solver.PrintConcentration
     type: string
   Solver_PrintDZMultiplier:
+    _exportSuffix: Solver.PrintDZMultiplier
     _help: '[Type: int]'
-    _parflowId: Solver.PrintDZMultiplier
     type: float32
   Solver_PrintEvapTrans:
+    _exportSuffix: Solver.PrintEvapTrans
     _help: '[Type: int]'
-    _parflowId: Solver.PrintEvapTrans
     type: float32
   Solver_PrintEvapTransSum:
+    _exportSuffix: Solver.PrintEvapTransSum
     _help: '[Type: int]'
-    _parflowId: Solver.PrintEvapTransSum
     type: float32
   Solver_PrintLSMSink:
+    _exportSuffix: Solver.PrintLSMSink
     _help: This key is used to turn on printing of the flux array passed from CLM
       to ParFlow. Printing occurs at each DumpInterval time.
-    _parflowId: Solver.PrintLSMSink
     type: string
   Solver_PrintMannings:
+    _exportSuffix: Solver.PrintMannings
     _help: This key is used to turn on printing of the flux array passed from CLM
       to ParFlow. Printing occurs at each DumpInterval time.
-    _parflowId: Solver.PrintMannings
     type: string
   Solver_PrintMask:
+    _exportSuffix: Solver.PrintMask
     _help: This key is used to turn on printing of the flux array passed from CLM
       to ParFlow. Printing occurs at each DumpInterval time.
-    _parflowId: Solver.PrintMask
     type: string
   Solver_PrintOverlandBCFlux:
+    _exportSuffix: Solver.PrintOverlandBCFlux
     _help: This key is used to turn on printing of the flux array passed from CLM
       to ParFlow. Printing occurs at each DumpInterval time.
-    _parflowId: Solver.PrintOverlandBCFlux
     type: string
   Solver_PrintOverlandSum:
+    _exportSuffix: Solver.PrintOverlandSum
     _help: This key is used to turn on printing of the flux array passed from CLM
       to ParFlow. Printing occurs at each DumpInterval time.
-    _parflowId: Solver.PrintOverlandSum
     type: string
   Solver_PrintPressure:
+    _exportSuffix: Solver.PrintPressure
     _help: This key is used to turn on printing of the pressure data. The printing
       of the data is controlled by values in the timing information section. The data
       is written as a PFB file.
-    _parflowId: Solver.PrintPressure
     type: string
   Solver_PrintSaturation:
+    _exportSuffix: Solver.PrintSaturation
     _help: This key is used to turn on printing of the saturation data. The printing
       of the data is controlled by values in the timing information section. The data
       is written as a PFB file.
-    _parflowId: Solver.PrintSaturation
     type: string
   Solver_PrintSlopes:
+    _exportSuffix: Solver.PrintSlopes
     _help: This key is used to turn on printing of the saturation data. The printing
       of the data is controlled by values in the timing information section. The data
       is written as a PFB file.
-    _parflowId: Solver.PrintSlopes
     type: string
   Solver_PrintSpecificStorage:
+    _exportSuffix: Solver.PrintSpecificStorage
     _help: This key is used to turn on printing of the saturation data. The printing
       of the data is controlled by values in the timing information section. The data
       is written as a PFB file.
-    _parflowId: Solver.PrintSpecificStorage
     type: string
   Solver_PrintSubsurf:
+    _exportSuffix: Solver.PrintSubsurf
     _help: This key is used to turn on printing of the subsurface data, Permeability
       and Porosity. The data is printed after it is generated and before the main
       time stepping loop - only once during the run. The data is written as a PFB
       file.
-    _parflowId: Solver.PrintSubsurf
     type: string
   Solver_PrintSubsurfData:
+    _exportSuffix: Solver.PrintSubsurfData
     _help: This key is used to turn on printing of the subsurface data, Permeability
       and Porosity. The data is printed after it is generated and before the main
       time stepping loop - only once during the run. The data is written as a PFB
       file.
-    _parflowId: Solver.PrintSubsurfData
     type: string
   Solver_PrintTop:
+    _exportSuffix: Solver.PrintTop
     _help: '?'
-    _parflowId: Solver.PrintTop
     type: string
   Solver_PrintVelocities:
+    _exportSuffix: Solver.PrintVelocities
     _help: This key is used to turn on printing of the x,y, and z velocity data. The
       printing of the data is controlled by values in the timing information section.
       The data is written as a PFB file.
-    _parflowId: Solver.PrintVelocities
     type: string
   Solver_PrintWells:
+    _exportSuffix: Solver.PrintWells
     _help: This key is used to turn on collection and printing of the well data. The
       data is collected at intervals given by values in the timing information section.
       Printing occurs at the end of the run when all collected data is written.
-    _parflowId: Solver.PrintWells
     type: string
   Solver_RAPType:
+    _exportSuffix: Solver.RAPType
     _help: '[Type: int]'
-    _parflowId: Solver.RAPType
     type: float32
   Solver_RelTol:
+    _exportSuffix: Solver.RelTol
     _help: This value gives the relative tolerance for the linear solve algorithm.
-    _parflowId: Solver.RelTol
     type: float32
   Solver_SadvectOrder:
+    _exportSuffix: Solver.SadvectOrder
     _help: This key controls the order of the explicit method used in advancing the
       concentrations. This value can be either 1 for a standard upwind first order
       or 2 for a second order Godunov method.
-    _parflowId: Solver.SadvectOrder
     domains:
     - level: 1
       type: Range
@@ -1529,24 +1688,25 @@ Solver:
       - 2
     type: int8
   Solver_SlopeAccountingCLM:
+    _exportSuffix: Solver.SlopeAccountingCLM
     _help: This key specifies whether the CLM allows for the inclusion of slopes when
       determining solar zenith angles. Note that CLM must be compiled and linked at
       runtime for this option to be active.
-    _parflowId: Solver.SlopeAccountingCLM
     type: string
   Solver_Smoother:
+    _exportSuffix: Solver.Smoother
     _help: '[Type: int]'
-    _parflowId: Solver.Smoother
     type: float32
   Solver_Spinup:
+    _exportSuffix: Solver.Spinup
     _help: '[Type: boolean]'
-    _parflowId: Solver.Spinup
     type: string
   Solver_Symmetric:
+    _exportSuffix: Solver.Symmetric
     _help: '[Type: int]'
-    _parflowId: Solver.Symmetric
     type: float32
   Solver_TerrainFollowingGrid:
+    _exportSuffix: Solver.TerrainFollowingGrid
     _help: "This key specifies that a terrain-following coordinate transform is used\
       \ for solver Richards. This key sets x and y subsurface slopes to be the same\
       \ as the Topographic slopes (a value of False sets these subsurface slopes to\
@@ -1555,9 +1715,9 @@ Solver:
       \ is still orthogonal) or the geometries (they will still follow the computational\
       \ grid)\u2013 these two things are both to do items. This key only changes solver\
       \ Richards, not solver Impes."
-    _parflowId: Solver.TerrainFollowingGrid
     type: string
   Solver_TerrainFollowingGrid_SlopeUpwindFormulation:
+    _exportSuffix: Solver.TerrainFollowingGrid.SlopeUpwindFormulation
     _help: This key specifies optional modifications to the terrain following grid
       formulation (Equation 5.8) . Choices for this key are Original, Upwind, UpwindSine.
       Original is the original TFG formulation shown in Equation 5.8 in the manual.
@@ -1571,7 +1731,6 @@ Solver:
       formulation should consistent with the choice of overland flow boundary condition
       if overland flow is being used. The upwind and UpwindSine are consistent with
       OverlandDiffusive and OverlandKinematic while Original is consistent with OverlandFlow.
-    _parflowId: Solver.TerrainFollowingGrid.SlopeUpwindFormulation
     domains:
     - type: LabelList
       values:
@@ -1583,189 +1742,465 @@ Solver:
         value: UpwindSine
     type: string
   Solver_TwoNorm:
+    _exportSuffix: Solver.TwoNorm
     _help: '[Type: int]'
-    _parflowId: Solver.TwoNorm
     type: float32
   Solver_Weight:
+    _exportSuffix: Solver.Weight
     _help: '[Type: int]'
-    _parflowId: Solver.Weight
     type: float32
   Solver_WriteCLMBinary:
+    _exportSuffix: Solver.WriteCLMBinary
     _help: This key specifies whether the CLM writes two dimensional binary output
       files in a generic binary format. Note that CLM must be compiled and linked
       at runtime for this option to be active.
-    _parflowId: Solver.WriteCLMBinary
     type: string
   Solver_WritePfbMannings:
+    _exportSuffix: Solver.WritePfbMannings
     _help: This key is used to turn on collection and printing of the mannings coefficients
       into a PFB file.
-    _parflowId: Solver.WritePfbMannings
     type: string
   Solver_WritePfbSlopes:
+    _exportSuffix: Solver.WritePfbSlopes
     _help: This key is used to turn on collection and printing of the slopes into
       a PFB file.
-    _parflowId: Solver.WritePfbSlopes
     type: string
   Solver_WriteSiloCLM:
+    _exportSuffix: Solver.WriteSiloCLM
     _help: This key specifies whether the CLM writes two dimensional binary output
       files to a silo binary format. This data may be read in by VisIT and other visualization
       packages. Note that CLM and silo must be compiled and linked at runtime for
       this option to be active. These files are all written according to the standard
       format used for all ParFlow variables, using the runname, and istep. Variables
       are either two-dimensional or over the number of CLM layers (default of ten).
-    _parflowId: Solver.WriteSiloCLM
     type: string
   Solver_WriteSiloConcentration:
+    _exportSuffix: Solver.WriteSiloConcentration
     _help: This key is used to specify printing of the concentration data in silo
       binary format. The printing of the data is controlled by values in the timing
       information section.
-    _parflowId: Solver.WriteSiloConcentration
     type: string
   Solver_WriteSiloDZMultiplier:
+    _exportSuffix: Solver.WriteSiloDZMultiplier
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloDZMultiplier
     type: string
   Solver_WriteSiloEvapTrans:
+    _exportSuffix: Solver.WriteSiloEvapTrans
     _help: This key is used to specify printing of the evaporation and rainfall flux
       data using silo binary format. This data comes from either clm or from external
       calls to ParFlow such as WRF. This data is in units of [L3T-1]. The printing
       of the data is controlled by values in the timing information section.
-    _parflowId: Solver.WriteSiloEvapTrans
     type: string
   Solver_WriteSiloEvapTransSum:
+    _exportSuffix: Solver.WriteSiloEvapTransSum
     _help: This key is used to specify printing of the evaporation and rainfall flux
       data using silo binary format as a running, cumulative amount. This data comes
       from either clm or from external calls to ParFlow such as WRF. This data is
       in units of [L3]. The printing of the data is controlled by values in the timing
       information section.
-    _parflowId: Solver.WriteSiloEvapTransSum
     type: string
   Solver_WriteSiloMannings:
+    _exportSuffix: Solver.WriteSiloMannings
     _help: "This key is used to specify printing of the Manning\u2019s roughness data\
       \ in silo binary format. The printing of the data is controlled by values in\
       \ the timing information section."
-    _parflowId: Solver.WriteSiloMannings
     type: string
   Solver_WriteSiloMask:
+    _exportSuffix: Solver.WriteSiloMask
     _help: This key is used to specify printing of the mask data using silo binary
       format. The mask contains values equal to one for active cells and zero for
       inactive cells. The printing of the data is controlled by values in the timing
       information section.
-    _parflowId: Solver.WriteSiloMask
     type: string
   Solver_WriteSiloOverlandBCFlux:
+    _exportSuffix: Solver.WriteSiloOverlandBCFlux
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloOverlandBCFlux
     type: string
   Solver_WriteSiloOverlandSum:
+    _exportSuffix: Solver.WriteSiloOverlandSum
     _help: This key is used to specify calculation and printing of the total overland
       outflow from the domain using silo binary format as a running cumulative amount.
       This is integrated along all domain boundaries and is calculated any location
       that slopes at the edge of the domain point outward. This data is in units of
       [L3]. The printing of the data is controlled by values in the timing information
       section.
-    _parflowId: Solver.WriteSiloOverlandSum
     type: string
   Solver_WriteSiloPMPIOConcentration:
+    _exportSuffix: Solver.WriteSiloPMPIOConcentration
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOConcentration
     type: string
   Solver_WriteSiloPMPIODZMultiplier:
+    _exportSuffix: Solver.WriteSiloPMPIODZMultiplier
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIODZMultiplier
     type: string
   Solver_WriteSiloPMPIOEvapTrans:
+    _exportSuffix: Solver.WriteSiloPMPIOEvapTrans
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOEvapTrans
     type: string
   Solver_WriteSiloPMPIOEvapTransSum:
+    _exportSuffix: Solver.WriteSiloPMPIOEvapTransSum
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOEvapTransSum
     type: string
   Solver_WriteSiloPMPIOMannings:
+    _exportSuffix: Solver.WriteSiloPMPIOMannings
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOMannings
     type: string
   Solver_WriteSiloPMPIOMask:
+    _exportSuffix: Solver.WriteSiloPMPIOMask
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOMask
     type: string
   Solver_WriteSiloPMPIOOverlandBCFlux:
+    _exportSuffix: Solver.WriteSiloPMPIOOverlandBCFlux
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOOverlandBCFlux
     type: string
   Solver_WriteSiloPMPIOOverlandSum:
+    _exportSuffix: Solver.WriteSiloPMPIOOverlandSum
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOOverlandSum
     type: string
   Solver_WriteSiloPMPIOPressure:
+    _exportSuffix: Solver.WriteSiloPMPIOPressure
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOPressure
     type: string
   Solver_WriteSiloPMPIOSaturation:
+    _exportSuffix: Solver.WriteSiloPMPIOSaturation
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOSaturation
     type: string
   Solver_WriteSiloPMPIOSlopes:
+    _exportSuffix: Solver.WriteSiloPMPIOSlopes
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOSlopes
     type: string
   Solver_WriteSiloPMPIOSpecificStorage:
+    _exportSuffix: Solver.WriteSiloPMPIOSpecificStorage
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOSpecificStorage
     type: string
   Solver_WriteSiloPMPIOSubsurfData:
+    _exportSuffix: Solver.WriteSiloPMPIOSubsurfData
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOSubsurfData
     type: string
   Solver_WriteSiloPMPIOTop:
+    _exportSuffix: Solver.WriteSiloPMPIOTop
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOTop
     type: string
   Solver_WriteSiloPMPIOVelocities:
+    _exportSuffix: Solver.WriteSiloPMPIOVelocities
     _help: '[Type: boolean/string]'
-    _parflowId: Solver.WriteSiloPMPIOVelocities
     type: string
   Solver_WriteSiloPressure:
+    _exportSuffix: Solver.WriteSiloPressure
     _help: This key is used to specify printing of the pressure data in silo binary
       format. The printing of the data is controlled by values in the timing information
       section. This data may be read in by VisIT and other visualization packages.
-    _parflowId: Solver.WriteSiloPressure
     type: string
   Solver_WriteSiloSaturation:
+    _exportSuffix: Solver.WriteSiloSaturation
     _help: This key is used to specify printing of the saturation data using silo
       binary format. The printing of the data is controlled by values in the timing
       information section.
-    _parflowId: Solver.WriteSiloSaturation
     type: string
   Solver_WriteSiloSlopes:
+    _exportSuffix: Solver.WriteSiloSlopes
     _help: This key is used to turn on printing of the x adn y slope data in silo
       binary format. The printing of the data is controlled by values in the timing
       information section. The data is written as a PFB file.
-    _parflowId: Solver.WriteSiloSlopes
     type: string
   Solver_WriteSiloSpecificStorage:
+    _exportSuffix: Solver.WriteSiloSpecificStorage
     _help: This key is used to specify printing of the specific storage data in silo
       binary format. The printing of the data is controlled by values in the timing
       information section.
-    _parflowId: Solver.WriteSiloSpecificStorage
     type: string
   Solver_WriteSiloSubsurfData:
+    _exportSuffix: Solver.WriteSiloSubsurfData
     _help: This key is used to specify printing of the subsurface data, Permeability
       and Porosity in silo binary file format. The data is printed after it is generated
       and before the main time stepping loop - only once during the run. This data
       may be read in by VisIT and other visualization packages.
-    _parflowId: Solver.WriteSiloSubsurfData
     type: string
   Solver_WriteSiloTop:
+    _exportSuffix: Solver.WriteSiloTop
     _help: This key is used to turn on printing of the x,y, and z velocity data. The
       printing of the data is controlled by values in the timing information section.
       The data is written as a PFB file.
-    _parflowId: Solver.WriteSiloTop
     type: string
   Solver_WriteSiloVelocities:
+    _exportSuffix: Solver.WriteSiloVelocities
     _help: This key is used to turn on printing of the x,y, and z velocity data in
       silo binary format. The printing of the data is controlled by values in the
       timing information section. The data is written as a PFB file.
-    _parflowId: Solver.WriteSiloVelocities
     type: string
+Solver_CLM_Vegetation_Map_LandFrac_{land_cover_name}:
+  FileName:
+    _exportSuffix: FileName
+    _help: Specifies the PFB filename of the land cover fraction for your domain,
+      if Solver.CLM.Vegetation.Map.LandFrac.{land_cover_name}.Type was set to 'PFBFile'.
+      This file should be a gridded PFB file with the land cover fraction values (in
+      decimal degrees) in each of the grid cells.
+    type: string
+  Type:
+    _exportSuffix: Type
+    _help: Specifies the type of land cover fraction specification for CLM. Valid
+      types are 'Constant' and 'PFBFile'.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+    type: string
+  Value:
+    _exportSuffix: Value
+    _help: Specifies the constant value of the land cover fraction for your domain,
+      if Solver.CLM.Vegetation.Map.LandFrac.{land_cover_name}.Type was set to 'Constant'.
+      This should be a double between 0.0 and 1.0.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  _exportPrefix: Solver.CLM.Vegetation.Map.LandFrac
+  name:
+    _help: The name distinguishing this instance of Solver_CLM_Vegetation_Map_LandFrac_{land_cover_name}
+    _ui: skip
+    type: string
+Solver_CLM_Vegetation_Parameters_{land_cover_name}:
+  BTranExp:
+    _exportSuffix: BTranExp
+    _help: btran exponent:[(h2osoi_vol-watdry)/(watopt-watdry)]**vw
+    type: float32
+  Description:
+    _exportSuffix: Description
+    _help: A short description printed to the vegp file
+    type: string
+  DispHeight:
+    _exportSuffix: DispHeight
+    _help: Displacement height [m]
+    type: float32
+  Irrig:
+    _exportSuffix: Irrig
+    _help: (irrig=0 -> no irrigation, irrig=1 -> irrigate)
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - 1
+    type: int8
+  LeafDim:
+    _exportSuffix: LeafDim
+    _help: Leaf dimension [m]
+    type: float32
+  LeafRefNir:
+    _exportSuffix: LeafRefNir
+    _help: leaf reflectance nir
+    type: float32
+  LeafRefVis:
+    _exportSuffix: LeafRefVis
+    _help: leaf reflectance vis
+    type: float32
+  LeafTransNir:
+    _exportSuffix: LeafTransNir
+    _help: leaf transmittance nir
+    type: float32
+  LeafTransVis:
+    _exportSuffix: LeafTransVis
+    _help: leaf transmittance vis
+    type: float32
+  MaxLAI:
+    _exportSuffix: MaxLAI
+    _help: Maximum leaf area index [-]
+    type: float32
+  MinLAI:
+    _exportSuffix: MinLAI
+    _help: Minimum leaf area index [-]
+    type: float32
+  OrientIndex:
+    _exportSuffix: OrientIndex
+    _help: leaf/stem orientation index
+    type: float32
+  RootA:
+    _exportSuffix: RootA
+    _help: Fitted numerical index of rooting distribution
+    type: float32
+  RootB:
+    _exportSuffix: RootB
+    _help: Fitted numerical index of rooting distribution
+    type: float32
+  RoughLength:
+    _exportSuffix: RoughLength
+    _help: Aerodynamic roughness length [m]
+    type: float32
+  StemAI:
+    _exportSuffix: StemAI
+    _help: Stem area index [-]
+    type: float32
+  StemRefNir:
+    _exportSuffix: StemRefNir
+    _help: stem reflectance nir
+    type: float32
+  StemRefVis:
+    _exportSuffix: StemRefVis
+    _help: stem reflectance vis
+    type: float32
+  StemTransNir:
+    _exportSuffix: StemTransNir
+    _help: stem transmittance nir
+    type: float32
+  StemTransVis:
+    _exportSuffix: StemTransVis
+    _help: stem transmittance vis
+    type: float32
+  WaterType:
+    _exportSuffix: WaterType
+    _help: '(1-soil, 2-land ice, 3-deep lake, 4-shallow lake, 5-wetland: swamp, marsh)'
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - 5
+    type: int8
+  _exportPrefix: Solver.CLM.Vegetation.Parameters
+  name:
+    _help: The name distinguishing this instance of Solver_CLM_Vegetation_Parameters_{land_cover_name}
+    _ui: skip
+    type: string
+Solver_Linear_Preconditioner_{precond_method}:
+  MaxIter:
+    _exportSuffix: MaxIter
+    _help: This key specifies the maximum number of iterations to take in solving
+      the preconditioner system with precond_ method solver.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  MaxLevels:
+    _exportSuffix: MaxLevels
+    _help: Max Levels
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  NumPostRelax:
+    _exportSuffix: NumPostRelax
+    _help: This key specifies the number of relaxations to take after coarsening in
+      the specified preconditioner method. Note that this key is only relevant to
+      the SMG multigrid preconditioner.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  NumPreRelax:
+    _exportSuffix: NumPreRelax
+    _help: This key specifies the number of relaxations to take before coarsening
+      in the specified preconditioner method. Note that this key is only relevant
+      to the SMG multigrid preconditioner.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  RAPType:
+    _exportSuffix: RAPType
+    _help: For the PFMG solver, this key specifies the Hypre RAP type. Valid values
+      are Galerkin or NonGalerkin
+    domains:
+    - type: LabelList
+      values:
+      - text: Galerkin
+        value: Galerkin
+      - text: NonGalerkin
+        value: NonGalerkin
+    type: string
+  Smoother:
+    _exportSuffix: Smoother
+    _help: '[Type: string]'
+    type: string
+  _exportPrefix: Solver.Linear.Preconditioner
+  name:
+    _help: The name distinguishing this instance of Solver_Linear_Preconditioner_{precond_method}
+    _ui: skip
+    type: string
+TimingInfo:
+  TimingInfo_BaseUnit:
+    _exportSuffix: TimingInfo.BaseUnit
+    _help: "This key is used to indicate the base unit of time for entering time values.\
+      \ All time should be expressed as a multiple of this value. This should be set\
+      \ to the smallest interval of time to be used in the problem. For example, a\
+      \ base unit of \u201C1\u201D means that all times will be integer valued. A\
+      \ base unit of \u201C0.5\u201D would allow integers and fractions of 0.5 to\
+      \ be used for time input values. The rationale behind this restriction is to\
+      \ allow time to be discretized on some interval to enable integer arithmetic\
+      \ to be used when computing/comparing times. This avoids the problems associated\
+      \ with real value comparisons which can lead to events occurring at different\
+      \ timesteps on different architectures or compilers. This value is also used\
+      \ when describing \u201Ctime cycling data\u201D in, currently, the well and\
+      \ boundary condition sections. The lengths of the cycles in those sections will\
+      \ be integer multiples of this value, therefore it needs to be the smallest\
+      \ divisor which produces an integral result for every \u201Creal time\u201D\
+      \ cycle interval length needed."
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  TimingInfo_DumpAtEnd:
+    _exportSuffix: TimingInfo.DumpAtEnd
+    _help: Not in manual, but found in indicator_field.tcl test
+    type: string
+  TimingInfo_DumpInterval:
+    _exportSuffix: TimingInfo.DumpInterval
+    _help: This key is the real time interval at which time-dependent output should
+      be written. A value of 0 will produce undefined behavior. If the value is negative,
+      output will be dumped out every n time steps, where n is the absolute value
+      of the integer part of the value.
+    type: float32
+  TimingInfo_DumpIntervalExecutionTimeLimit:
+    _exportSuffix: TimingInfo.DumpIntervalExecutionTimeLimit
+    _help: "This key is used to indicate a wall clock time to halt the execution of\
+      \ a run. At the end of each dump interval the time remaining in the batch job\
+      \ is compared with the user supplied value, if remaining time is less than or\
+      \ equal to the supplied value the execution is halted. Typically used when running\
+      \ on batch systems with time limits to force a clean shutdown near the end of\
+      \ the batch job. Time units is seconds, a value of 0 (the default) disables\
+      \ the check. Currently only supported on SLURM based systems, \u201C\u2013with-slurm\u201D\
+      \ must be specified at configure time to enable."
+    type: int8
+  TimingInfo_StartCount:
+    _exportSuffix: TimingInfo.StartCount
+    _help: "This key is used to indicate the time step number that will be associated\
+      \ with the first advection cycle in a transient problem. The value -1 indicates\
+      \ that advection is not to be done. The value 0 indicates that advection should\
+      \ begin with the given initial conditions. Values greater than 0 are intended\
+      \ to mean \u201Crestart\u201D from some previous \u201Ccheckpoint\u201D time-step,\
+      \ but this has not yet been implemented."
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - -1
+      - 0
+    type: int8
+  TimingInfo_StartTime:
+    _exportSuffix: TimingInfo.StartTime
+    _help: This key is used to indicate the starting time for the simulation.
+    type: float32
+  TimingInfo_StopTime:
+    _exportSuffix: TimingInfo.StopTime
+    _help: This key is used to indicate the stopping time for the simulation.
+    type: float32

@@ -12,14 +12,19 @@ class SimulationManager:
         self.run = {}
 
     def read_from_simput(self, pxm):
-        extracted_keys = { }
+        extracted_keys = {}
 
         for proxy_type in pxm.types():
+            if "GeomInput_" in proxy_type:
+                import pdb
+
+                pdb.set_trace()
+
             for proxy in pxm.get_instances_of_type(proxy_type):
                 for (prop_name, prop) in proxy.definition.items():
                     value = proxy.get_property(prop_name)
                     if value is not None:
-                        extracted_keys[prop['_parflowId']] = value
+                        extracted_keys[prop["_exportSuffix"]] = value
 
         self.run.update(extracted_keys)
 

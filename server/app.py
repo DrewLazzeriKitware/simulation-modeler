@@ -30,7 +30,7 @@ from trame import (
 )
 from trame.layouts import SinglePage
 from trame.html import vuetify, Div, Span, simput, Element
-import widgets 
+import widgets
 
 from simput.core import ProxyManager, UIManager, ProxyDomainManager
 from simput.ui.web import VuetifyResolver
@@ -389,7 +389,6 @@ if __name__ == "__main__":
     validator = CommandValidator(args)
     if not validator.args_valid():
         parser.print_help(sys.stderr)
-        exit()
     validated_args = validator.get_args()
     FILEDB = FileDatabase(validated_args)
     entries = FILEDB.getEntries()
@@ -406,4 +405,5 @@ if __name__ == "__main__":
 
     # Begin
     layout.state = init
+    # validateRun() # For validating without ui
     start(layout)
