@@ -45,7 +45,7 @@ class FileDatabase:
         return os.path.join(self.datastore, dataId)
 
     def getEntryData(self, entryId):
-        path = getEntryPath(entryId)
+        path = self.getEntryPath(entryId)
         with open(path, "rb") as entryFile:
             return entryFile.read()
 

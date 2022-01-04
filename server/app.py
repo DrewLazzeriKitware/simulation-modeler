@@ -1,3 +1,5 @@
+from paraview.web import venv
+
 import argparse
 import sys
 import os.path
@@ -8,17 +10,13 @@ from FileDatabase import FileDatabase
 from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
+from parflow import Run
 
-# -----------------------------------------------------------------------------
-# Virtual Environment handling
-# -----------------------------------------------------------------------------
+from paraview import simple
 
-if "--virtual-env" in sys.argv:
-    virtualEnvPath = sys.argv[sys.argv.index("--virtual-env") + 1]
-    virtualEnv = virtualEnvPath + "/bin/activate_this.py"
-    exec(open(virtualEnv).read(), {"__file__": virtualEnv})
+from visualizations.image import SourceImage
+from visualizations.soil import SoilVisualization
 
-# -----------------------------------------------------------------------------
 from trame import (
     start,
     get_cli_parser,
@@ -26,7 +24,7 @@ from trame import (
     state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div, Span, simput, Element
+from trame.html import vuetify, Div, Span, simput, Element, paraview
 import widgets
 
 from simput.core import ProxyManager, UIManager, ProxyDomainManager
@@ -34,15 +32,30 @@ from simput.ui.web import VuetifyResolver
 from simput.domains import register_domains
 from simput.values import register_values
 
+view = simple.GetRenderView()
+renderWindow = view.GetRenderWindow()
+renderer = view.GetRenderer()
+
+html_view = paraview.VtkRemoteView(view)
+
 register_domains()
 register_values()
-layout = SinglePage("Parflow Web")
+layout = SinglePage("Parflow Web", on_ready=html_view.update)
+
+# -----------------------------------------------------------------------------
+# Visualization
+# -----------------------------------------------------------------------------
+configFile = "LW_Test/LW_Test.pfidb"
+parflowConfig = Run.from_definition(configFile)
+parflowImage = SourceImage(parflowConfig)
+soilViz = SoilVisualization(view, parflowImage, parflowConfig)
+soilViz.activate()
 
 # -----------------------------------------------------------------------------
 # Model
 # -----------------------------------------------------------------------------
 init = {
-    "currentView": "Solver",
+    "currentView": "Domain",
     "views": [
         "File Database",
         "Simulation Type",
@@ -67,6 +80,8 @@ init = {
         "valid": False,
         "output": "Parflow run did not validate.\nSolver.TimeStep must be type Int, found 3.14159",
     },
+    "currentSoil": "all",
+    "soils": ["all"] + list(soilViz.soilTypes.keys()),
 }
 
 FILEDB = None
@@ -131,6 +146,19 @@ def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
 
 
+@change("currentSoil")
+def updateCurrentSoil(currentSoil, **kwargs):
+    if currentSoil == "all":
+        soilViz.setSoilVisualizationMode("all")
+    else:
+        value = soilViz.soilTypes[currentSoil]["value"]
+        soilViz.setSoilVisualizationMode("selection")
+        soilViz.activateSoil(value)
+
+    html_view.update()
+    html_view.update()
+
+
 @trigger("updateFiles")
 def updateFiles(update, entryId=None):
     if update == "selectFile":
@@ -193,8 +221,8 @@ def initSimputModel(work_dir):
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
-layout.root = html_simput
+# html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
+# layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
@@ -219,7 +247,7 @@ solver = """
 """
 
 simulation_type = """
-<SimulationType 
+<SimulationType
   :shortcuts="simTypeShortcuts"
   v-if="currentView=='Simulation Type'"/>
 """
@@ -260,6 +288,7 @@ layout.content.children += [
     subSurface,
     projectGeneration,
 ]
+
 # -----------------------------------------------------------------------------
 # Validate command line arguments and run app
 # -----------------------------------------------------------------------------
@@ -299,4 +328,5 @@ if __name__ == "__main__":
     # Begin
     layout.state = init
     # validateRun()  # For validating without ui
+    # print(layout.html)
     start(layout)
