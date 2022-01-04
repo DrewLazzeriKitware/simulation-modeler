@@ -4,7 +4,7 @@ With this app a user can model various runs of the [parflow hydrologic simulator
 # Building and running
 First we have to build vuejs components which trame will import.
 ```bash
-simulation-modeler $ cd widgets
+simulation-modeler $ cd components
 client $ npm i
 client $ npm run build
 client $ cd ..

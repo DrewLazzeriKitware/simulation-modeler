@@ -15,16 +15,23 @@ class SimulationManager:
         extracted_keys = {}
 
         for proxy_type in pxm.types():
-            if "GeomInput_" in proxy_type:
-                import pdb
-
-                pdb.set_trace()
-
+            print(proxy_type)
+            definition = pxm.get_definition(proxy_type)
             for proxy in pxm.get_instances_of_type(proxy_type):
                 for (prop_name, prop) in proxy.definition.items():
+                    if prop_name.startswith("_"):
+                        continue
                     value = proxy.get_property(prop_name)
                     if value is not None:
-                        extracted_keys[prop["_exportSuffix"]] = value
+                        if definition.get("_exportPrefix"):
+                            name = (
+                                prop["_exportPrefix"]
+                                + proxy.get_property("name")
+                                + prop["_exportSuffix"]
+                            )
+                        else:
+                            name = prop["_exportSuffix"]
+                        extracted_keys[name] = value
 
         self.run.update(extracted_keys)
 

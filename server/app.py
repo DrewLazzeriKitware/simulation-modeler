@@ -206,12 +206,12 @@ def initSimputModel(work_dir):
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager, pdm, prefix="simput")
+html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
 layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
-    '<NavigationDropDown v-model="currentView" :views="views"/>',
+    widgets.NavigationDropDown(v_model="currentView", views=("views",)),
     vuetify.VSpacer(),
     Span("Simput", classes="text mx-1"),
     vuetify.VBtn("Save", click=saveSimput, classes="mx-1"),
@@ -219,13 +219,12 @@ layout.toolbar.children += [
     vuetify.VBtn("DEBUG", click=toggleDebug),
 ]
 
-file_database = """
-<FileDatabase 
-  :files="dbFiles" 
-  v-model="dbSelectedFile" 
-  db-update="updateFiles" 
-  v-if="currentView == 'File Database'"/> 
-"""
+file_database = widgets.FileDatabase(
+    files=("dbFiles",),
+    db_update="updateFiles",
+    v_model="dbSelectedFile",
+    v_if="currentView == 'File Database'",
+)
 
 solver = """
 <SimputItem
@@ -240,81 +239,16 @@ simulation_type = """
   v-if="currentView=='Simulation Type'"/>
 """
 
-domain = """
-<SimputItem
-:itemId="simputDomainId"
-v-if="currentView=='Domain'"/>
-"""
-
-# domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
-# domainGrid = [Element("H1", "Indicator"), domainGridRow]
-# with domainGridRow:
-#     with Div():
-#         vuetify.VSelect(
-#             v_model=("indicatorFile", ""),
-#             placeholder="Select an indicator file",
-#             items=("Object.values(dbFiles)",),
-#             item_text="name",
-#             item_value="id",
-#         )
-#         with vuetify.VRow():
-#             with vuetify.VCol():
-#                 vuetify.VTextField(v_model=("LX", 1.0), label="lx", readonly=True)
-#                 vuetify.VTextField(v_model=("DX", 1.0), label="dx", readonly=True)
-#                 vuetify.VTextField(v_model=("NX", 1.0), label="nx", readonly=True)
-#             with vuetify.VCol():
-#                 vuetify.VTextField(v_model=("LY", 1.0), label="ly", readonly=True)
-#                 vuetify.VTextField(v_model=("DY", 1.0), label="dy", readonly=True)
-#                 vuetify.VTextField(v_model=("NY", 1.0), label="ny", readonly=True)
-#             with vuetify.VCol():
-#                 vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
-#                 vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
-#                 vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
-#         with vuetify.VRow():
-#             vuetify.VTextField(
-#                 v_model="exampleSimput", label="Pick which simput id to describe"
-#             )
-#         with vuetify.VRow():
-#             with simput.SimputItem(
-#                 itemId=("exampleSimput", "2"),
-#                 no_ui=True,
-#                 extract=["id", "properties"],
-#             ):
-#                 vuetify.VTextarea(
-#                     value=("properties.description",),
-#                 )
-#
-#     with Div(classes="ma-6"):
-#         Span("Lorem Ipsum documentation for Indicator file")
-#         vuetify.VTextarea(
-#             v_if="indicatorFileDescription",
-#             value=("indicatorFileDescription", ""),
-#             readonly=True,
-#             style="font-family: monospace;",
-#         )
-#
-# domain = Div(classes="d-flex flex-column fill-height", v_if="currentView=='Domain'")
-# with domain:
-#    with vuetify.VToolbar(
-#        flat=True, classes="fill-width align-center grey lighten-2 flex-grow-0"
-#    ):
-#        vuetify.VToolbarTitle("Domain Parameters")
-#        vuetify.VSpacer()
-#        with vuetify.VBtnToggle(rounded=True, mandatory=True):
-#            with vuetify.VBtn(small=True):
-#                vuetify.VIcon("mdi-format-align-left", small=True, classes="mr-1")
-#                Span("Parameters")
-#            with vuetify.VBtn(small=True):
-#                vuetify.VIcon("mdi-eye", small=True, classes="mr-1")
-#                Span("Preview")
-#    Div(
-#        domainGrid,
-#        classes="fill-height fill-width flex-grow-1 ma-6",
-#    )
+domain = widgets.Domain(
+    selected_file_model="indicatorFile",
+    grid_models={
+        key: key for key in ["LX", "DX", "NX", "LY", "DY", "NY", "LZ", "DZ", "NZ"]
+    },
+)
 
 boundaryConditions = """
-<BoundaryConditions
-  v-if="currentView=='Boundary Conditions'" />
+    <BoundaryConditions
+      v-if="currentView=='Boundary Conditions'" />
 """
 
 subSurface = """
@@ -322,40 +256,15 @@ subSurface = """
   v-if="currentView=='Subsurface Properties'" />
 """
 
-projectGeneration = Div(
-    classes="d-flex flex-column fill-height justify-space-around",
-    v_if="currentView=='Project Generation'",
+projectGeneration = widgets.ProjectGeneration(
+    validation_callback=validateRun,
+    validation_output="projGenValidation.output",
+    validation_check="!projGenValidation.valid",
+    run_variables={
+        key: key
+        for key in ["BaseUnit", "DumpInterval", "StartCount", "StartTime", "StopTime"]
+    },
 )
-with projectGeneration:
-    with Div(v_if="!projGenValidation.valid", classes="mx-6"):
-        with vuetify.VCard(outlined=True, classes="pa-2 my-4"):
-            vuetify.VCardTitle("Run variables")
-            vuetify.VTextField(v_model=("BaseUnit", 1.0), label="TimingInfo.BaseUnit")
-            vuetify.VTextField(
-                v_model=("DumpInterval", 1.0),
-                label="TimingInfo.DumpInterval",
-            )
-            vuetify.VTextField(v_model=("StartCount", 0), label="TimingInfo.StartCount")
-            vuetify.VTextField(v_model=("StartTime", 0.0), label="TimingInfo.StartTime")
-            vuetify.VTextField(
-                v_model=("StopTime", 1000.0), label="TimingInfo.StopTime"
-            )
-        with vuetify.VCard(dark=True, outlined=True, classes="pa-2 my-4"):
-            vuetify.VCardTitle("Validation console output")
-            vuetify.VDivider()
-            vuetify.VTextarea(
-                value=("projGenValidation.output",),
-                dark=True,
-                readonly=True,
-                style="font-family: monospace;",
-            )
-        vuetify.VSpacer()
-
-    with Div(v_if="projGenValidation.valid", classes="mx-6"):
-        Span("Run Validated", classes="text-h5")
-    with Div(classes="d-flex justify-end ma-6"):
-        vuetify.VBtn("Validate", click=validateRun, color="primary", classes="mx-2")
-        vuetify.VBtn("Generate", disabled=("!projGenValidation.valid"), color="primary")
 
 layout.content.children += [
     Div("{{simputDomainId}}", v_if="showDebug"),
@@ -405,5 +314,5 @@ if __name__ == "__main__":
 
     # Begin
     layout.state = init
-    # validateRun() # For validating without ui
+    # validateRun()  # For validating without ui
     start(layout)
