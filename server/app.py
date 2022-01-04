@@ -21,12 +21,9 @@ if "--virtual-env" in sys.argv:
 # -----------------------------------------------------------------------------
 from trame import (
     start,
-    change,
-    update_state,
     get_cli_parser,
     trigger,
-    get_state,
-    flush_state,
+    state,
 )
 from trame.layouts import SinglePage
 from trame.html import vuetify, Div, Span, simput, Element
@@ -45,7 +42,6 @@ layout = SinglePage("Parflow Web")
 # Model
 # -----------------------------------------------------------------------------
 init = {
-    "showDebug": False,
     "currentView": "Solver",
     "views": [
         "File Database",
@@ -90,7 +86,7 @@ ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 # -----------------------------------------------------------------------------
 # Updates
 # -----------------------------------------------------------------------------
-@change("dbSelectedFile")
+@state.change("dbSelectedFile")
 def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     file_id = dbSelectedFile.get("id")
 
@@ -99,15 +95,15 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     else:
         FILEDB.writeEntry(file_id, dbSelectedFile)
 
-    flush_state("dbSelectedFile")
-    update_state("dbSelectedFile", dbSelectedFile)
-    update_state("dbFiles", FILEDB.getEntries())
+    state.flush("dbSelectedFile")
+    state.dbSelectedFile = dbSelectedFile
+    state.dbFiles = FILEDB.getEntries()
 
 
-@change("indicatorFile")
+@state.change("indicatorFile")
 def updateComputationalGrid(indicatorFile, **kwargs):
     entry = FILEDB.getEntry(indicatorFile)
-    update_state("indicatorFileDescription", entry.get("description"))
+    state.indicatorFileDescription = entry.get("description")
 
     filename = FILEDB.getEntryPath(indicatorFile)
     try:
@@ -116,20 +112,20 @@ def updateComputationalGrid(indicatorFile, **kwargs):
         print(f"Could not find pfb: {filename}")
     handle.loadHeader()
 
-    update_state("NX", handle.getNX())
-    update_state("NY", handle.getNY())
-    update_state("NZ", handle.getNZ())
+    state.NX = handle.getNX()
+    state.NY = handle.getNY()
+    state.NZ = handle.getNZ()
 
-    update_state("LX", handle.getX())
-    update_state("LY", handle.getY())
-    update_state("LZ", handle.getZ())
+    state.LX = handle.getX()
+    state.LY = handle.getY()
+    state.LZ = handle.getZ()
 
-    update_state("DX", handle.getDX())
-    update_state("DY", handle.getDY())
-    update_state("DZ", handle.getDZ())
+    state.DX = handle.getDX()
+    state.DY = handle.getDY()
+    state.DZ = handle.getDZ()
 
 
-@change("dbFileExchange")
+@state.change("dbFileExchange")
 def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
@@ -137,38 +133,29 @@ def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
 
 @trigger("updateFiles")
 def updateFiles(update, entryId=None):
-    (dbFiles, dbSelectedFile) = get_state("dbFiles", "dbSelectedFile")
-
     if update == "selectFile":
-        if dbFiles.get(entryId):
-            update_state("dbSelectedFile", FILEDB.getEntry(entryId))
+        if state.dbFiles.get(entryId):
+            state.dbSelectedFile = FILEDB.getEntry(entryId)
 
     elif update == "removeFile":
         FILEDB.deleteEntry(entryId)
-        del dbFiles[entryId]
-        flush_state("dbFiles")
+        del state.dbFiles[entryId]
+        state.flush("dbFiles")
 
     elif update == "downloadSelectedFile":
-        update_state("dbFileExchange", FILEDB.getEntryData())
+        state.dbFileExchange = FILEDB.getEntryData()
 
 
 def validateRun():
-    (work_dir,) = get_state("work_dir")
-    parflow = SimulationManager(work_dir, FILEDB)
+    parflow = SimulationManager(state.work_dir, FILEDB)
     parflow.read_from_simput(pxm)
     validation = parflow.validate_run()
 
-    update_state("projGenValidation", {"output": validation, "valid": False})
-
-
-def toggleDebug():
-    (showDebug,) = get_state("showDebug")
-    update_state("showDebug", not showDebug)
+    state.projGenValidation = {"output": validation, "valid": False}
 
 
 def saveSimput():
-    (work_dir,) = get_state("work_dir")
-    settings_path = os.path.join(work_dir, "pf_settings.yaml")
+    settings_path = os.path.join(state.work_dir, "pf_settings.yaml")
     with open(settings_path, "r+") as settings_file:
         settings = yaml.safe_load(settings_file)
         settings["save"] = pxm.save()
@@ -215,8 +202,6 @@ layout.toolbar.children += [
     vuetify.VSpacer(),
     Span("Simput", classes="text mx-1"),
     vuetify.VBtn("Save", click=saveSimput, classes="mx-1"),
-    vuetify.VSpacer(),
-    vuetify.VBtn("DEBUG", click=toggleDebug),
 ]
 
 file_database = widgets.FileDatabase(
@@ -267,7 +252,6 @@ projectGeneration = widgets.ProjectGeneration(
 )
 
 layout.content.children += [
-    Div("{{simputDomainId}}", v_if="showDebug"),
     file_database,
     simulation_type,
     solver,
