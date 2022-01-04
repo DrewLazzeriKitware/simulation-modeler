@@ -1,3 +1,5 @@
+from paraview.web import venv
+
 import argparse
 import sys
 import os.path
@@ -8,6 +10,32 @@ from FileDatabase import FileDatabase
 from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
+from parflow import Run
+
+from paraview import simple
+
+from vtkmodules.vtkFiltersSources import vtkConeSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+)
+
+# Required for interactor initialization
+from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa
+
+# Required for rendering initialization, not necessary for
+# local rendering, but doesn't hurt to include it
+import vtkmodules.vtkRenderingOpenGL2  # noqa
+
+from visualizations.image import SourceImage
+from visualizations.soil import SoilVisualization
+
+from trame.html import vuetify
+from trame import state
+
 
 # -----------------------------------------------------------------------------
 # Virtual Environment handling
@@ -29,7 +57,7 @@ from trame import (
     flush_state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div, Span, simput, Element
+from trame.html import vuetify, Div, Span, simput, Element, vtk, paraview
 import widgets
 
 from simput.core import ProxyManager, UIManager, ProxyDomainManager
@@ -37,16 +65,43 @@ from simput.ui.web import VuetifyResolver
 from simput.domains import register_domains
 from simput.values import register_values
 
+# -----------------------------------------------------------------------------
+# VTK pipeline
+# -----------------------------------------------------------------------------
+
+# renderer = vtkRenderer()
+# renderWindow = vtkRenderWindow()
+# renderWindow.AddRenderer(renderer)
+
+# renderWindowInteractor = vtkRenderWindowInteractor()
+# renderWindowInteractor.SetRenderWindow(renderWindow)
+# renderWindowInteractor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
+
+view = simple.GetRenderView()
+renderWindow = view.GetRenderWindow()
+renderer = view.GetRenderer()
+
+html_view = paraview.VtkRemoteView(view)
+
 register_domains()
 register_values()
-layout = SinglePage("Parflow Web")
+layout = SinglePage("Parflow Web", on_ready=html_view.update)
+
+# -----------------------------------------------------------------------------
+# Visualization
+# -----------------------------------------------------------------------------
+configFile = "LW_Test/LW_Test.pfidb"
+parflowConfig = Run.from_definition(configFile)
+parflowImage = SourceImage(parflowConfig)
+soilViz = SoilVisualization(view, parflowImage, parflowConfig)
+soilViz.activate()
 
 # -----------------------------------------------------------------------------
 # Model
 # -----------------------------------------------------------------------------
 init = {
     "showDebug": False,
-    "currentView": "Solver",
+    "currentView": "Domain",
     "views": [
         "File Database",
         "Simulation Type",
@@ -71,6 +126,8 @@ init = {
         "valid": False,
         "output": "Parflow run did not validate.\nSolver.TimeStep must be type Int, found 3.14159",
     },
+    "currentSoil": "all",
+    "soils": ["all"] + list(soilViz.soilTypes.keys()),
 }
 
 FILEDB = None
@@ -134,6 +191,17 @@ def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
 
+@change("currentSoil")
+def updateCurrentSoil(currentSoil. **kwargs):
+    if currentSoil == "all":
+        soilViz.setSoilVisualizationMode("all")
+    else:
+        value = soilViz.soilTypes[currentSoil]["value"]
+        soilViz.setSoilVisualizationMode("selection")
+        soilViz.activateSoil(value)
+
+    html_view.update()
+    html_view.update()
 
 @trigger("updateFiles")
 def updateFiles(update, entryId=None):
@@ -206,8 +274,8 @@ def initSimputModel(work_dir):
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager, pdm, prefix="simput")
-layout.root = html_simput
+html_simput = simput.Simput(ui_manager, pdm, "simput")
+# layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
@@ -220,11 +288,11 @@ layout.toolbar.children += [
 ]
 
 file_database = """
-<FileDatabase 
-  :files="dbFiles" 
-  v-model="dbSelectedFile" 
-  db-update="updateFiles" 
-  v-if="currentView == 'File Database'"/> 
+<FileDatabase
+  :files="dbFiles"
+  v-model="dbSelectedFile"
+  db-update="updateFiles"
+  v-if="currentView == 'File Database'"/>
 """
 
 solver = """
@@ -235,7 +303,7 @@ solver = """
 """
 
 simulation_type = """
-<SimulationType 
+<SimulationType
   :shortcuts="simTypeShortcuts"
   v-if="currentView=='Simulation Type'"/>
 """
@@ -245,6 +313,19 @@ domain = """
 :itemId="simputDomainId"
 v-if="currentView=='Domain'"/>
 """
+
+domain = vuetify.VContainer(
+    fluid=True,
+    classes="pa-0 fill-height",
+    children=[
+        vuetify.VSelect(
+            label="Current Soil",
+            v_model=("currentSoil",),
+            items=("soils",),
+        ),
+        html_view
+    ],
+)
 
 # domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
 # domainGrid = [Element("H1", "Indicator"), domainGridRow]
@@ -406,4 +487,5 @@ if __name__ == "__main__":
     # Begin
     layout.state = init
     # validateRun() # For validating without ui
+    # print(layout.html)
     start(layout)
