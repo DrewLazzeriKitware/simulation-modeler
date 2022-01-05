@@ -41,6 +41,7 @@ html_view = paraview.VtkRemoteView(view)
 register_domains()
 register_values()
 layout = SinglePage("Parflow Web", on_ready=html_view.update)
+layout.logo.click = "$refs.view.resetCamera()"
 
 # -----------------------------------------------------------------------------
 # Visualization
@@ -146,7 +147,7 @@ def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
 
 
-@change("currentSoil")
+@state.change("currentSoil")
 def updateCurrentSoil(currentSoil, **kwargs):
     if currentSoil == "all":
         soilViz.setSoilVisualizationMode("all")
@@ -259,10 +260,18 @@ domain = widgets.Domain(
     },
 )
 
-boundaryConditions = """
-    <BoundaryConditions
-      v-if="currentView=='Boundary Conditions'" />
-"""
+boundaryConditions = vuetify.VContainer(
+    fluid=True,
+    classes="pa-0 fill-height",
+    children=[
+        vuetify.VSelect(
+            label="Current Soil",
+            v_model=("currentSoil",),
+            items=("soils",),
+        ),
+        html_view,
+    ],
+)
 
 subSurface = """
 <SubSurface
