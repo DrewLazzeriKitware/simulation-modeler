@@ -191,8 +191,9 @@ def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
 
+
 @change("currentSoil")
-def updateCurrentSoil(currentSoil. **kwargs):
+def updateCurrentSoil(currentSoil, **kwargs):
     if currentSoil == "all":
         soilViz.setSoilVisualizationMode("all")
     else:
@@ -202,6 +203,7 @@ def updateCurrentSoil(currentSoil. **kwargs):
 
     html_view.update()
     html_view.update()
+
 
 @trigger("updateFiles")
 def updateFiles(update, entryId=None):
@@ -323,7 +325,7 @@ domain = vuetify.VContainer(
             v_model=("currentSoil",),
             items=("soils",),
         ),
-        html_view
+        html_view,
     ],
 )
 
