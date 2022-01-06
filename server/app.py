@@ -6,16 +6,10 @@ import os.path
 import yaml
 
 from CommandValidator import CommandValidator
-from FileDatabase import FileDatabase
+from FileDatabase import FileDatabase, set_filedb_instance, get_filedb_instance
 from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
-from parflow import Run
-
-from paraview import simple
-
-from visualizations.image import SourceImage
-from visualizations.soil import SoilVisualization
 
 from trame import (
     start,
@@ -24,7 +18,7 @@ from trame import (
     state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Div, Span, simput, Element, paraview
+from trame.html import vuetify, Span
 import widgets
 
 from simput.core import ProxyManager, UIManager, ProxyDomainManager
@@ -32,28 +26,16 @@ from simput.ui.web import VuetifyResolver
 from simput.domains import register_domains
 from simput.values import register_values
 
-view = simple.GetRenderView()
-html_view = paraview.VtkRemoteView(view)
-
 register_domains()
 register_values()
-layout = SinglePage("Parflow Web", on_ready=html_view.update)
+layout = SinglePage("Parflow Web")
 layout.logo.click = "$refs.view.resetCamera()"
-
-# -----------------------------------------------------------------------------
-# Visualization
-# -----------------------------------------------------------------------------
-configFile = "LW_Test/LW_Test.pfidb"
-parflowConfig = Run.from_definition(configFile)
-parflowImage = SourceImage(parflowConfig)
-soilViz = SoilVisualization(view, parflowImage, parflowConfig)
-soilViz.activate()
 
 # -----------------------------------------------------------------------------
 # Model
 # -----------------------------------------------------------------------------
 init = {
-    "currentView": "Domain",
+    "currentView": "File Database",
     "views": [
         "File Database",
         "Simulation Type",
@@ -78,8 +60,6 @@ init = {
         "valid": False,
         "output": "Parflow run did not validate.\nSolver.TimeStep must be type Int, found 3.14159",
     },
-    "currentSoil": "all",
-    "soils": ["all"] + list(soilViz.soilTypes.keys()),
 }
 
 FILEDB = None
@@ -142,18 +122,6 @@ def updateComputationalGrid(indicatorFile, **kwargs):
 def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
     if dbFileExchange is not None and dbFileExchange.get("content"):
         FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
-
-
-@state.change("currentSoil")
-def updateCurrentSoil(currentSoil, **kwargs):
-    if currentSoil == "all":
-        soilViz.setSoilVisualizationMode("all")
-    else:
-        value = soilViz.soilTypes[currentSoil]["value"]
-        soilViz.setSoilVisualizationMode("selection")
-        soilViz.activateSoil(value)
-
-    html_view.update()
 
 
 @trigger("updateFiles")
@@ -250,24 +218,12 @@ simulation_type = """
 """
 
 domain = widgets.Domain(
-    selected_file_model="indicatorFile",
     grid_models={
         key: key for key in ["LX", "DX", "NX", "LY", "DY", "NY", "LZ", "DZ", "NZ"]
     },
 )
 
-boundaryConditions = vuetify.VContainer(
-    fluid=True,
-    classes="pa-0 fill-height",
-    children=[
-        vuetify.VSelect(
-            label="Current Soil",
-            v_model=("currentSoil",),
-            items=("soils",),
-        ),
-        html_view,
-    ],
-)
+boundaryConditions = ""
 
 subSurface = """
 <SubSurface
@@ -317,7 +273,8 @@ if __name__ == "__main__":
     if not validator.args_valid():
         parser.print_help(sys.stderr)
     validated_args = validator.get_args()
-    FILEDB = FileDatabase(validated_args)
+    set_filedb_instance(FileDatabase(validated_args))
+    FILEDB = get_filedb_instance()
     entries = FILEDB.getEntries()
 
     init.update(

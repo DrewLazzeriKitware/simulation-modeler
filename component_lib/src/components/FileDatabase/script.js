@@ -1,5 +1,28 @@
 import DragAndDropFiles from '../DragAndDropFiles';
 
+const INDICATOR_CATEGORY = "INDICATOR";
+const TERRAIN_CATEGORY = "TERRAIN";
+const OTHER_CATEGORY = "OTHER"
+
+const categoryToLabel = (category) => {
+  switch (category) {
+    case INDICATOR_CATEGORY: {
+      return "Indicator";
+    }
+    case TERRAIN_CATEGORY: {
+      return "Terrain";
+    }
+    case OTHER_CATEGORY: {
+      return "Other";
+    }
+    default: {
+      return "Unknown";
+    }
+  }
+}
+
+const fileCategories = [INDICATOR_CATEGORY, TERRAIN_CATEGORY, OTHER_CATEGORY];
+
 export default {
   name: 'FileDatabase',
   components: {
@@ -12,6 +35,7 @@ export default {
       fileStats: {},
       file: null,
       formContent: this.value,
+      categories: fileCategories.map(category => ({value: category, text: categoryToLabel(category)})),
     };
   },
   methods: {

@@ -2,6 +2,15 @@ import os.path
 import random
 import yaml
 
+from typing import Optional
+
+from enum import Enum
+
+class FileCategories(str, Enum):
+    Indicator = "INDICATOR"
+    Terrain = "TERRAIN"
+    Other = "OTHER"
+
 
 class FileDatabase:
     def __init__(self, state):
@@ -67,3 +76,16 @@ class FileDatabase:
 
     def deleteEntry(self, entryId):
         pass
+
+FILE_DB: Optional[FileDatabase] = None
+
+def get_filedb_instance() -> FileDatabase:
+    if FILE_DB is None:
+        raise Exception("The FileDatabase has not been initialized yet")
+
+    return FILE_DB
+
+def set_filedb_instance(filedb: FileDatabase):
+    global FILE_DB
+
+    FILE_DB = filedb

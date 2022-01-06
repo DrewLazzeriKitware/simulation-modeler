@@ -4,9 +4,9 @@ from parflowio.pyParflowio import PFData
 
 
 class ElevationFilter:
-    def __init__(self, parflowConfig):
+    def __init__(self, parflowConfig, terrainFile):
         self.parflowConfig = parflowConfig
-        self.demFilename = "LW_Test/LW.dem.pfb"  # FIXME Read filename in from parflow config
+        self.demFilename = terrainFile
 
         self.loadedElevation = None
         self.fieldName = "_elevation"
@@ -14,6 +14,9 @@ class ElevationFilter:
     def getArray(self):
         if self.loadedElevation is not None:
             return self.loadedElevation
+
+        if self.demFilename is None:
+            raise Exception(".dem file not specified")
 
         # Read in elevation array
         elevationReader = PFData(self.demFilename)
