@@ -33,9 +33,6 @@ from simput.domains import register_domains
 from simput.values import register_values
 
 view = simple.GetRenderView()
-renderWindow = view.GetRenderWindow()
-renderer = view.GetRenderer()
-
 html_view = paraview.VtkRemoteView(view)
 
 register_domains()
@@ -156,7 +153,6 @@ def updateCurrentSoil(currentSoil, **kwargs):
         soilViz.setSoilVisualizationMode("selection")
         soilViz.activateSoil(value)
 
-    html_view.update()
     html_view.update()
 
 

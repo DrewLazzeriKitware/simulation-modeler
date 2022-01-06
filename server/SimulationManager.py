@@ -15,19 +15,20 @@ class SimulationManager:
         extracted_keys = {}
 
         for proxy_type in pxm.types():
-            print(proxy_type)
             definition = pxm.get_definition(proxy_type)
             for proxy in pxm.get_instances_of_type(proxy_type):
                 for (prop_name, prop) in proxy.definition.items():
-                    if prop_name.startswith("_"):
+                    if prop_name == "name" or prop_name.startswith("_"):
                         continue
                     value = proxy.get_property(prop_name)
                     if value is not None:
                         if definition.get("_exportPrefix"):
-                            name = (
-                                prop["_exportPrefix"]
-                                + proxy.get_property("name")
-                                + prop["_exportSuffix"]
+                            name = ".".join(
+                                [
+                                    definition["_exportPrefix"],
+                                    proxy.get_property("name"),
+                                    prop["_exportSuffix"],
+                                ]
                             )
                         else:
                             name = prop["_exportSuffix"]
