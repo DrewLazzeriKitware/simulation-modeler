@@ -85,7 +85,7 @@ def domain_parameters(grid_models):
             vuetify.VSelect(
                 v_model=("indicatorFile", None),
                 placeholder="Select an indicator file",
-                items=(f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Indicator}'}})",),
+                items=(f"dbFilesCategoryLookup['{FileCategories.Indicator}']",),
                 item_text="name",
                 item_value="id",
             )
@@ -141,7 +141,7 @@ def terrain_parameters():
             vuetify.VSelect(
                 v_model=("terrainFile",),
                 placeholder="Select a terrain file",
-                items=(f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Terrain}'}})",),
+                items=(f"dbFilesCategoryLookup['{FileCategories.Terrain}']",),
                 item_text="name",
                 item_value="id",
             )
