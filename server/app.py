@@ -6,7 +6,7 @@ import os.path
 import yaml
 
 from CommandValidator import CommandValidator
-from FileDatabase import FileDatabase
+from FileDatabase import FileCategories, FileDatabase, file_category_label
 from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
@@ -44,6 +44,12 @@ init = {
         "Subsurface Properties",
         "Solver",
         "Project Generation",
+    ],
+    "fileCategories": [
+        {
+            "value": cat.value,
+            "text": file_category_label(cat)
+        } for cat in FileCategories
     ],
     "dbFiles": {},
     "dbSelectedFile": {},
@@ -199,6 +205,7 @@ layout.toolbar.children += [
 
 file_database = widgets.FileDatabase(
     files=("dbFiles",),
+    fileCategories=("fileCategories",),
     db_update="updateFiles",
     v_model="dbSelectedFile",
     v_if="currentView == 'File Database'",
