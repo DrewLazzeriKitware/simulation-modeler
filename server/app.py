@@ -6,7 +6,7 @@ import os.path
 import yaml
 
 from CommandValidator import CommandValidator
-from FileDatabase import FileDatabase, set_filedb_instance, get_filedb_instance
+from FileDatabase import FileDatabase
 from SimulationManager import SimulationManager
 
 from parflowio.pyParflowio import PFData
@@ -273,8 +273,7 @@ if __name__ == "__main__":
     if not validator.args_valid():
         parser.print_help(sys.stderr)
     validated_args = validator.get_args()
-    set_filedb_instance(FileDatabase(validated_args))
-    FILEDB = get_filedb_instance()
+    FILEDB = FileDatabase(validated_args.get('datastore'))
     entries = FILEDB.getEntries()
 
     init.update(

@@ -7,7 +7,7 @@ from parflow import Run
 
 from visualizations.image import SourceImage
 from visualizations.soil import SoilVisualization
-from FileDatabase import FileCategories, get_filedb_instance
+from FileDatabase import FileCategories, FileDatabase
 
 state.update({
     "domainView": "grid",
@@ -48,8 +48,8 @@ def on_view_change(domainView, indicatorFile, terrainFile, **kwargs):
             state.domainView = "grid"
             return
 
-        indicatorFilePath = get_filedb_instance().getEntryPath(indicatorFile)
-        terrainFilePath = get_filedb_instance().getEntryPath(terrainFile)
+        indicatorFilePath = FileDatabase().getEntryPath(indicatorFile)
+        terrainFilePath = FileDatabase().getEntryPath(terrainFile)
 
         if indicatorFilePath is not None and terrainFilePath is not None:
             if soil_viz is None:
