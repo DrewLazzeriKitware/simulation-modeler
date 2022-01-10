@@ -40,16 +40,6 @@ class FileDatabase:
     def getEntries(self):
         return self.entries
 
-    def getCategoryLookup(self):
-        lookup = {}
-        for entry in self.entries.values():
-            category = entry["category"]
-            if category not in lookup:
-                lookup[category] = []
-            lookup[category].append(entry)
-
-        return lookup
-
     def getEntryPath(self, entryId):
         if entryId is None:
             print("Failed to find path for empty entryId")

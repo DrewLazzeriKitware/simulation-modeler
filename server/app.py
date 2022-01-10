@@ -91,7 +91,6 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     state.flush("dbSelectedFile")
     state.dbSelectedFile = dbSelectedFile
     state.dbFiles = FILEDB.getEntries()
-    state.dbFilesCategoryLookup = FILEDB.getCategoryLookup()
 
 
 @state.change("indicatorFile")
@@ -282,7 +281,6 @@ if __name__ == "__main__":
         {
             **validated_args,
             "dbFiles": entries,
-            "dbFilesCategoryLookup": FILEDB.getCategoryLookup(),
             "dbSelectedFile": {} if not entries else list(entries.values())[0],
         }
     )
