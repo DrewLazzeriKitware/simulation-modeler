@@ -85,6 +85,9 @@ ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 # -----------------------------------------------------------------------------
 @state.change("dbSelectedFile")
 def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
+    if dbSelectedFile is None:
+        return
+
     file_id = dbSelectedFile.get("id")
 
     if not file_id:
@@ -136,7 +139,10 @@ def updateFiles(update, entryId=None):
 
     elif update == "removeFile":
         FILEDB.deleteEntry(entryId)
-        del state.dbFiles[entryId]
+        state.dbFiles = FILEDB.getEntries()
+        if entryId == state.dbSelectedFile.get('id'):
+            state.dbSelectedFile = None
+            state.flush("dbSelectedFile")
         state.flush("dbFiles")
 
     elif update == "downloadSelectedFile":
