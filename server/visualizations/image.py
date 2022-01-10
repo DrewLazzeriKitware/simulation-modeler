@@ -4,7 +4,7 @@ from .elevation import ElevationFilter
 
 
 class SourceImage:
-    def __init__(self, parflowConfig):
+    def __init__(self, parflowConfig, terrainFile):
         self.parflowConfig = parflowConfig
 
         self.zSpacing = 1
@@ -24,7 +24,7 @@ class SourceImage:
         vtkProducer = self.paraviewProducer.GetClientSideObject()
         vtkProducer.SetOutput(self.image)
 
-        self.elevationFilter = ElevationFilter(self.parflowConfig)
+        self.elevationFilter = ElevationFilter(self.parflowConfig, terrainFile)
         self.addPointArray(self.elevationFilter.getArray())
         self.elevatedSource = self.elevationFilter.getFilter(self.paraviewProducer)
 

@@ -2,10 +2,31 @@ import os.path
 import random
 import yaml
 
+from typing import Optional
 
+from enum import Enum
+
+from singleton import Singleton
+
+class FileCategories(str, Enum):
+    Indicator = "INDICATOR"
+    Terrain = "TERRAIN"
+    Other = "OTHER"
+
+def file_category_label(category: FileCategories) -> str:
+    if category is FileCategories.Indicator:
+        return "Indicator"
+    elif category is FileCategories.Terrain:
+        return "Terrain"
+    elif category is FileCategories.Other:
+        return "Other"
+    else:
+        raise Exception(f"Unknown file category: {category}")
+
+@Singleton
 class FileDatabase:
-    def __init__(self, state):
-        self.datastore = state.get("datastore")
+    def __init__(self, datastore):
+        self.datastore = datastore
         path = os.path.join(self.datastore, "pf_datastore.yaml")
         with open(path) as entriesFile:
             self.entries = yaml.safe_load(entriesFile) or {}

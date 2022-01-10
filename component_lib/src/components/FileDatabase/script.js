@@ -1,11 +1,12 @@
 import DragAndDropFiles from '../DragAndDropFiles';
 
+
 export default {
   name: 'FileDatabase',
   components: {
     DragAndDropFiles,
   },
-  props: ['files', 'value', 'db-update'],
+  props: ['files', 'fileCategories', 'value', 'db-update'],
   data() {
     return {
       searchQuery: '',
