@@ -50,7 +50,7 @@ init = {
         {"value": cat.value, "text": file_category_label(cat)} for cat in FileCategories
     ],
     "dbFiles": {},
-    "dbSelectedFile": {},
+    "dbSelectedFile": None,
     "dbFileExchange": None,
     "solverSearchIndex": {},
     "solverSearchIds": [],
@@ -95,8 +95,8 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     else:
         FILEDB.writeEntry(file_id, dbSelectedFile)
 
-    state.flush("dbSelectedFile")
     state.dbSelectedFile = dbSelectedFile
+    state.flush("dbSelectedFile")
     state.dbFiles = FILEDB.getEntries()
 
 
@@ -291,7 +291,7 @@ if __name__ == "__main__":
         {
             **validated_args,
             "dbFiles": entries,
-            "dbSelectedFile": {} if not entries else list(entries.values())[0],
+            "dbSelectedFile": None if not entries else list(entries.values())[0],
         }
     )
 

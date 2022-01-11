@@ -89,4 +89,7 @@ class FileDatabase:
         del self.entries[entryId]
         self._writeEntries(self.entries)
 
-        os.remove(path)
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            print("The underlying file did not exist.")

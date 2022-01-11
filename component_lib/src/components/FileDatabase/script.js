@@ -12,7 +12,7 @@ export default {
       searchQuery: '',
       fileStats: {},
       file: null,
-      formContent: this.value,
+      formContent: this.value || {},
     };
   },
   methods: {
@@ -80,7 +80,7 @@ export default {
       this.$emit('input', { ...this.formContent, ...this.fileStats });
     },
     cancel() {
-      this.formContent = { ...this.value };
+      this.formContent = { ...(this.value || {}) };
     },
   },
   computed: {
@@ -103,11 +103,9 @@ export default {
     size() {
       return this.fileStats.size || this.formContent.size;
     },
-    selectedFileIndex() {
-      return Object.values(this.files).findIndex(
-        (file) => file.id === this.formContent.id
-      );
-    },
+    hasFiles() {
+      return Object.keys(this.files).length > 0;
+    }
   },
   watch: {
     value() {

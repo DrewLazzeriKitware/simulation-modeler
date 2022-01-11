@@ -25,11 +25,11 @@
       </v-toolbar>
       <v-divider />
       <v-list>
-        <v-list-item-group :value="selectedFileIndex">
+        <v-list-item-group :value="value ? value.id : ''" @change="selectFile">
           <template v-for="(file, index) in files">
             <v-list-item
-              :key="index"
-              @click="selectFile(file.id)"
+              :key="file.id"
+              :value="file.id"
               v-if="searchMatch(file)"
             >
               <div class="d-flex flex-column align-start py-2">
@@ -70,7 +70,7 @@
         class="font-weight-medium flex-column d-flex justify-center align-center
         fill-height"
       >
-        <span v-if="files.length">No file selected. Select one or&nbsp;</span>
+        <span v-if="hasFiles">No file selected. Select one or&nbsp;</span>
         <span v-else>No files in database&nbsp;</span>
         <a @click="newFile">
           (Add a file)
