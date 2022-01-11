@@ -50,7 +50,7 @@ def add_proxies_for_dynamic_model(proxies, prefix, run, model_type_name, model_t
 
     for (prop_name, prop) in model_type.items():
 
-        if prop_name == "name" or prop_name.startswith("_"):
+        if prop_name == "name" or prop_name.startswith("_") or "{" in prop_name:
             continue
 
         exportSuffix = prop["_exportSuffix"]

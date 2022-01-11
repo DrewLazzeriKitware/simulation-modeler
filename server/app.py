@@ -47,10 +47,7 @@ init = {
         "Project Generation",
     ],
     "fileCategories": [
-        {
-            "value": cat.value,
-            "text": file_category_label(cat)
-        } for cat in FileCategories
+        {"value": cat.value, "text": file_category_label(cat)} for cat in FileCategories
     ],
     "dbFiles": {},
     "dbSelectedFile": {},
@@ -281,7 +278,7 @@ if __name__ == "__main__":
     if not validator.args_valid():
         parser.print_help(sys.stderr)
     validated_args = validator.get_args()
-    FILEDB = FileDatabase(validated_args.get('datastore'))
+    FILEDB = FileDatabase(validated_args.get("datastore"))
     entries = FILEDB.getEntries()
 
     init.update(
@@ -296,6 +293,6 @@ if __name__ == "__main__":
 
     # Begin
     layout.state = init
-    # validateRun()  # For validating without ui
+    validateRun()  # For validating without ui
     # print(layout.html)
     start(layout)

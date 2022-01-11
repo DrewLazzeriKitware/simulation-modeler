@@ -5,7 +5,17 @@ import yaml
 from parflow import Run
 from io import StringIO
 
-defaults = {"Cycle.constant.alltime.Length": 1}
+defaults = {
+    # Cycle requires nested dynamic keys
+    "Cycle.Names": "constant",
+    "Cycle.constant.Names": "alltime",
+    "Cycle.constant.Repeat": -1,
+    "Cycle.constant.alltime.Length": 1,
+    # These require top level __value__ keys
+    "Gravity": 1.0,
+    "FileVersion": 4,
+    "KnownSolution": "NoKnownSolution",
+}
 
 
 class SimulationManager:
