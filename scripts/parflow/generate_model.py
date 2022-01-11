@@ -64,7 +64,28 @@ class ModelBuilder:
         with open(output, "w", encoding="utf8") as f:
             yaml.dump(self.model, f)
 
-    def add_to_model(self, node, name=None, parents=[], model_type_name=None):
+    def simple_node(self, name):
+        return not name.startswith(".{")
+
+    def top_node(self, name):
+        return name is None
+
+    def add_to_model(
+        self,
+        node,
+        name=None,
+        parents=[],
+        model_type_name=None,
+        parents_in_model_type=0,
+    ):
+        """
+        Recurse through a tree of nodes to build up a simput model type
+
+        :param node: Current place in tree
+        :param name: Path component of current node
+        :param parents: List of parent path components
+        :param model_type_name: Simput model type which this node may be added to
+        """
 
         # Ignore leaves
         if type(node) is not dict:
@@ -82,76 +103,75 @@ class ModelBuilder:
         if node.get("__simput__", {}).get("GroupChildrenAs"):
             model_type_name = node.get("__simput__", {}).get("GroupChildrenAs")
 
-        if name and name.startswith(".{"):
-            export_prefix = ".".join(parents)
+        if not self.top_node(name):
+            if self.simple_node(name):
 
-            if model_type_name:
-                new_prop = {}
-                nested_model_type_name = (export_prefix + name).replace(
-                    ".", "_"
-                )  # Storage identifier
+                # Decide identifiers for node
+                if name != "__value__":
+                    # __value__ goes by parent's name
+                    parents.append(name)
+                export_suffix = ".".join(parents[-parents_in_model_type:])
+                property_name = export_suffix.replace(".", "_")  # Storage identifier
 
-                # Add prop to current model
-                new_prop["domains"] = [
-                    {
-                        "type": "ProxyBuilder",
-                        "values": [
-                            {
-                                "name": nested_model_type_name,
-                                "type": nested_model_type_name,
-                            }
-                        ],
-                    }
-                ]
-                self.add_model_prop(model_type_name, nested_model_type_name, new_prop)
+                # This is a property. Add to model
+                if model_type_name and node.get("help"):
+                    new_prop = {"_exportSuffix": export_suffix}
+                    add_help(node, new_prop)
+                    add_type(node, new_prop)
+                    add_domains(node, new_prop, name, property_name)
+                    self.add_model_prop(model_type_name, property_name, new_prop)
 
-                # Add new model with link back to old
-                self.add_model_prop(
-                    nested_model_type_name, "_exportPrefix", export_prefix
-                )
-                self.add_model_prop(
-                    nested_model_type_name,
-                    "name",
-                    {
-                        "_ui": "skip",
-                        "type": "string",
-                        "_help": "The name distinguishing this instance of "
-                        + nested_model_type_name,
-                    },
-                )
+            else:
+                export_prefix = ".".join(parents)
+                parents_in_model_type = -2
+                parents.append(name)
 
-                # Recurse onto children
-                for key in node.keys():
-                    if key == "__value__" or not key.startswith("__"):
-                        self.add_to_model(
-                            node.get(key),
-                            key,
-                            parents=[],
-                            model_type_name=nested_model_type_name,
-                        )
+                if model_type_name:
+                    new_prop = {}
+                    parent_model_type_name = model_type_name
+                    model_type_name = (export_prefix + name).replace(
+                        ".", "_"
+                    )  # Storage identifier
 
-        else:
-            # Decide identifiers for node
-            if name and name != "__value__":
-                # __value__ goes by parent's name
-                parents += [name]
-            export_suffix = ".".join(parents)  # Unique identifier
-            property_name = export_suffix.replace(".", "_")  # Storage identifier
-
-            # This is a property. Add to model
-            if node.get("help") and model_type_name:
-                new_prop = {"_exportSuffix": export_suffix}
-                add_help(node, new_prop)
-                add_type(node, new_prop)
-                add_domains(node, new_prop, name, property_name)
-                self.add_model_prop(model_type_name, property_name, new_prop)
-
-            # Recurse onto children
-            for key in node.keys():
-                if key == "__value__" or not key.startswith("__"):
-                    self.add_to_model(
-                        node.get(key), key, parents, model_type_name=model_type_name
+                    # Add prop to current model
+                    new_prop["domains"] = [
+                        {
+                            "type": "ProxyBuilder",
+                            "values": [
+                                {
+                                    "name": model_type_name,
+                                    "type": model_type_name,
+                                }
+                            ],
+                        }
+                    ]
+                    self.add_model_prop(
+                        parent_model_type_name, model_type_name, new_prop
                     )
+
+                    # Add new model with link back to old
+                    self.add_model_prop(model_type_name, "_exportPrefix", export_prefix)
+                    self.add_model_prop(
+                        model_type_name,
+                        "name",
+                        {
+                            "_ui": "skip",
+                            "type": "string",
+                            "_help": "The name distinguishing this instance of "
+                            + model_type_name,
+                        },
+                    )
+
+        # Recurse onto children
+        for key in node.keys():
+            if key == "__value__" or not key.startswith("__"):
+                self.add_to_model(
+                    node.get(key),
+                    key,
+                    parents,
+                    model_type_name,
+                    parents_in_model_type + 1,
+                )
 
     def add_model_prop(self, model_type_name, property_name, new_prop):
         if not self.model.get(model_type_name):
