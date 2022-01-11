@@ -18,13 +18,14 @@ from trame import (
     state,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Span
-import widgets
+from trame.html import vuetify, Span, simput
 
 from simput.core import ProxyManager, UIManager, ProxyDomainManager
 from simput.ui.web import VuetifyResolver
 from simput.domains import register_domains
 from simput.values import register_values
+
+import widgets
 
 register_domains()
 register_values()
@@ -192,8 +193,8 @@ def initSimputModel(work_dir):
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-# html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
-# layout.root = html_simput
+html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
+layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
