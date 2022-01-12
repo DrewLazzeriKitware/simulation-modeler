@@ -69,7 +69,7 @@ python scripts/parflow/simput_model.py -d ../parflow/pf-keys/definitions/ -o ser
               │
               │   ┌─────────────────┐
               └──►│                 │  run.yaml+files
-  FileDatabasee   │SimulationManager├────────────────────
+  FileDatabase   │SimulationManager├────────────────────
  ────────────────►│                 │
                   └─────────────────┘
 
