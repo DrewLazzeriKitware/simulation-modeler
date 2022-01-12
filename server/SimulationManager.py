@@ -6,15 +6,31 @@ from parflow import Run
 from io import StringIO
 
 defaults = {
-    # Cycle requires nested dynamic keys
+    #
+    # These require reading nested keys
+    #
+    "Cycle.constant.alltime.Length": 1,
     "Cycle.Names": "constant",
     "Cycle.constant.Names": "alltime",
     "Cycle.constant.Repeat": -1,
-    "Cycle.constant.alltime.Length": 1,
+    "Patch.x_lower.BCPressure.alltime.Value": 0,
+    "Patch.x_upper.BCPressure.alltime.Value": 0,
+    "Patch.y_lower.BCPressure.alltime.Value": 0,
+    "Patch.y_upper.BCPressure.alltime.Value": 0,
+    "Patch.z_lower.BCPressure.alltime.Value": 0,
+    "Patch.z_upper.BCPressure.alltime.Value": 0,
+    "PhaseSources.water.Geom.domain.Value": 0,
+    #
     # These require top level __value__ keys
+    #
     "Gravity": 1.0,
     "FileVersion": 4,
     "KnownSolution": "NoKnownSolution",
+    "Solver._value_": "Richards",
+    #
+    # These may be wrong in LW_Test.yaml. That key doesn't exist in pf-keys
+    #
+    "Solver.Linear.Preconditioner._value_": "PFMGOctree",
 }
 
 

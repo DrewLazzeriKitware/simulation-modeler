@@ -58,7 +58,7 @@ def add_proxies_for_dynamic_model(proxies, prefix, run, model_type_name, model_t
 
             # Build up regex to match dynamic run key
             dynamic_name_group = "\.([^.]+)\."
-            regex = prefix + dynamic_name_group + exportSuffix
+            regex = prefix + dynamic_name_group + exportSuffix + "$"
             match = re.match(regex, run_key)
 
             if match:
