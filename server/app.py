@@ -50,7 +50,7 @@ init = {
         {"value": cat.value, "text": file_category_label(cat)} for cat in FileCategories
     ],
     "dbFiles": {},
-    "dbSelectedFile": {},
+    "dbSelectedFile": None,
     "dbFileExchange": None,
     "solverSearchIndex": {},
     "solverSearchIds": [],
@@ -85,6 +85,9 @@ ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 # -----------------------------------------------------------------------------
 @state.change("dbSelectedFile")
 def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
+    if dbSelectedFile is None:
+        return
+
     file_id = dbSelectedFile.get("id")
 
     if not file_id:
@@ -92,8 +95,8 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     else:
         FILEDB.writeEntry(file_id, dbSelectedFile)
 
-    state.flush("dbSelectedFile")
     state.dbSelectedFile = dbSelectedFile
+    state.flush("dbSelectedFile")
     state.dbFiles = FILEDB.getEntries()
 
 
@@ -136,7 +139,10 @@ def updateFiles(update, entryId=None):
 
     elif update == "removeFile":
         FILEDB.deleteEntry(entryId)
-        del state.dbFiles[entryId]
+        state.dbFiles = FILEDB.getEntries()
+        if entryId == state.dbSelectedFile.get('id'):
+            state.dbSelectedFile = None
+            state.flush("dbSelectedFile")
         state.flush("dbFiles")
 
     elif update == "downloadSelectedFile":
@@ -285,7 +291,7 @@ if __name__ == "__main__":
         {
             **validated_args,
             "dbFiles": entries,
-            "dbSelectedFile": {} if not entries else list(entries.values())[0],
+            "dbSelectedFile": None if not entries else list(entries.values())[0],
         }
     )
 

@@ -1,3 +1,4 @@
+import os
 import os.path
 import random
 import yaml
@@ -27,9 +28,7 @@ def file_category_label(category: FileCategories) -> str:
 class FileDatabase:
     def __init__(self, datastore):
         self.datastore = datastore
-        path = os.path.join(self.datastore, "pf_datastore.yaml")
-        with open(path) as entriesFile:
-            self.entries = yaml.safe_load(entriesFile) or {}
+        self.entries = self._loadEntries()
 
     def addNewEntry(self, newFile):
         entryId = str(random.getrandbits(32))
@@ -41,10 +40,20 @@ class FileDatabase:
 
     def writeEntry(self, entryId, metadata):
         self.entries = {**self.entries, entryId: metadata}
-        # Update data on disk
-        path = os.path.join(self.datastore, "pf_datastore.yaml")
+        self._writeEntries(self.entries)
+
+    def _writeEntries(self, entries):
+        path = self._getDbPath()
         with open(path, "w") as db:
-            yaml.dump(self.entries, db)
+            yaml.dump(entries, db)
+
+    def _loadEntries(self):
+        path = self._getDbPath()
+        with open(path) as entriesFile:
+            return yaml.safe_load(entriesFile) or {}
+
+    def _getDbPath(self):
+        return os.path.join(self.datastore, "pf_datastore.yaml")
 
     def getEntry(self, entryId):
         return self.entries.get(entryId)
@@ -54,14 +63,12 @@ class FileDatabase:
 
     def getEntryPath(self, entryId):
         if entryId is None:
-            print("Failed to find path for empty entryId")
-            return
+            raise Exception("Failed to find path for empty entryId")
         entry = self.entries[entryId]
         dataId = entry.get("dataId")
 
         if dataId is None:
-            print("Could not find dataId for entry while finding path", entryId)
-            return
+            raise Exception(f"Could not find dataId for entry {entryId} while finding path")
 
         return os.path.join(self.datastore, dataId)
 
@@ -71,20 +78,18 @@ class FileDatabase:
             return entryFile.read()
 
     def writeEntryData(self, entryId, content):
-        if entryId is None:
-            print("Failed to write data to empty entryId")
-            return
+        path = self.getEntryPath(entryId)
 
-        entry = self.entries[entryId]
-        dataId = entry.get("dataId")
-
-        if dataId is None:
-            print("Could not find dataId for entry while writing data", entryId)
-            return
-
-        path = os.path.join(self.datastore, dataId)
         with open(path, "wb") as entryFile:
             entryFile.write(content)
 
     def deleteEntry(self, entryId):
-        pass
+        path = self.getEntryPath(entryId)
+
+        del self.entries[entryId]
+        self._writeEntries(self.entries)
+
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            print("The underlying file did not exist.")
