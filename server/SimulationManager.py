@@ -5,6 +5,8 @@ import yaml
 from parflow import Run
 from io import StringIO
 
+defaults = {"Cycle.constant.alltime.Length": 1}
+
 
 class SimulationManager:
     def __init__(self, work_dir, filedb):
@@ -35,6 +37,7 @@ class SimulationManager:
                         extracted_keys[name] = value
 
         self.run.update(extracted_keys)
+        self.run.update(defaults)
 
     def validate_run(self):
         path = os.path.join(self.work_dir, "run.yaml")

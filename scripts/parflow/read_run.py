@@ -7,6 +7,18 @@ proxies = []
 proxy_count = 1
 
 
+def flatten_dict(dd, separator=".", prefix=""):
+    return (
+        {
+            prefix + separator + k if prefix else k: v
+            for kk, vv in dd.items()
+            for k, v in flatten_dict(vv, separator, kk).items()
+        }
+        if isinstance(dd, dict)
+        else {prefix: dd}
+    )
+
+
 def make_new_proxy(name):
     global proxy_count
     prox = {
@@ -97,7 +109,7 @@ def add_key_to_proxy(new_proxy, prop_name, run, run_key, prop):
 def cli(run_file, model_file, output):
 
     with open(run_file) as run_file_handle:
-        run = yaml.safe_load(run_file_handle)
+        run = flatten_dict(yaml.safe_load(run_file_handle))
     with open(model_file) as model_file_handle:
         model_types = yaml.safe_load(model_file_handle)
 
