@@ -86,7 +86,9 @@ class FileDatabase:
     def deleteEntry(self, entryId):
         path = self.getEntryPath(entryId)
 
-        del self.entries[entryId]
+        entries = {**self.entries}
+        del entries[entryId]
+        self.entries = entries
         self._writeEntries(self.entries)
 
         try:

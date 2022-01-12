@@ -1,27 +1,30 @@
 export default {
   name: 'DragNDropFiles',
+  props: ['file', 'disabled'],
   data: () => ({
-    file: '',
     dragging: false,
   }),
   methods: {
     onChange(e) {
       var files = e.target.files || e.dataTransfer.files;
 
+      this.dragging = false;
+
+      if (this.disabled) {
+        return;
+      }
+
       if (!files.length) {
-        this.dragging = false;
         return;
       }
 
       this.createFile(files[0]);
     },
     createFile(file) {
-      this.file = file;
-      this.dragging = false;
       this.$emit('uploaded', file);
     },
     removeFile() {
-      this.file = '';
+      this.createFile(undefined);
     },
   },
   computed: {

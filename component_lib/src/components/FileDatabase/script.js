@@ -6,7 +6,7 @@ export default {
   components: {
     DragAndDropFiles,
   },
-  props: ['files', 'fileCategories', 'value', 'db-update'],
+  props: ['files', 'fileCategories', 'value', 'db-update', 'error'],
   data() {
     return {
       searchQuery: '',
@@ -31,13 +31,17 @@ export default {
       return false;
     },
     uploaded(file) {
-      this.fileStats = {
-        size: file.size,
-        origin: file.name,
-        dateModified: file.lastModified,
-        dateUploaded: Number(new Date()),
-        type: file.type === 'application/zip' ? 'zip' : 'file',
-      };
+      if (file) {
+        this.fileStats = {
+          size: file.size,
+          origin: file.name,
+          dateModified: file.lastModified,
+          dateUploaded: Number(new Date()),
+          type: file.type === 'application/zip' ? 'zip' : 'file',
+        };
+      } else {
+        this.fileStats = {};
+      }
       this.file = file;
     },
     selectFile(id) {
@@ -47,10 +51,11 @@ export default {
       this.trigger(this.dbUpdate, ['removeFile', id]);
     },
     downloadSelectedFile() {
-      this.trigger(this.dbUpdate, ['downloadSelectedFile']);
+      this.trigger(this.dbUpdate, ['downloadSelectedFile', this.value.id]);
     },
     resetSelectedFile() {
-      this.cancel();
+      this.file = null;
+      this.fileStats = {};
     },
     newFile() {
       this.fileStats = {};
@@ -74,13 +79,30 @@ export default {
       });
     },
     save() {
-      if (this.file) {
-        this.set('dbFileExchange', this.file);
+      /*eslint no-unused-vars: ["error", { "ignoreRestSiblings": true }]*/
+      const {
+        useLocalFile, copyLocalFile, localFile,
+        origin, dateModified, dateUploaded, type, size,
+        ...formContent
+      } = this.formContent;
+
+      if (!useLocalFile && this.file) {
+        this.set('dbFileExchange', {...this.file, ...this.fileStats});
+        this.resetSelectedFile();
+      } else if (useLocalFile && localFile) {
+        this.set('dbFileExchange', {
+          useLocalFile, copyLocalFile, localFile,
+          dateModified: Number(new Date()),
+          dateUploaded: Number(new Date()),
+          type: 'file',
+        });
       }
-      this.$emit('input', { ...this.formContent, ...this.fileStats });
+
+      this.$emit('input', { ...formContent });
     },
     cancel() {
       this.formContent = { ...(this.value || {}) };
+      this.resetSelectedFile();
     },
   },
   computed: {
