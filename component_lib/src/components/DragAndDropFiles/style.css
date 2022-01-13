@@ -48,11 +48,15 @@
   opacity: 0.8;
 }
 
+.dropZone-disabled {
+  background: #ddd;
+  opacity: 0.6;
+  border: 2px dashed #ababab;
+}
 .dropZone-uploaded {
-  width: 80%;
   height: 200px;
   position: relative;
-  border: 2px dashed #eee;
+  border: 2px solid rgb(0, 194, 65);
 }
 
 .dropZone-uploaded-info {

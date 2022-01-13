@@ -1,16 +1,14 @@
-<div v-if="!file">
-  <div
-    :class="['dropZone', dragging ? 'dropZone-over' : '']"
-    @dragenter="dragging = true"
-    @dragleave="dragging = false"
-  >
-    <div class="dropZone-info" @drag="onChange">
-      <span class="dropZone-title">Drop file or click to upload</span>
-    </div>
-    <input type="file" @change="onChange" />
+<div v-if="!file"
+  :class="['dropZone', dragging ? 'dropZone-over' : '', disabled ? 'dropZone-disabled' : '']"
+  @dragenter="dragging = true"
+  @dragleave="dragging = false"
+>
+  <div class="dropZone-info" @drag="onChange">
+    <span class="dropZone-title">Drop file or click to upload</span>
   </div>
+  <input :disabled="disabled" type="file" @change="onChange" />
 </div>
-<div v-else class="dropZone-uploaded">
+<div v-else :class="['dropZone-uploaded', disabled ? 'dropZone-disabled' : '']">
   <div class="dropZone-uploaded-info">
     <span class="dropZone-title">Uploaded</span>
     <button

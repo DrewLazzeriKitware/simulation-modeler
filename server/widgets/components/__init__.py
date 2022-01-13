@@ -14,7 +14,7 @@ vue_use = ["components"]
 class FileDatabase(AbstractElement):
     def __init__(self, children=None, **kwargs):
         super().__init__("file-database", children, **kwargs)
-        self._attr_names += ["files", "db_update", "fileCategories"]
+        self._attr_names += ["files", "db_update", "fileCategories", "error"]
 
 
 class NavigationDropDown(AbstractElement):

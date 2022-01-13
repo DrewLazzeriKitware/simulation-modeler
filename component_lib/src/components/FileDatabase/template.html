@@ -81,9 +81,24 @@
           <v-col cols="12" sm="7" class="align-center">
             <v-text-field label="Name" v-model="formContent.name" outlined />
             <DragAndDropFiles
+              :disabled="formContent.useLocalFile"
               class="flex-grow-1 text-caption mx-auto"
+              :file="file"
               @uploaded="uploaded"
             />
+            <v-divider style="margin: 1rem;"></v-divider>
+            <v-checkbox v-model="formContent.useLocalFile" label="Specify a local file on the server">
+            </v-checkbox>
+            <!-- <v-checkbox v-model="formContent.copyLocalFile" label="Copy file into database" :disabled="!formContent.useLocalFile">
+            </v-checkbox> -->
+            <v-text-field label="File path on server" v-model="formContent.localFile" :disabled="!formContent.useLocalFile" outlined />
+
+            <v-alert
+              v-if="error"
+              dense
+              outlined
+              type="error"
+            >{{error}}</v-alert>
           </v-col>
           <v-col cols="12" sm="5">
             <v-select

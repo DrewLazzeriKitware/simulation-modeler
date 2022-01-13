@@ -7,6 +7,7 @@ class CommandValidator:
     def __init__(self, args):
         self._work_dir = args.output
         self._datastore = args.datastore
+        self._sharedir = args.sharedir
         self._warning = None
         self._valid = False
 
@@ -41,6 +42,7 @@ class CommandValidator:
         return {
             "work_dir": self._work_dir,
             "datastore": self._datastore,
+            "sharedir": self._sharedir,
             "warning": self._warning,
         }
 

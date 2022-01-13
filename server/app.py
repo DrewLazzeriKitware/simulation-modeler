@@ -49,6 +49,7 @@ init = {
     "fileCategories": [
         {"value": cat.value, "text": file_category_label(cat)} for cat in FileCategories
     ],
+    "uploadError": "",
     "dbFiles": {},
     "dbSelectedFile": None,
     "dbFileExchange": None,
@@ -93,6 +94,8 @@ def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
     if not file_id:
         dbSelectedFile = FILEDB.addNewEntry(dbSelectedFile)
     else:
+        currentEntry = FILEDB.getEntry(file_id)
+        dbSelectedFile = {**currentEntry, **dbSelectedFile}
         FILEDB.writeEntry(file_id, dbSelectedFile)
 
     state.dbSelectedFile = dbSelectedFile
@@ -126,9 +129,42 @@ def updateComputationalGrid(indicatorFile, **kwargs):
 
 
 @state.change("dbFileExchange")
-def saveUploadedFile(dbFileExchange, dbSelectedFile, **kwargs):
-    if dbFileExchange is not None and dbFileExchange.get("content"):
-        FILEDB.writeEntryData(dbSelectedFile.get("id"), dbFileExchange["content"])
+def saveUploadedFile(dbFileExchange=None, dbSelectedFile=None, sharedir=None, **kwargs):
+    if dbFileExchange is None or dbSelectedFile is None or sharedir is None:
+        return
+
+    fileMeta = {
+        key: dbFileExchange.get(key) for key in [
+            "origin", "size", "dateModified", "dateUploaded", "type"
+        ]
+    }
+    entryId = dbSelectedFile.get("id")
+
+    try:
+        # File was uploaded from the user browser
+        if dbFileExchange.get("content"):
+            FILEDB.writeEntryData(entryId, dbFileExchange["content"])
+        # Path to file already present on the server was specified
+        elif dbFileExchange.get("localFile"):
+            file_path = os.path.abspath(os.path.join(sharedir, dbFileExchange.get("localFile")))
+            if os.path.commonpath([sharedir, file_path]) != sharedir:
+                raise Exception("Attempting to access a file outside the sharedir.")
+            fileMeta['origin'] = os.path.basename(file_path)
+
+            with open(file_path, 'rb') as f:
+                content = f.read()
+                fileMeta['size'] = len(content)
+                FILEDB.writeEntryData(entryId, content)
+    except Exception as e:
+        print(e)
+        state.uploadError = "An error occurred uploading the file to the database."
+        return
+
+    entry = {**FILEDB.getEntry(entryId), **fileMeta}
+    FILEDB.writeEntry(entryId, entry)
+    state.dbSelectedFile = entry
+    state.uploadError = ""
+    state.flush("dbSelectedFile")
 
 
 @trigger("updateFiles")
@@ -146,7 +182,7 @@ def updateFiles(update, entryId=None):
         state.flush("dbFiles")
 
     elif update == "downloadSelectedFile":
-        state.dbFileExchange = FILEDB.getEntryData()
+        state.dbFileExchange = FILEDB.getEntryData(entryId)
 
 
 def validateRun():
@@ -210,6 +246,7 @@ layout.toolbar.children += [
 file_database = widgets.FileDatabase(
     files=("dbFiles",),
     fileCategories=("fileCategories",),
+    error=("uploadError",),
     db_update="updateFiles",
     v_model="dbSelectedFile",
     v_if="currentView == 'File Database'",
@@ -275,7 +312,10 @@ if __name__ == "__main__":
         "-I", "--input", help="An existing build directory to clone"
     )  # -i taken by paraviewweb
     parser.add_argument(
-        "-D", "--datastore", help="A directory for tracking simulation input files"
+        "-D", "--datastore", help="A directory for tracking simulation input files", required=True
+    )
+    parser.add_argument(
+        "-S", "--sharedir", help="A shared directory whose files can be selected from the client", required=True
     )
     args = parser.parse_args()
 
