@@ -7,7 +7,8 @@ import yaml
 
 from CommandValidator import CommandValidator
 from FileDatabase import FileCategories, FileDatabase, file_category_label
-from SimulationManager import SimulationManager
+from KeyDatabase import KeyDatabase
+from RunWriter import RunWriter
 
 from parflowio.pyParflowio import PFData
 
@@ -16,19 +17,16 @@ from trame import (
     get_cli_parser,
     trigger,
     state,
+    controller as ctrl,
 )
 from trame.layouts import SinglePage
-from trame.html import vuetify, Span, simput
-
-from simput.core import ProxyManager, UIManager, ProxyDomainManager
-from simput.ui.web import VuetifyResolver
-from simput.domains import register_domains
-from simput.values import register_values
+from trame.html import vuetify, Span, simput, Div
 
 import widgets
 
-register_domains()
-register_values()
+FILEDB = None
+KEYDB = None
+
 layout = SinglePage("Parflow Web")
 layout.logo.click = "$refs.view.resetCamera()"
 
@@ -67,19 +65,6 @@ init = {
     },
 }
 
-FILEDB = None
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
-# Load Simput models and layouts
-pxm = ProxyManager()
-ui_resolver = VuetifyResolver()
-ui_manager = UIManager(pxm, ui_resolver)
-pdm = ProxyDomainManager()
-pxm.add_life_cycle_listener(pdm)
-pxm.load_model(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
-ui_manager.load_ui(xml_file=os.path.join(BASE_DIR, "model/layout.xml"))
-ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/model.yaml"))
-ui_manager.load_language(yaml_file=os.path.join(BASE_DIR, "model/lang/en.yaml"))
 
 # -----------------------------------------------------------------------------
 # Updates
@@ -134,9 +119,8 @@ def saveUploadedFile(dbFileExchange=None, dbSelectedFile=None, sharedir=None, **
         return
 
     fileMeta = {
-        key: dbFileExchange.get(key) for key in [
-            "origin", "size", "dateModified", "dateUploaded", "type"
-        ]
+        key: dbFileExchange.get(key)
+        for key in ["origin", "size", "dateModified", "dateUploaded", "type"]
     }
     entryId = dbSelectedFile.get("id")
 
@@ -146,14 +130,16 @@ def saveUploadedFile(dbFileExchange=None, dbSelectedFile=None, sharedir=None, **
             FILEDB.writeEntryData(entryId, dbFileExchange["content"])
         # Path to file already present on the server was specified
         elif dbFileExchange.get("localFile"):
-            file_path = os.path.abspath(os.path.join(sharedir, dbFileExchange.get("localFile")))
+            file_path = os.path.abspath(
+                os.path.join(sharedir, dbFileExchange.get("localFile"))
+            )
             if os.path.commonpath([sharedir, file_path]) != sharedir:
                 raise Exception("Attempting to access a file outside the sharedir.")
-            fileMeta['origin'] = os.path.basename(file_path)
+            fileMeta["origin"] = os.path.basename(file_path)
 
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 content = f.read()
-                fileMeta['size'] = len(content)
+                fileMeta["size"] = len(content)
                 FILEDB.writeEntryData(entryId, content)
     except Exception as e:
         print(e)
@@ -163,7 +149,6 @@ def saveUploadedFile(dbFileExchange=None, dbSelectedFile=None, sharedir=None, **
     entry = {**FILEDB.getEntry(entryId), **fileMeta}
     FILEDB.writeEntry(entryId, entry)
     state.dbSelectedFile = entry
-    state.uploadError = ""
     state.flush("dbSelectedFile")
 
 
@@ -176,7 +161,7 @@ def updateFiles(update, entryId=None):
     elif update == "removeFile":
         FILEDB.deleteEntry(entryId)
         state.dbFiles = FILEDB.getEntries()
-        if entryId == state.dbSelectedFile.get('id'):
+        if entryId == state.dbSelectedFile.get("id"):
             state.dbSelectedFile = None
             state.flush("dbSelectedFile")
         state.flush("dbFiles")
@@ -184,63 +169,26 @@ def updateFiles(update, entryId=None):
     elif update == "downloadSelectedFile":
         state.dbFileExchange = FILEDB.getEntryData(entryId)
 
+    state.uploadError = ""
+
 
 def validateRun():
-    parflow = SimulationManager(state.work_dir, FILEDB)
-    parflow.read_from_simput(pxm)
+    parflow = RunWriter(state.work_dir, FILEDB)
     validation = parflow.validate_run()
 
     state.projGenValidation = {"output": validation, "valid": False}
 
 
-def saveSimput():
-    settings_path = os.path.join(state.work_dir, "pf_settings.yaml")
-    with open(settings_path, "r+") as settings_file:
-        settings = yaml.safe_load(settings_file)
-        settings["save"] = pxm.save()
-        yaml.dump(settings, settings_file)
-
-
-def initSimputModel(work_dir):
-    settings_path = os.path.join(work_dir, "pf_settings.yaml")
-    with open(settings_path, "r") as settings_file:
-        settings = yaml.safe_load(settings_file)
-
-    grid_id = None
-    solver_id = None
-
-    # Either load from previous save or instantiate models
-    if settings.get("save"):
-        pxm.load(file_content=settings.get("save"))
-        [grid] = pxm.get_instances_of_type("Grid")
-        [solver] = pxm.get_instances_of_type("Solver")
-        grid_id = grid.id
-        solver_id = solver.id
-    else:
-        # Add solver keys with search index
-        grid_id = pxm.create("Grid").id
-        solver_id = pxm.create("Solver").id
-
-    init.update(
-        {
-            "simputDomainId": grid_id,
-            "simputSolverId": solver_id,
-        }
-    )
-
-
 # -----------------------------------------------------------------------------
 # Views
 # -----------------------------------------------------------------------------
-html_simput = simput.Simput(ui_manager, proxy_domain_manager=pdm, prefix="simput")
-layout.root = html_simput
 layout.title.set_text("Parflow Web")
 layout.toolbar.children += [
     vuetify.VSpacer(),
     widgets.NavigationDropDown(v_model="currentView", views=("views",)),
     vuetify.VSpacer(),
     Span("Simput", classes="text mx-1"),
-    vuetify.VBtn("Save", click=saveSimput, classes="mx-1"),
+    vuetify.VBtn("Save", click=ctrl.saveSimput, classes="mx-1"),
 ]
 
 file_database = widgets.FileDatabase(
@@ -265,14 +213,6 @@ simulation_type = """
   v-if="currentView=='Simulation Type'"/>
 """
 
-domain = widgets.Domain(
-    grid_models={
-        key: key for key in ["LX", "DX", "NX", "LY", "DY", "NY", "LZ", "DZ", "NZ"]
-    },
-)
-
-boundaryConditions = ""
-
 subSurface = """
 <SubSurface
   v-if="currentView=='Subsurface Properties'" />
@@ -288,15 +228,6 @@ projectGeneration = widgets.ProjectGeneration(
     },
 )
 
-layout.content.children += [
-    file_database,
-    simulation_type,
-    solver,
-    domain,
-    boundaryConditions,
-    subSurface,
-    projectGeneration,
-]
 
 # -----------------------------------------------------------------------------
 # Validate command line arguments and run app
@@ -312,10 +243,16 @@ if __name__ == "__main__":
         "-I", "--input", help="An existing build directory to clone"
     )  # -i taken by paraviewweb
     parser.add_argument(
-        "-D", "--datastore", help="A directory for tracking simulation input files", required=True
+        "-D",
+        "--datastore",
+        help="A directory for tracking simulation input files",
+        required=True,
     )
     parser.add_argument(
-        "-S", "--sharedir", help="A shared directory whose files can be selected from the client", required=True
+        "-S",
+        "--sharedir",
+        help="A shared directory whose files can be selected from the client",
+        required=True,
     )
     args = parser.parse_args()
 
@@ -325,6 +262,7 @@ if __name__ == "__main__":
         parser.print_help(sys.stderr)
     validated_args = validator.get_args()
     FILEDB = FileDatabase(validated_args.get("datastore"))
+    KEYDB = KeyDatabase(validated_args.get("work_dir"))
     entries = FILEDB.getEntries()
 
     init.update(
@@ -335,10 +273,32 @@ if __name__ == "__main__":
         }
     )
 
-    initSimputModel(validated_args["work_dir"])
+    # Compose layout which depends on databases
+    html_simput = simput.Simput(
+        KEYDB.get_ui_manager(),
+        KEYDB.get_pdm(),
+        prefix="simput",
+    )
+    layout.root = html_simput
+    boundaryConditions = Div(
+        [
+            simput.SimputItem(itemId=("bcPressureId", KEYDB.BCPressure.id)),
+            simput.SimputItem(itemId=("patchId", KEYDB.Patch.id)),
+        ],
+        v_if="currentView=='Boundary Conditions'",
+    )
+    layout.content.children += [
+        file_database,
+        simulation_type,
+        solver,
+        widgets.Domain(),
+        boundaryConditions,
+        subSurface,
+        projectGeneration,
+    ]
 
     # Begin
     layout.state = init
-    validateRun()  # For validating without ui
-    # print(layout.html)
+    # validateRun()  # For validating without ui
+    # print(layout.html) # Debugging
     start(layout)

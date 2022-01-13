@@ -9,17 +9,20 @@ from visualizations.image import SourceImage
 from visualizations.soil import SoilVisualization
 from FileDatabase import FileCategories, FileDatabase
 
-state.update({
-    "domainView": "grid",
-    "soils": [],
-    "currentSoil": "all",
-    "terrainFile": None,
-    "indicatorFile": None,
-})
+state.update(
+    {
+        "domainView": "grid",
+        "soils": [],
+        "currentSoil": "all",
+        "terrainFile": None,
+        "indicatorFile": None,
+    }
+)
 
 view = simple.GetRenderView()
 html_view = paraview.VtkRemoteView(view)
 soil_viz = None
+
 
 @state.change("currentSoil")
 def updateCurrentSoil(currentSoil, **kwargs):
@@ -34,6 +37,7 @@ def updateCurrentSoil(currentSoil, **kwargs):
         soil_viz.activateSoil(value)
 
     html_view.update()
+
 
 @state.change("domainView")
 def on_view_change(domainView, indicatorFile, terrainFile, **kwargs):
@@ -62,9 +66,7 @@ def on_view_change(domainView, indicatorFile, terrainFile, **kwargs):
             soil_viz.parflowImage.elevationFilter.demFilename = terrainFilePath
             soil_viz.activate()
 
-            state.update({
-                "soils": ["all"] + list(soil_viz.soilTypes.keys())
-            })
+            state.update({"soils": ["all"] + list(soil_viz.soilTypes.keys())})
 
 
 def domain_viz():
@@ -77,7 +79,8 @@ def domain_viz():
         html_view,
     ]
 
-def domain_parameters(grid_models):
+
+def domain_parameters():
     domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
     domainGrid = [Element("H1", "Indicator"), domainGridRow]
     with domainGridRow:
@@ -85,42 +88,26 @@ def domain_parameters(grid_models):
             vuetify.VSelect(
                 v_model=("indicatorFile", None),
                 placeholder="Select an indicator file",
-                items=(f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Indicator}'}})",),
+                items=(
+                    f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Indicator}'}})",
+                ),
                 item_text="name",
                 item_value="id",
             )
 
             with vuetify.VRow():
                 with vuetify.VCol():
-                    vuetify.VTextField(
-                        v_model=(grid_models["LX"], 1.0), label="lx", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["DX"], 1.0), label="dx", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["NX"], 1.0), label="nx", readonly=True
-                    )
+                    vuetify.VTextField(v_model=("LX", 1.0), label="lx", readonly=True)
+                    vuetify.VTextField(v_model=("DX", 1.0), label="dx", readonly=True)
+                    vuetify.VTextField(v_model=("NX", 1.0), label="nx", readonly=True)
                 with vuetify.VCol():
-                    vuetify.VTextField(
-                        v_model=(grid_models["LY"], 1.0), label="ly", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["DY"], 1.0), label="dy", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["NY"], 1.0), label="ny", readonly=True
-                    )
+                    vuetify.VTextField(v_model=("LY", 1.0), label="ly", readonly=True)
+                    vuetify.VTextField(v_model=("DY", 1.0), label="dy", readonly=True)
+                    vuetify.VTextField(v_model=("NY", 1.0), label="ny", readonly=True)
                 with vuetify.VCol():
-                    vuetify.VTextField(
-                        v_model=(grid_models["LZ"], 1.0), label="lz", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["DZ"], 1.0), label="dz", readonly=True
-                    )
-                    vuetify.VTextField(
-                        v_model=(grid_models["NZ"], 1.0), label="nz", readonly=True
-                    )
+                    vuetify.VTextField(v_model=("LZ", 1.0), label="lz", readonly=True)
+                    vuetify.VTextField(v_model=("DZ", 1.0), label="dz", readonly=True)
+                    vuetify.VTextField(v_model=("NZ", 1.0), label="nz", readonly=True)
 
         with Div(classes="ma-6"):
             Span("Lorem Ipsum documentation for Indicator file")
@@ -133,6 +120,7 @@ def domain_parameters(grid_models):
 
     return domainGrid
 
+
 def terrain_parameters():
     domainGridRow = vuetify.VRow(classes="ma-6 justify-space-between")
     domainGrid = [Element("H1", "Terrain"), domainGridRow]
@@ -141,7 +129,9 @@ def terrain_parameters():
             vuetify.VSelect(
                 v_model=("terrainFile",),
                 placeholder="Select a terrain file",
-                items=(f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Terrain}'}})",),
+                items=(
+                    f"Object.values(dbFiles).filter(function(file){{return file.category === '{FileCategories.Terrain}'}})",
+                ),
                 item_text="name",
                 item_value="id",
             )
@@ -151,8 +141,8 @@ def terrain_parameters():
 
 # TODO Unpythonic
 # How does python parameterize an instance?
-def domain(grid_models):
-    domainGrid = domain_parameters(grid_models)
+def domain():
+    domainGrid = domain_parameters()
     terrainGrid = terrain_parameters()
     domainViz = domain_viz()
 
@@ -166,11 +156,17 @@ def domain(grid_models):
         ):
             vuetify.VToolbarTitle("Domain Parameters")
             vuetify.VSpacer()
-            with vuetify.VBtnToggle(rounded=True, mandatory=True, v_model=("domainView",)):
+            with vuetify.VBtnToggle(
+                rounded=True, mandatory=True, v_model=("domainView",)
+            ):
                 with vuetify.VBtn(small=True, value="grid"):
                     vuetify.VIcon("mdi-format-align-left", small=True, classes="mr-1")
                     Span("Parameters")
-                with vuetify.VBtn(small=True, value="viz", disabled=("!indicatorFile || !terrainFile",)):
+                with vuetify.VBtn(
+                    small=True,
+                    value="viz",
+                    disabled=("!indicatorFile || !terrainFile",),
+                ):
                     vuetify.VIcon("mdi-eye", small=True, classes="mr-1")
                     Span("Preview")
         Div(
@@ -183,6 +179,6 @@ def domain(grid_models):
             v_if="domainView=='viz'",
             fluid=True,
             classes="pa-0 fill-height",
-            children=domainViz
+            children=domainViz,
         )
     return element

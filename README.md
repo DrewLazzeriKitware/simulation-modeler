@@ -43,7 +43,7 @@ python scripts/parflow/simput_model.py -d ../parflow/pf-keys/definitions/ -o ser
 1) Generate simput model (model.yaml) with scripts/parflow/generate_model.py
 2) (optional) Read an existing run into a simput save with scripts/parflow/read_run.py
 3) Edit with simput components in app.py
-4) Export with SimulationManager in app.py
+4) Export with RunWriter in app.py
 
   parflow/pf_keys/definitions   ┌─────────────────┐
  ──────────────────────────────►│generate_model.py├──────────────┐
@@ -67,11 +67,11 @@ python scripts/parflow/simput_model.py -d ../parflow/pf-keys/definitions/ -o ser
               ┌──────────────────────────────────────────────────┘
               │
               │
-              │   ┌─────────────────┐
-              └──►│                 │  run.yaml+files
-  FileDatabase    │SimulationManager├────────────────────
- ────────────────►│                 │
-                  └─────────────────┘
+              │   ┌────────────┐
+              └──►│            │  run.yaml+files
+  FileDatabase    │RunWriter.py├────────────────────
+ ────────────────►│            │
+                  └────────────┘
 
 (edit with https://asciiflow.com/#/)
 ```

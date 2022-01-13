@@ -9,10 +9,12 @@ from enum import Enum
 
 from singleton import Singleton
 
+
 class FileCategories(str, Enum):
     Indicator = "INDICATOR"
     Terrain = "TERRAIN"
     Other = "OTHER"
+
 
 def file_category_label(category: FileCategories) -> str:
     if category is FileCategories.Indicator:
@@ -23,6 +25,7 @@ def file_category_label(category: FileCategories) -> str:
         return "Other"
     else:
         raise Exception(f"Unknown file category: {category}")
+
 
 @Singleton
 class FileDatabase:
@@ -68,7 +71,9 @@ class FileDatabase:
         dataId = entry.get("dataId")
 
         if dataId is None:
-            raise Exception(f"Could not find dataId for entry {entryId} while finding path")
+            raise Exception(
+                f"Could not find dataId for entry {entryId} while finding path"
+            )
 
         return os.path.join(self.datastore, dataId)
 

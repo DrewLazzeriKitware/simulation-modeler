@@ -1,3 +1,162 @@
+BCPressure:
+  BCPressure_PatchNames:
+    _exportSuffix: BCPressure.PatchNames
+    _help: "This key specifies the names of patches on which pressure boundary conditions\
+      \ will be specified. Note that these must all be patches on the external boundary\
+      \ of the domain and these patches must \u201Ccover\u201D that external boundary."
+    type: string
+BCPressure_{interval_name}:
+  FileName:
+    _exportSuffix: FileName
+    _help: This key specifies the name of a properly distributed .pfb file that contains
+      boundary data to be read for types PressureFile and FluxFile. For flux data,
+      the data must be defined over a grid consistent with the pressure field. In
+      both cases, only the values needed for the patch will be used. The rest of the
+      data is ignored.
+    type: string
+  NumPoints:
+    _exportSuffix: NumPoints
+    _help: This key specifies the number of points on which pressure data is given
+      along the line used in the type DirEquilPLinear boundary conditions.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  PredefinedFunction:
+    _exportSuffix: PredefinedFunction
+    _help: This key specifies the predefined function that will be used to specify
+      Dirichlet boundary conditions on patch patch_name. Note that this does not change
+      according to any cycle. Instead, time dependence is handled by evaluating at
+      the time the boundary condition value is desired. Choices for this key include
+      X, XPlusYPlusZ, X3Y2PlusSinXYPlus1, X3Y4PlusX2PlusSinXYCosYPlus1, XYZTPlus1
+      and XYZTPlus1PermTensor.
+    domains:
+    - type: LabelList
+      values:
+      - text: X
+        value: X
+      - text: XPlusYPlusZ
+        value: XPlusYPlusZ
+      - text: X3Y2PlusSinXYPlus1
+        value: X3Y2PlusSinXYPlus1
+      - text: X3Y4PlusX2PlusSinXYCosYPlus1
+        value: X3Y4PlusX2PlusSinXYCosYPlus1
+      - text: XYZTPlus1
+        value: XYZTPlus1
+      - text: XYZTPlus1PermTensor
+        value: XYZTPlus1PermTensor
+    type: string
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the reference pressure value for the DirEquilRefPatch
+      boundary condition or the constant flux value for the FluxConst boundary condition,
+      or the constant volumetric flux for the FluxVolumetric boundary condition.
+    type: float32
+  XLower:
+    _exportSuffix: XLower
+    _help: This key specifies the lower x coordinate of a line in the xy-plane.
+    type: float32
+  XUpper:
+    _exportSuffix: XUpper
+    _help: This key specifies the upper x coordinate of a line in the xy-plane.
+    type: float32
+  YLower:
+    _exportSuffix: YLower
+    _help: This key specifies the lower y coordinate of a line in the xy-plane.
+    type: float32
+  YUpper:
+    _exportSuffix: YUpper
+    _help: This key specifies the upper y coordinate of a line in the xy-plane.
+    type: float32
+  _exportPrefix: BCPressure
+  _{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{phase_name}
+        type: _{phase_name}
+  _{point_number}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{point_number}
+        type: _{point_number}
+  name:
+    _help: The name distinguishing this instance of BCPressure_{interval_name}
+    _ui: skip
+    type: string
+BCSaturation_{phase_name}:
+  NumPoints:
+    _exportSuffix: NumPoints
+    _help: This key specifies the number of points on which saturation data is given
+      along the line used in the type DirEquilPLinear boundary conditions.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Type:
+    _exportSuffix: Type
+    _help: 'This key specifies the type of boundary condition data given for the given
+      phase, phase_name, on the given patch patch_name. Possible values for this key
+      are DirConstant, ConstantWTHeight and PLinearWTHeight. The choice DirConstant
+      specifies that the saturation is constant on the whole patch. The choice ConstantWTHeight
+      specifies a constant height of the water-table on the whole patch. The choice
+      PLinearWTHeight specifies that the height of the water-table on the patch will
+      be given by a piecewise linear function. Note: the types ConstantWTHeight and
+      PLinearWTHeight assume we are running a 2-phase problem where phase 0 is the
+      water phase.'
+    domains:
+    - type: LabelList
+      values:
+      - text: DirConstant
+        value: DirConstant
+      - text: ConstantWTHeight
+        value: ConstantWTHeight
+      - text: PLinearWTHeight
+        value: PLinearWTHeight
+    type: string
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies either the constant saturation value if DirConstant
+      is selected or the constant water-table height if ConstantWTHeight is selected.
+    type: float32
+  XLower:
+    _exportSuffix: XLower
+    _help: This key specifies the lower x coordinate of a line in the xy-plane if
+      type PLinearWTHeight boundary conditions are specified.
+    type: float32
+  XUpper:
+    _exportSuffix: XUpper
+    _help: This key specifies the upper x coordinate of a line in the xy-plane if
+      type PLinearWTHeight boundary conditions are specified.
+    type: float32
+  YLower:
+    _exportSuffix: YLower
+    _help: This key specifies the lower y coordinate of a line in the xy-plane if
+      type PLinearWTHeight boundary conditions are specified.
+    type: float32
+  YUpper:
+    _exportSuffix: YUpper
+    _help: This key specifies the upper y coordinate of a line in the xy-plane if
+      type PLinearWTHeight boundary conditions are specified.
+    type: float32
+  _exportPrefix: BCSaturation
+  _{point_number}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{point_number}
+        type: _{point_number}
+  name:
+    _help: The name distinguishing this instance of BCSaturation_{phase_name}
+    _ui: skip
+    type: string
 BaseRun:
   BaseRun_FileVersion:
     _exportSuffix: BaseRun.FileVersion
@@ -77,11 +236,97 @@ BaseRun:
       varies significantly based on the geometries in the problem. The Berger-Rigoutsos
       algorithm is currently used for clustering.
     type: string
+Concentration_{phase_name}:
+  _exportPrefix: Concentration
+  _{contaminant_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{contaminant_name}
+        type: _{contaminant_name}
+  name:
+    _help: The name distinguishing this instance of Concentration_{phase_name}
+    _ui: skip
+    type: string
+Contaminants:
+  Contaminants_Names:
+    _exportSuffix: Contaminants.Names
+    _help: This specifies the names of contaminants to be advected.
+    type: string
+  Contaminants_{contaminant_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Contaminants_{contaminant_name}
+        type: Contaminants_{contaminant_name}
+Contaminants_{contaminant_name}:
+  Degradation_Value:
+    _exportSuffix: Degradation.Value
+    _help: This key specifies the half-life decay rate of the named contaminant, contaminant_name.
+      At present only first- order decay reactions are implemented and it is assumed
+      that one contaminant cannot decay into another.
+    type: float32
+  _exportPrefix: Contaminants
+  name:
+    _help: The name distinguishing this instance of Contaminants_{contaminant_name}
+    _ui: skip
+    type: string
 Domain:
   Domain_GeomName:
     _exportSuffix: Domain.GeomName
     _help: This key specifies which of the named geometries is the problem domain.
     type: string
+Extraction_Flux_{phase_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the volumetric flux for an extraction well if the extraction
+      type key is set to Flux. Note only a positive number should be entered, ParFlow
+      assigns the correct sign based on the chosen action for the well.
+    type: float32
+  _exportPrefix: Extraction.Flux
+  name:
+    _help: The name distinguishing this instance of Extraction_Flux_{phase_name}
+    _ui: skip
+    type: string
+Flux_{phase_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the volumetric flux for a vertical well if the type
+      key is set to Flux. Note only a positive number should be entered, ParFlow assigns
+      the correct sign based on the chosen action for the well.
+    type: float32
+  _exportPrefix: Flux
+  name:
+    _help: The name distinguishing this instance of Flux_{phase_name}
+    _ui: skip
+    type: string
+Geom:
+  Geom_Perm_Names:
+    _exportSuffix: Geom.Perm.Names
+    _help: This key specifies all of the geometries to which a permeability field
+      will be assigned. These geometries must cover the entire computational domain.
+    type: string
+  Geom_Perm_TensorByGeom_Names:
+    _exportSuffix: Geom.Perm.TensorByGeom.Names
+    _help: This key specifies all of the geometries to which permeability tensor entries
+      will be assigned. These geometries must cover the entire computational domain.
+    type: string
+  Geom_Porosity_GeomNames:
+    _exportSuffix: Geom.Porosity.GeomNames
+    _help: This key specifies all of the geometries to which a porosity will be assigned.
+      These geometries must cover the entire computational domain.
+    type: string
+  Geom_Retardation_GeomNames:
+    _exportSuffix: Geom.Retardation.GeomNames
+    _help: This key specifies all of the geometries to which the contaminants will
+      have a retardation function applied.
+    type: string
+  Geom_{geom_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Geom_{geom_name}
+        type: Geom_{geom_name}
 GeomInput:
   GeomInput_Names:
     _exportSuffix: GeomInput.Names
@@ -137,6 +382,675 @@ GeomInput_{geom_input_name}:
   _exportPrefix: GeomInput
   name:
     _help: The name distinguishing this instance of GeomInput_{geom_input_name}
+    _ui: skip
+    type: string
+Geom_{geom_input_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the value of a constant source term applied to phase
+      phase _name on geometry geom_name.
+    type: float32
+  _exportPrefix: Geom
+  name:
+    _help: The name distinguishing this instance of Geom_{geom_input_name}
+    _ui: skip
+    type: string
+Geom_{geom_name}:
+  CapPressurePhase_Value:
+    _exportSuffix: CapPressurePhase.Value
+    _help: 'This key specifies the value of the capillary pressure in the named geometry,
+      geometry_name, for the named phase, phase_name. IMPORTANT NOTE: the code currently
+      works only for capillary pressure equal zero.'
+    type: float32
+  FBx_FileName:
+    _exportSuffix: FBx.FileName
+    _help: This key specifies file to be read in for the X flow barrier values for
+      the domain, if the type was set to PFBFile.
+    type: string
+  FBy_FileName:
+    _exportSuffix: FBy.FileName
+    _help: This key specifies file to be read in for the Y flow barrier values for
+      the domain, if the type was set to PFBFile.
+    type: string
+  FBz_FileName:
+    _exportSuffix: FBz.FileName
+    _help: This key specifies file to be read in for the Z flow barrier values for
+      the domain, if the type was set to PFBFile.
+    type: string
+  FileName:
+    _exportSuffix: FileName
+    _help: This specifies some sort of filename for the specified geometry.
+    type: string
+  HeatCapacity_Value:
+    _exportSuffix: HeatCapacity.Value
+    _help: This specifies the heat capacity value for the specified geometric unit.
+    type: float32
+  ICPressure_FileName:
+    _exportSuffix: ICPressure.FileName
+    _help: "This key specifies the name of the file containing pressure values for\
+      \ the domain. It is assumed that geom_name is \u201Cdomain\u201D for this key."
+    type: string
+  ICPressure_RefElevation:
+    _exportSuffix: ICPressure.RefElevation
+    _help: This key specifies the reference elevation on which the reference pressure
+      is given for type HydroStaticDepth initial pressures.
+    type: float32
+  ICPressure_RefGeom:
+    _exportSuffix: ICPressure.RefGeom
+    _help: This key specifies the geometry on which the reference patch resides for
+      type HydroStaticPatch initial pressures.
+    type: string
+  ICPressure_RefPatch:
+    _exportSuffix: ICPressure.RefPatch
+    _help: This key specifies the patch on which the reference pressure is given for
+      type HydorStaticPatch initial pressures.
+    type: string
+  ICPressure_Value:
+    _exportSuffix: ICPressure.Value
+    _help: This key specifies the initial pressure value for type Constant initial
+      pressures and the reference pressure value for types HydroStaticDepth and HydroStaticPatch.
+    type: float32
+  ICSaturation_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: ICSaturation_{phase_name}
+        type: ICSaturation_{phase_name}
+  Lower_X:
+    _exportSuffix: Lower.X
+    _help: This gives the lower X real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  Lower_Y:
+    _exportSuffix: Lower.Y
+    _help: This gives the lower Y real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  Lower_Z:
+    _exportSuffix: Lower.Z
+    _help: This gives the lower Z real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  Patches:
+    _exportSuffix: Patches
+    _help: Patches are defined on the surfaces of geometries. Currently you can only
+      define patches on Box geometries and on the the first geometry in a SolidFile.
+      For a Box the order is fixed (left right front back bottom top) but you can
+      name the sides anything you want.
+    type: string
+  Perm_DelK:
+    _exportSuffix: Perm.DelK
+    _help: This key specifies the normalized frequency increment to be used in the
+      Turning Bands algorithm for the named geometry, geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_FileName:
+    _exportSuffix: Perm.FileName
+    _help: "This key specifies that permeability values for the specified geometry,\
+      \ geometry_name, are given according to a user-supplied description in the \u201C\
+      ParFlow Binary\u201D file whose filename is given as the value. For a description\
+      \ of the ParFlow Binary file format, see the manual. The ParFlow Binary file\
+      \ associated with the named geometry must contain a collection of permeability\
+      \ values corresponding in a one-to-one manner to the entire computational grid.\
+      \ That is to say, when the contents of the file are read into the simulator,\
+      \ a complete permeability description for the entire domain is supplied. Only\
+      \ those values associated with computational cells residing within the geometry\
+      \ (as it is represented on the computational grid) will be copied into data\
+      \ structures used during the course of a simulation. Thus, the values associated\
+      \ with cells outside of the geounit are irrelevant. For clarity, consider a\
+      \ couple of different scenarios. For example, the user may create a file for\
+      \ each geometry such that appropriate permeability values are given for the\
+      \ geometry and \u201Cgarbage\" values (e.g., some flag value) are given for\
+      \ the rest of the computational domain. In this case, a separate binary file\
+      \ is specified for each geometry. Alternatively, one may place all values representing\
+      \ the permeability field on the union of the geometries into a single binary\
+      \ file. Note that the permeability values must be represented in precisely the\
+      \ same configuration as the computational grid. Then, the same file could be\
+      \ specified for each geounit in the input file. Or, the computational domain\
+      \ could be described as a single geouint (in the ParFlow input file) in which\
+      \ case the permeability values would be read in only once."
+    type: string
+  Perm_GeomMean:
+    _exportSuffix: Perm.GeomMean
+    _help: This key specifies the geometric mean of the log normal field generated
+      for the named geometry, geometry_name, if either the Turning Bands or Parallel
+      Gaussian Simulator are chosen.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_HighCutoff:
+    _exportSuffix: Perm.HighCutoff
+    _help: This key specifies the high cutoff value for truncating the generated field
+      for the named geometry, geometry_name, when either the NormalTruncated or LogTruncated
+      values are chosen.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_KMax:
+    _exportSuffix: Perm.KMax
+    _help: This key specifies the the maximum normalized frequency, Kmax, to be used
+      in the Turning Bands algorithm for the named geometry, geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_LambdaX:
+    _exportSuffix: Perm.LambdaX
+    _help: This key specifies the x correlation length of the field generated for
+      the named geometry, geometry_name, if either the Turning Bands or Parallel Gaussian
+      Simulator are chosen.
+    type: float32
+  Perm_LambdaY:
+    _exportSuffix: Perm.LambdaY
+    _help: This key specifies the y correlation length of the field generated for
+      the named geometry, geometry_name, if either the Turning Bands or Parallel Gaussian
+      Simulator are chosen.
+    type: float32
+  Perm_LambdaZ:
+    _exportSuffix: Perm.LambdaZ
+    _help: This key specifies the z correlation length of the field generated for
+      the named geometry, geometry_name, if either the Turning Bands or Parallel Gaussian
+      Simulator are chosen.
+    type: float32
+  Perm_LogNormal:
+    _exportSuffix: Perm.LogNormal
+    _help: The key specifies when a normal, log normal, truncated normal or truncated
+      log normal field is to be generated by the method for the named geometry, geometry_name.
+      This value must be one of Normal, Log, NormalTruncated or LogTruncated and can
+      be used with either Turning Bands or the Parallel Gaussian Simulator.
+    domains:
+    - type: LabelList
+      values:
+      - text: Normal
+        value: Normal
+      - text: Log
+        value: Log
+      - text: NormalTruncated
+        value: NormalTruncated
+      - text: LogTruncated
+        value: LogTruncated
+    type: string
+  Perm_LowCutoff:
+    _exportSuffix: Perm.LowCutoff
+    _help: This key specifies the low cutoff value for truncating the generated field
+      for the named geometry, geometry_name, when either the NormalTruncated or LogTruncated
+      values are chosen.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_MaxCpts:
+    _exportSuffix: Perm.MaxCpts
+    _help: This key sets limits on the number of external conditioning points in the
+      search neighborhood to be used in the Parallel Gaussian Simulator for the named
+      geometry, geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Perm_MaxNPts:
+    _exportSuffix: Perm.MaxNPts
+    _help: This key sets limits on the number of simulated points in the search neighborhood
+      to be used in the Parallel Gaussian Simulator for the named geometry, geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Perm_MaxSearchRad:
+    _exportSuffix: Perm.MaxSearchRad
+    _help: A key to improve correlation structure of RF in testing.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Perm_NumLines:
+    _exportSuffix: Perm.NumLines
+    _help: This key specifies the number of lines to be used in the Turning Bands
+      algorithm for the named geometry, geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Perm_RZeta:
+    _exportSuffix: Perm.RZeta
+    _help: This key specifies the resolution of the line processes, in terms of the
+      minimum grid spacing, to be used in the Turning Bands algorithm for the named
+      geometry, geometry_name. Large values imply high resolution.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_Seed:
+    _exportSuffix: Perm.Seed
+    _help: This key specifies the initial seed for the random number generator used
+      to generate the field for the named geometry, geometry_name, if either the Turning
+      Bands or Parallel Gaussian Simulator are chosen. This number must be positive.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Perm_Sigma:
+    _exportSuffix: Perm.Sigma
+    _help: This key specifies the standard deviation of the normal field generated
+      for the named geometry, geometry_name, if either the Turning Bands or Parallel
+      Gaussian Simulator are chosen.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_StratType:
+    _exportSuffix: Perm.StratType
+    _help: This key specifies the stratification of the permeability field generated
+      by the method for the named geometry, geometry_name. The value must be one of
+      Horizontal, Bottom or Top and can be used with either the Turning Bands or the
+      Parallel Gaussian Simulator.
+    domains:
+    - type: LabelList
+      values:
+      - text: Horizontal
+        value: Horizontal
+      - text: Bottom
+        value: Bottom
+      - text: Top
+        value: Top
+    type: string
+  Perm_TensorFileX:
+    _exportSuffix: Perm.TensorFileX
+    _help: "This key specifies that kx values for the specified geometry, geometry_name,\
+      \ are given according to a user-supplied description in the \u201CParFlow Binary\u201D\
+      \ file whose filename is given as the value. The only choice for the value of\
+      \ geometry_name is \u201Cdomain\u201D."
+    type: string
+  Perm_TensorFileY:
+    _exportSuffix: Perm.TensorFileY
+    _help: "This key specifies that ky values for the specified geometry, geometry_name,\
+      \ are given according to a user-supplied description in the \u201CParFlow Binary\u201D\
+      \ file whose filename is given as the value. The only choice for the value of\
+      \ geometry_name is \u201Cdomain\u201D."
+    type: string
+  Perm_TensorFileZ:
+    _exportSuffix: Perm.TensorFileZ
+    _help: "This key specifies that kz values for the specified geometry, geometry_name,\
+      \ are given according to a user-supplied description in the \u201CParFlow Binary\u201D\
+      \ file whose filename is given as the value. The only choice for the value of\
+      \ geometry_name is \u201Cdomain\u201D."
+    type: string
+  Perm_TensorValX:
+    _exportSuffix: Perm.TensorValX
+    _help: This key specifies the value of kx for the geometry given by geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_TensorValY:
+    _exportSuffix: Perm.TensorValY
+    _help: This key specifies the value of ky for the geometry given by geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_TensorValZ:
+    _exportSuffix: Perm.TensorValZ
+    _help: This key specifies the value of kz for the geometry given by geometry_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Perm_Type:
+    _exportSuffix: Perm.Type
+    _help: This key specifies which method is to be used to assign permeability data
+      to the named geometry, geometry_name. It must be either Constant, TurnBands,
+      ParGauss, or PFBFile.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: TurnBands
+        value: TurnBands
+      - text: ParGauss
+        value: ParGauss
+      - text: PFBFile
+        value: PFBFile
+    type: string
+  Perm_Value:
+    _exportSuffix: Perm.Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  Porosity_FileName:
+    _exportSuffix: Porosity.FileName
+    _help: "This key specifies that porosity values for the specified geometry, geometry_name,\
+      \ are given according to a user-supplied description in the \u201CParFlow Binary\u201D\
+      \ file whose filename is given as the value. The only choice for the value of\
+      \ geometry_name is \u201Cdomain\u201D."
+    type: string
+  Porosity_Type:
+    _exportSuffix: Porosity.Type
+    _help: This key specifies which method is to be used to assign porosity data to
+      the named geometry, geometry_name. The only choice currently available is Constant
+      which indicates that a constant is to be assigned to all grid cells within a
+      geometry.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+    type: string
+  Porosity_Value:
+    _exportSuffix: Porosity.Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  RelPerm_A:
+    _exportSuffix: RelPerm.A
+    _help: This key specifies the A parameter for the Haverkamp relative permeability
+      on geom_name.
+    type: float32
+  RelPerm_Alpha:
+    _exportSuffix: RelPerm.Alpha
+    _help: This key specifies the alpha parameter for the Van Genuchten function specified
+      on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  RelPerm_Alpha_Filename:
+    _exportSuffix: RelPerm.Alpha.Filename
+    _help: This key specifies a pfb filename containing the alpha parameters for the
+      VanGenuchten function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  RelPerm_Degree:
+    _exportSuffix: RelPerm.Degree
+    _help: This key specifies the degree of the polynomial for the Polynomial relative
+      permeability given on geom_name.
+    type: int8
+  RelPerm_Gamma:
+    _exportSuffix: RelPerm.Gamma
+    _help: This key specifies the gamma parameter for the Haverkamp relative permeability
+      on geom_name.
+    type: float32
+  RelPerm_InterpolationMethod:
+    _exportSuffix: RelPerm.InterpolationMethod
+    _help: Specify the interpolation method for the relative permeability.
+    type: string
+  RelPerm_MinPressureHead:
+    _exportSuffix: RelPerm.MinPressureHead
+    _help: This key specifies the lower value for a spline base interpolation table
+      for the Van Genuchten function specified on geom_name. The upper value of the
+      range is 0. This value is used only when the table lookup method is used (NumSamplePoints
+      is greater than 0).
+    type: int8
+  RelPerm_N:
+    _exportSuffix: RelPerm.N
+    _help: This key specifies the alpha parameter for the Van Genuchten function specified
+      on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  RelPerm_N_Filename:
+    _exportSuffix: RelPerm.N.Filename
+    _help: This key specifies a pfb filename containing the N parameters for the VanGenuchten
+      function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  RelPerm_NumSamplePoints:
+    _exportSuffix: RelPerm.NumSamplePoints
+    _help: This key specifies the number of sample points for a spline base interpolation
+      table for the Van Genuchten function specified on geom_name. If this number
+      is 0 (the default) then the function is evaluated directly. Using the interpolation
+      table is faster but is less accurate.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - null
+    type: int8
+  RelPerm_Value:
+    _exportSuffix: RelPerm.Value
+    _help: This key specifies the constant relative permeability value on the specified
+      geometry.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Saturation_A:
+    _exportSuffix: Saturation.A
+    _help: This key specifies the A parameter for the Haverkamp saturation on geom_name.
+    type: float32
+  Saturation_Alpha:
+    _exportSuffix: Saturation.Alpha
+    _help: This key specifies the alpha parameter for the Van Genuchten function specified
+      on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Saturation_Alpha_Filename:
+    _exportSuffix: Saturation.Alpha.Filename
+    _help: This key specifies a pfb filename containing the alpha parameters for the
+      VanGenuchten function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  Saturation_Degree:
+    _exportSuffix: Saturation.Degree
+    _help: This key specifies the degree of the polynomial for the Polynomial saturation
+      given on geom_name.
+    type: int8
+  Saturation_FileName:
+    _exportSuffix: Saturation.FileName
+    _help: "This key specifies the name of the file containing saturation values for\
+      \ the domain. It is assumed that geom_name is \u201Cdomain\u201D for this key."
+    type: string
+  Saturation_Gamma:
+    _exportSuffix: Saturation.Gamma
+    _help: This key specifies the gamma parameter for the Haverkamp saturation on
+      geom_name.
+    type: float32
+  Saturation_N:
+    _exportSuffix: Saturation.N
+    _help: This key specifies the alpha parameter for the Van Genuchten function specified
+      on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Saturation_N_Filename:
+    _exportSuffix: Saturation.N.Filename
+    _help: This key specifies a pfb filename containing the N parameters for the VanGenuchten
+      function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  Saturation_SRes:
+    _exportSuffix: Saturation.SRes
+    _help: This key specifies the residual saturation on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  Saturation_SRes_Filename:
+    _exportSuffix: Saturation.SRes.Filename
+    _help: This key specifies a pfb filename containing the residual saturation parameters
+      for the VanGenuchten function cell-by-cell. The ONLY option for geom_name is
+      "domain."
+    type: string
+  Saturation_SSat:
+    _exportSuffix: Saturation.SSat
+    _help: This key specifies the saturation at saturated conditions on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  Saturation_SSat_Filename:
+    _exportSuffix: Saturation.SSat.Filename
+    _help: This key specifies a pfb filename containing the SSat parameters for the
+      VanGenuchten function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  Saturation_Value:
+    _exportSuffix: Saturation.Value
+    _help: This key specifies the constant saturation value on the specified geometry.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  SpecificStorage_Value:
+    _exportSuffix: SpecificStorage.Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  ThermalConductivity_KDry:
+    _exportSuffix: ThermalConductivity.KDry
+    _help: This key specifies the thermal conductivity under dry conditions on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  ThermalConductivity_KDry_FileName:
+    _exportSuffix: ThermalConductivity.KDry.FileName
+    _help: This key specifies a pfb filename containing the dry thermal conductivity
+      function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  ThermalConductivity_KWet:
+    _exportSuffix: ThermalConductivity.KWet
+    _help: This key specifies the thermal conductivity under saturated conditions
+      on geom_name.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  ThermalConductivity_KWet_FileName:
+    _exportSuffix: ThermalConductivity.KWet.FileName
+    _help: This key specifies a pfb filename containing the wet thermal conductivity
+      function cell-by-cell. The ONLY option for geom_name is "domain."
+    type: string
+  ThermalConductivity_Value:
+    _exportSuffix: ThermalConductivity.Value
+    _help: This key specifies the thermal conductivity value on the specified geometry.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Upper_X:
+    _exportSuffix: Upper.X
+    _help: This gives the upper X real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  Upper_Y:
+    _exportSuffix: Upper.Y
+    _help: This gives the upper Y real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  Upper_Z:
+    _exportSuffix: Upper.Z
+    _help: This gives the upper Z real space coordinate value of the previously specified
+      box geometry of name box_geom_name.
+    type: float32
+  _exportPrefix: Geom
+  _{contaminant_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{contaminant_name}
+        type: _{contaminant_name}
+  dzScale_FileName:
+    _exportSuffix: dzScale.FileName
+    _help: This key specifies file to be read in for variable dz values for the given
+      geometry, geometry_name, if the type was set to PFBFile.
+    type: string
+  dzScale_Value:
+    _exportSuffix: dzScale.Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  name:
+    _help: The name distinguishing this instance of Geom_{geom_name}
     _ui: skip
     type: string
 Grid:
@@ -218,6 +1132,639 @@ Grid:
       - 1
       - null
     type: int8
+ICPressure:
+  ICPressure_GeomNames:
+    _exportSuffix: ICPressure.GeomNames
+    _help: This key specifies the geometry names on which the initial pressure data
+      will be given. These geometries must comprise the entire domain. Note that conditions
+      for regions that overlap other regions will have unpredictable results. The
+      regions given must be disjoint.
+    type: string
+  ICPressure_Type:
+    _exportSuffix: ICPressure.Type
+    _help: This key specifies the type of initial condition given. The choices for
+      this key are Constant, HydroStaticDepth, HydroStaticPatch and PFBFile. The choice
+      Constant specifies that the initial pressure will be constant over the regions
+      given. The choice HydroStaticDepth specifies that the initial pressure within
+      a region will be in hydrostatic equilibrium with a given pressure specified
+      at a given depth. The choice HydroStaticPatch specifies that the initial pressure
+      within a region will be in hydrostatic equilibrium with a given pressure on
+      a specified patch. Note that all regions must have the same type of initial
+      data - different regions cannot have different types of initial data. However,
+      the parameters for the type may be different. The PFBFile specification means
+      that the initial pressure will be taken as a spatially varying function given
+      by data in a ParFlow binary (.pfb) file.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+      - text: HydroStaticPatch
+        value: HydroStaticPatch
+      - text: NCFile
+        value: NCFile
+    type: string
+ICSaturation_{phase_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the initial condition value assigned to all points in
+      the named geometry, geom_input_name, if the type was set to Constant.
+    type: float32
+  _exportPrefix: ICSaturation
+  name:
+    _help: The name distinguishing this instance of ICSaturation_{phase_name}
+    _ui: skip
+    type: string
+Injection_Concentration_{phase_name}:
+  _exportPrefix: Injection.Concentration
+  _{contaminant_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{contaminant_name}
+        type: _{contaminant_name}
+  name:
+    _help: The name distinguishing this instance of Injection_Concentration_{phase_name}
+    _ui: skip
+    type: string
+Injection_Flux_{phase_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the volumetric flux for an injection well if the injection
+      type key is set to Flux. Note only a positive number should be entered, ParFlow
+      assigns the correct sign based on the chosen action for the well.
+    type: float32
+  _exportPrefix: Injection.Flux
+  name:
+    _help: The name distinguishing this instance of Injection_Flux_{phase_name}
+    _ui: skip
+    type: string
+KnownSolution:
+  KnownSolution:
+    _exportSuffix: KnownSolution
+    _help: 'This specifies the predefined function that will be used as the known
+      solution. Possible choices for this key are No- KnownSolution, Constant, X,
+      XPlusYPlusZ, X3Y2PlusSinXYPlus1, X3Y4PlusX2PlusSinXYCosYPlus1, XYZTPlus1 and
+      XYZTPlus1PermTensor. Choices for this key correspond to solutions as follows:
+      NoKnownSolution: No solution is known for this problem. Constant: p = constant
+      X: p = x XPlusYPlusZ: p = x + y + z X3Y2PlusSinXYPlus1: p = x3y2 + sin(xy) +
+      1 X3Y4PlusX2PlusSinXYCosYPlus1: p = x3y4 + x2 + sin(xy) cos y + 1 XYZTPlus1:
+      p = xyzt + 1 XYZTPlus1: p = xyzt + 1'
+    domains:
+    - type: LabelList
+      values:
+      - text: NoKnownSolution
+        value: NoKnownSolution
+      - text: Constant
+        value: Constant
+      - text: X
+        value: X
+      - text: XPlusYPlusZ
+        value: XPlusYPlusZ
+      - text: X3Y2PlusSinXYPlus1
+        value: X3Y2PlusSinXYPlus1
+      - text: X3Y4PlusX2PlusSinXYCosYPlus1
+        value: X3Y4PlusX2PlusSinXYCosYPlus1
+      - text: XYZTPlus1
+        value: XYZTPlus1
+      - text: XYZTPlus1
+        value: XYZTPlus1
+    type: string
+  KnownSolution_Value:
+    _exportSuffix: KnownSolution.Value
+    _help: This key specifies the constant value of the known solution for type Constant
+      known solutions.
+    type: float32
+Mannings:
+  Mannings_FileName:
+    _exportSuffix: Mannings.FileName
+    _help: This key specifies the name of the ParFlow binary file with Manning's values.
+    type: string
+  Mannings_GeomNames:
+    _exportSuffix: Mannings.GeomNames
+    _help: This key specifies all of the geometries on which a different Mannings
+      roughness value will be assigned. Mannings values may be assigned by PFBFile
+      or as Constant by geometry. These geometries must cover the entire upper surface
+      of the computational domain.
+    type: string
+  Mannings_Geom_{geom_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Mannings_Geom_{geom_name}
+        type: Mannings_Geom_{geom_name}
+  Mannings_Type:
+    _exportSuffix: Mannings.Type
+    _help: This key specifies which method is to be used to assign Mannings roughness
+      data. The choices currently available are Constant which indicates that a constant
+      is to be assigned to all grid cells within a geometry and PFBFile which indicates
+      that all values are read in from a distributed, grid-based ParFlow binary file.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+    type: string
+Mannings_Geom_{geom_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  _exportPrefix: Mannings.Geom
+  name:
+    _help: The name distinguishing this instance of Mannings_Geom_{geom_name}
+    _ui: skip
+    type: string
+Patch:
+  Patch_{patch_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Patch_{patch_name}
+        type: Patch_{patch_name}
+Patch_{patch_name}:
+  BCPressure_Cycle:
+    _exportSuffix: BCPressure.Cycle
+    _help: This key specifies the time cycle to which boundary condition data for
+      patch patch_name corresponds.
+    type: string
+  BCPressure_RefGeom:
+    _exportSuffix: BCPressure.RefGeom
+    _help: This key specifies the name of the solid on which the reference patch for
+      the DirEquilRefPatch boundary condition data is given. Care should be taken
+      to make sure the correct solid is specified in cases of layered domains.
+    type: string
+  BCPressure_RefPatch:
+    _exportSuffix: BCPressure.RefPatch
+    _help: This key specifies the reference patch on which the DirEquilRefPatch boundary
+      condition data is given. This patch must be on the reference solid specified
+      by the Patch.patch_name.BCPressure.RefGeom key.
+    type: string
+  BCPressure_Type:
+    _exportSuffix: BCPressure.Type
+    _help: "This key specifies the type of boundary condition data given for patch\
+      \ patch_name. Possible values for this key are DirEquilRefPatch, DirEquilPLinear,\
+      \ FluxConst, FluxVolumetric, PressureFile, FluxFile, OverlandFlow, OverlandFlowPFB,\
+      \ SeepageFace, OverlandKinematic, OverlandDiffusive and ExactSolution. The choice\
+      \ DirEquilRefPatch specifies that the pressure on the specified patch will be\
+      \ in hydrostatic equilibrium with a constant reference pressure given on a reference\
+      \ patch. The choice DirEquilPLinear specifies that the pressure on the specified\
+      \ patch will be in hydrostatic equilibrium with pressure given along a piecewise\
+      \ line at elevation z = 0. The choice FluxConst defines a constant normal flux\
+      \ boundary condition through the domain patch. This flux must be specified in\
+      \ units of [L]=[T]. For Richards\u2019 equation, fluxes must be specified as\
+      \ a mass flux and given as the above flux multiplied by the density. Thus, this\
+      \ choice of input type for a Richards\u2019 equation problem has units of ([L]=[T])([M]=[L]3).\
+      \ The choice FluxVolumetric defines a volumetric flux boundary condition through\
+      \ the domain patch. The units should be consistent with all other user input\
+      \ for the problem. For Richards\u2019 equation fluxes must be specified as a\
+      \ mass flux and given as the above flux multiplied by the density. The choice\
+      \ PressureFile defines a hydraulic head boundary condition that is read from\
+      \ a properly distributed .pfb file. Only the values needed for the patch are\
+      \ used. The choice FluxFile defines a flux boundary condition that is read form\
+      \ a properly distributed .pfb file defined on a grid consistent with the pressure\
+      \ field grid. Only the values needed for the patch are used. The choices OverlandFlow\
+      \ and OverlandFlowPFB both turn on fully-coupled overland flow routing as described\
+      \ in [40] and in \xA7 5.5. The key OverlandFlow corresponds to a Value key with\
+      \ a positive or negative value, to indicate uniform fluxes (such as rainfall\
+      \ or evapotranspiration) over the entire domain while the key OverlandFlowPFB\
+      \ allows a .pfb file to contain grid-based, spatially-variable fluxes. The OverlandKinematic\
+      \ and OverlandDiffusive both turn on an kinematic and diffusive wave overland\
+      \ flow routing boundary that solve equation 5.18 and do the upwinding internally\
+      \ (i.e. assuming that the user provides cell face slopes, as opposed to the\
+      \ traditional cell centered slopes). The key SeepageFace simulates a boundary\
+      \ that allows flow to exit but keeps the surface pressure at zero. The choice\
+      \ ExactSolution specifies that an exact known solution is to be applied as a\
+      \ Dirichlet boundary condition on the respective patch. Note that this does\
+      \ not change according to any cycle. Instead, time dependence is handled by\
+      \ evaluating at the time the boundary condition value is desired. The solution\
+      \ is specified by using a predefined function (choices are described below).\
+      \ NOTE: These last six types of boundary condition input is for Richards\u2019\
+      \ equation cases only!"
+    domains:
+    - type: LabelList
+      values:
+      - text: v0.0.0
+        value: v0.0.0
+      - text: v3.6.0
+        value: v3.6.0
+    type: string
+  BCPressure_{interval_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: BCPressure_{interval_name}
+        type: BCPressure_{interval_name}
+  BCSaturation_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: BCSaturation_{phase_name}
+        type: BCSaturation_{phase_name}
+  _exportPrefix: Patch
+  name:
+    _help: The name distinguishing this instance of Patch_{patch_name}
+    _ui: skip
+    type: string
+Perm:
+  Perm_Conditioning_FileName:
+    _exportSuffix: Perm.Conditioning.FileName
+    _help: This key specifies the name of the file that contains the conditioning
+      data. The default string NA indicates that conditioning data is not applicable.
+    type: string
+  Perm_TensorType:
+    _exportSuffix: Perm.TensorType
+    _help: This key specifies whether the permeability tensor entries kx; ky and kz
+      will be specified as three constants within a set of regions covering the domain
+      or whether the entries will be specified cell-wise by files. The choices for
+      this key are TensorByGeom and TensorByFile.
+    domains:
+    - type: LabelList
+      values:
+      - text: TensorByGeom
+        value: TensorByGeom
+      - text: TensorByFile
+        value: TensorByFile
+    type: string
+Phase:
+  Phase_Names:
+    _exportSuffix: Phase.Names
+    _help: This specifies the names of phases to be modeled. Currently only 1 or 2
+      phases may be modeled.
+    type: string
+  Phase_RelPerm_GeomNames:
+    _exportSuffix: Phase.RelPerm.GeomNames
+    _help: This key specifies the geometries on which relative permeability will be
+      given. The union of these geometries must cover the entire computational domain.
+    type: string
+  Phase_RelPerm_Type:
+    _exportSuffix: Phase.RelPerm.Type
+    _help: This key specifies the type of relative permeability function that will
+      be used on all specified geometries. Note that only one type of relative permeability
+      may be used for the entire problem. However, parameters may be different for
+      that type in different geometries. For instance, if the problem consists of
+      three geometries, then VanGenuchten may be specified with three different sets
+      of parameters for the three different geometries. However, once VanGenuchten
+      is specified, one geometry cannot later be specified to have Data as its relative
+      permeability. The possible values for this key are Constant, VanGenuchten, Haverkamp,
+      Data, and Polynomial.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: VanGenuchten
+        value: VanGenuchten
+      - text: Haverkamp
+        value: Haverkamp
+      - text: Data
+        value: Data
+      - text: Polynomial
+        value: Polynomial
+    type: string
+  Phase_RelPerm_VanGenuchten_File:
+    _exportSuffix: Phase.RelPerm.VanGenuchten.File
+    _help: 'This key specifies whether soil parameters for the VanGenuchten function
+      are specified in a pfb file or by region. The options are either 0 for specification
+      by region, or 1 for specification in a file. Note that either all parameters
+      are specified in files (each has their own input file) or none are specified
+      by files. Parameters specified by files are: alpha and N.'
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - 1
+    type: int8
+  Phase_Saturation_GeomNames:
+    _exportSuffix: Phase.Saturation.GeomNames
+    _help: This key specifies the geometries on which saturation will be given. The
+      union of these geometries must cover the entire computational domain.
+    type: string
+  Phase_Saturation_Type:
+    _exportSuffix: Phase.Saturation.Type
+    _help: This key specifies the type of saturation function that will be used on
+      all specified geometries. Note that only one type of saturation may be used
+      for the entire problem. However, parameters may be different for that type in
+      different geometries. For instance, if the problem consists of three geometries,
+      then VanGenuchten may be specified with three different sets of parameters for
+      the three different goemetries. However, once VanGenuchten is specified, one
+      geometry cannot later be specified to have Data as its saturation. The possible
+      values for this key are Constant, VanGenuchten, Haverkamp, Data, Polynomial
+      and PFBFile.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: VanGenuchten
+        value: VanGenuchten
+      - text: Haverkamp
+        value: Haverkamp
+      - text: Data
+        value: Data
+      - text: Polynomial
+        value: Polynomial
+      - text: PFBFile
+        value: PFBFile
+    type: string
+  Phase_Saturation_VanGenuchten_File:
+    _exportSuffix: Phase.Saturation.VanGenuchten.File
+    _help: This key specifies whether soil parameters for the VanGenuchten function
+      are specified in a pfb file or by region. The options are either 0 for specification
+      by region, or 1 for specification in a file. Note that either all parameters
+      are specified in files (each has their own input file) or none are specified
+      by files. Parameters specified by files are alpha, N, SRes, and SSat.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0
+      - 1
+    type: int8
+  Phase_ThermalConductivity_Function1_File:
+    _exportSuffix: Phase.ThermalConductivity.Function1.File
+    _help: This specifies the file name for the thermal conductivity function.
+    type: string
+  Phase_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Phase_{phase_name}
+        type: Phase_{phase_name}
+PhaseConcen:
+  PhaseConcen_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: PhaseConcen_{phase_name}
+        type: PhaseConcen_{phase_name}
+PhaseConcen_{phase_name}:
+  _exportPrefix: PhaseConcen
+  _{contaminant_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{contaminant_name}
+        type: _{contaminant_name}
+  name:
+    _help: The name distinguishing this instance of PhaseConcen_{phase_name}
+    _ui: skip
+    type: string
+PhaseSources:
+  PhaseSources_GeomNames:
+    _exportSuffix: PhaseSources.GeomNames
+    _help: This key specifies the names of the geometries on which source terms will
+      be specified. This is used only for Constant type phase sources. Regions listed
+      later "overlay" regions listed earlier.
+    type: string
+  PhaseSources_Geom_{geom_input_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: PhaseSources_Geom_{geom_input_name}
+        type: PhaseSources_Geom_{geom_input_name}
+  PhaseSources_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: PhaseSources_{phase_name}
+        type: PhaseSources_{phase_name}
+PhaseSources_Geom_{geom_input_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the value of a constant source term applied to phase
+      phase _name on geometry geom_name.
+    type: float32
+  _exportPrefix: PhaseSources.Geom
+  name:
+    _help: The name distinguishing this instance of PhaseSources_Geom_{geom_input_name}
+    _ui: skip
+    type: string
+PhaseSources_{phase_name}:
+  GeomNames:
+    _exportSuffix: GeomNames
+    _help: "This key specifies the names of the geometries on which source terms will\
+      \ be specified. This is used only for Constant type phase sources. Regions listed\
+      \ later \u201Coverlay\u201D regions listed earlier."
+    type: string
+  Geom_{geom_input_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Geom_{geom_input_name}
+        type: Geom_{geom_input_name}
+  PredefinedFunction:
+    _exportSuffix: PredefinedFunction
+    _help: This key specifies which of the predefined functions will be used for the
+      source. Possible values for this key are X, XPlusYPlusZ, X3Y2PlusSinXYPlus1,
+      X3Y4PlusX2PlusSinXYCosYPlus1, XYZTPlus1 and XYZTPlus1PermTensor.
+    domains:
+    - type: LabelList
+      values:
+      - text: X
+        value: X
+      - text: XPlusYPlusZ
+        value: XPlusYPlusZ
+      - text: X3Y2PlusSinXYPlus1
+        value: X3Y2PlusSinXYPlus1
+      - text: X3Y4PlusX2PlusSinXYCosYPlus1
+        value: X3Y4PlusX2PlusSinXYCosYPlus1
+      - text: XYZTPlus1
+        value: XYZTPlus1
+      - text: XYZTPlus1PermTensor
+        value: XYZTPlus1PermTensor
+    type: string
+  Type:
+    _exportSuffix: Type
+    _help: This key specifies the type of source to use for phase phase_name. Possible
+      values for this key are Constant and PredefinedFunction. Constant type phase
+      sources specify a constant phase source value for a given set of regions. PredefinedFunction
+      type phase sources use a preset function (choices are listed below) to specify
+      the source. Note that the PredefinedFunction type can only be used to set a
+      single source over the entire domain and not separate sources over different
+      regions.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PredefinedFunction
+        value: PredefinedFunction
+    type: string
+  _exportPrefix: PhaseSources
+  name:
+    _help: The name distinguishing this instance of PhaseSources_{phase_name}
+    _ui: skip
+    type: string
+Phase_{phase_name}:
+  Density_CompressibilityConstant:
+    _exportSuffix: Density.CompressibilityConstant
+    _help: This key specifies the phase compressibility constant if an equation of
+      state density function is specified for the phase phase_name.
+    type: float32
+  Density_ReferenceDensity:
+    _exportSuffix: Density.ReferenceDensity
+    _help: This key specifies the reference density if an equation of state density
+      function is specified for the phase phase_name.
+    type: float32
+  Density_Type:
+    _exportSuffix: Density.Type
+    _help: This key specifies whether density will be a constant value or if it will
+      be given by an equation of state of the form (rd)exp(cP), where P is pressure,
+      rd is the density at atmospheric pressure, and c is the phase compressibility
+      constant. This key must be either Constant or EquationOfState.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: EquationOfState
+        value: EquationOfState
+    type: string
+  Density_Value:
+    _exportSuffix: Density.Value
+    _help: This specifies the value of density if this phase was specified to have
+      a constant density value for the phase phase_name.
+    type: float32
+  Geom_{geom_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Geom_{geom_name}
+        type: Geom_{geom_name}
+  HeatCapacity_GeomNames:
+    _exportSuffix: HeatCapacity.GeomNames
+    _help: This specifies the geometry names for setting the heat capacity.
+    type: string
+  HeatCapacity_Type:
+    _exportSuffix: HeatCapacity.Type
+    _help: This specifies the type of heat capacity.
+    type: string
+  InternalEnergy_Type:
+    _exportSuffix: InternalEnergy.Type
+    _help: This specifies the type of internal energy.
+    type: string
+  InternalEnergy_Value:
+    _exportSuffix: InternalEnergy.Value
+    _help: This specifies the value for the internal energy.
+    type: float32
+  Mobility_Exponent:
+    _exportSuffix: Mobility.Exponent
+    _help: This key specifies the exponent used in a polynomial representation of
+      the relative permeability. Currently, only a value of 2.0 is allowed for this
+      key.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 2.0
+      - 2.0
+    type: float32
+  Mobility_IrreducibleSaturation:
+    _exportSuffix: Mobility.IrreducibleSaturation
+    _help: This key specifies the irreducible saturation used in a polynomial representation
+      of the relative permeability. Currently, only a value of 0.0 is allowed for
+      this key.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 0.0
+    type: float32
+  Mobility_Type:
+    _exportSuffix: Mobility.Type
+    _help: This key specifies whether the mobility for phase_name will be a given
+      constant or a polynomial of the form, (S-So)^a, where S is saturation, So is
+      irreducible saturation, and a is some exponent. The possibilities for this key
+      are Constant and Polynomial.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: Polynomial
+        value: Polynomial
+    type: string
+  Mobility_Value:
+    _exportSuffix: Mobility.Value
+    _help: This key specifies the constant mobility value for phase phase_name.
+    type: float32
+  Viscosity_Type:
+    _exportSuffix: Viscosity.Type
+    _help: This key specifies whether viscosity will be a constant value. Currently,
+      the only choice for this key is Constant.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+    type: string
+  Viscosity_Value:
+    _exportSuffix: Viscosity.Value
+    _help: This specifies the value of density if this phase was specified to have
+      a constant density value for the phase phase_name.
+    type: float32
+  _exportPrefix: Phase
+  name:
+    _help: The name distinguishing this instance of Phase_{phase_name}
+    _ui: skip
+    type: string
+Process:
+  Process_Topology_P:
+    _exportSuffix: Process.Topology.P
+    _help: P allocates the number of processes to the grid-cells in x.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Process_Topology_Q:
+    _exportSuffix: Process.Topology.Q
+    _help: Q allocates the number of processes to the grid-cells in y.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+  Process_Topology_R:
+    _exportSuffix: Process.Topology.R
+    _help: R allocates the number of processes to the grid-cells in z. Please note
+      R should always be 1 if you are running with Solver Richards unless you are
+      running a totally saturated domain (solver IMPES).
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 1
+      - null
+    type: int8
+Saturation_{phase_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the saturation value of a vertical well.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  _exportPrefix: Saturation
+  name:
+    _help: The name distinguishing this instance of Saturation_{phase_name}
+    _ui: skip
+    type: string
 Solver:
   Solver:
     _exportSuffix: Solver
@@ -2134,6 +3681,76 @@ Solver_Linear_Preconditioner_{precond_method}:
     _help: The name distinguishing this instance of Solver_Linear_Preconditioner_{precond_method}
     _ui: skip
     type: string
+SpecificStorage:
+  SpecificStorage_GeomNames:
+    _exportSuffix: SpecificStorage.GeomNames
+    _help: This key specifies all of the geometries on which a different specific
+      storage value will be assigned. These geometries must cover the entire computational
+      domain.
+    type: string
+  SpecificStorage_Type:
+    _exportSuffix: SpecificStorage.Type
+    _help: This key specifies which method is to be used to assign specific storage
+      data. The only choice currently available is Constant which indicates that a
+      constant is to be assigned to all grid cells within a geometry.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+    type: string
+TimeStep:
+  TimeStep_GrowthFactor:
+    _exportSuffix: TimeStep.GrowthFactor
+    _help: This key specifies the growth factor gamma by which a time step will be
+      multiplied to get the new time step when the Growth type time step is selected.
+    type: float32
+  TimeStep_InitialStep:
+    _exportSuffix: TimeStep.InitialStep
+    _help: This key specifies the initial time step dt0 if the Growth type time step
+      is selected.
+    type: float32
+  TimeStep_MaxStep:
+    _exportSuffix: TimeStep.MaxStep
+    _help: This key specifies the maximum time step allowed, dtmax, when the Growth
+      type time step is selected.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  TimeStep_MinStep:
+    _exportSuffix: TimeStep.MinStep
+    _help: This key specifies the minimum time step allowed, dtmin, when the Growth
+      type time step is selected.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  TimeStep_Type:
+    _exportSuffix: TimeStep.Type
+    _help: 'This key must be one of: Constant or Growth. The value Constant defines
+      a constant time step. The value Growth defines a time step that starts as dt0
+      and is defined for other steps as dtnew = gamma*dtold such that dtnew is less
+      than or equal to dtmax and dtnew is greater than or equal to dtmin.'
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: Growth
+        value: Growth
+    type: string
+  TimeStep_Value:
+    _exportSuffix: TimeStep.Value
+    _help: This key is used only if a constant time step is selected and indicates
+      the value of the time step for all steps taken.
+    type: float32
 TimingInfo:
   TimingInfo_BaseUnit:
     _exportSuffix: TimingInfo.BaseUnit
@@ -2204,3 +3821,517 @@ TimingInfo:
     _exportSuffix: TimingInfo.StopTime
     _help: This key is used to indicate the stopping time for the simulation.
     type: float32
+TopoSlopes:
+  TopoSlopes_Elevation_FileName:
+    _exportSuffix: TopoSlopes.Elevation.FileName
+    _help: This key is the name of the PFB file that contains elevations which ParFlow
+      uses to derive slopes. This is optional but can be useful when post-processing
+      terrain-following grids.
+    type: string
+TopoSlopesX:
+  TopoSlopesX_FileName:
+    _exportSuffix: TopoSlopesX.FileName
+    _help: This key specifies the value assigned to all points be read in from a ParFlow
+      binary file.
+    type: string
+  TopoSlopesX_GeomNames:
+    _exportSuffix: TopoSlopesX.GeomNames
+    _help: This key specifies all of the geometries on which a different x topographic
+      slope values will be assigned. Topographic slopes may be assigned by PFBFile
+      or as Constant by geometry. These geometries must cover the entire upper surface
+      of the computational domain.
+    type: string
+  TopoSlopesX_Geom_{geom_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: TopoSlopesX_Geom_{geom_name}
+        type: TopoSlopesX_Geom_{geom_name}
+  TopoSlopesX_Type:
+    _exportSuffix: TopoSlopesX.Type
+    _help: This key specifies which method is to be used to assign topographic slopes.
+      The choices currently available are Constant which indicates that a constant
+      is to be assigned to all grid cells within a geometry and PFBFile which indicates
+      that all values are read in from a distributed, grid-based ParFlow binary file.
+      If NetCDF is used, NCFile can be specified, which will read in slopes from a
+      NetCDF file.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+      - text: NCFile
+        value: NCFile
+    type: string
+TopoSlopesX_Geom_{geom_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  _exportPrefix: TopoSlopesX.Geom
+  name:
+    _help: The name distinguishing this instance of TopoSlopesX_Geom_{geom_name}
+    _ui: skip
+    type: string
+TopoSlopesY:
+  TopoSlopesY_FileName:
+    _exportSuffix: TopoSlopesY.FileName
+    _help: This key specifies the value assigned to all points be read in from a ParFlow
+      binary file.
+    type: string
+  TopoSlopesY_GeomNames:
+    _exportSuffix: TopoSlopesY.GeomNames
+    _help: This key specifies all of the geometries on which a different y topographic
+      slope values will be assigned. Topographic slopes may be assigned by PFBFile
+      or as Constant by geometry. These geometries must cover the entire upper surface
+      of the computational domain.
+    type: string
+  TopoSlopesY_Geom_{geom_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: TopoSlopesY_Geom_{geom_name}
+        type: TopoSlopesY_Geom_{geom_name}
+  TopoSlopesY_Type:
+    _exportSuffix: TopoSlopesY.Type
+    _help: This key specifies which method is to be used to assign topographic slopes.
+      The choices currently available are Constant which indicates that a constant
+      is to be assigned to all grid cells within a geometry and PFBFile which indicates
+      that all values are read in from a distributed, grid-based ParFlow binary file.
+      If NetCDF is used, NCFile can be specified, which will read in slopes from a
+      NetCDF file.
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+      - text: NCFile
+        value: NCFile
+    type: string
+TopoSlopesY_Geom_{geom_name}:
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the value assigned to all points in the named geometry,
+      geometry_name, if the type was set to constant.
+    type: float32
+  _exportPrefix: TopoSlopesY.Geom
+  name:
+    _help: The name distinguishing this instance of TopoSlopesY_Geom_{geom_name}
+    _ui: skip
+    type: string
+Wells:
+  Wells_Names:
+    _exportSuffix: Wells.Names
+    _help: This key specifies the names fo the wells for which input data will be
+      given.
+    type: string
+  Wells_{well_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Wells_{well_name}
+        type: Wells_{well_name}
+Wells_{well_name}:
+  Action:
+    _exportSuffix: Action
+    _help: This key specifies the pumping action of the well. This key can be either
+      Injection or Extraction. A value of Injection indicates that this is an injection
+      well. A value of Extraction indicates that this is an extraction well.
+    domains:
+    - type: LabelList
+      values:
+      - text: Injection
+        value: Injection
+      - text: Extraction
+        value: Extraction
+    type: string
+  Cycle:
+    _exportSuffix: Cycle
+    _help: This key specifies the time cycles to which data for the well well_name
+      corresponds.
+    type: string
+  ExtractionMethod:
+    _exportSuffix: ExtractionMethod
+    _help: This key specifies a method by which pressure or flux for an extraction
+      well will be weighted before assignment to computational cells. This key can
+      only be Standard if the type key is set to Pressure; or this key can be either
+      Standard, Weighted or Patterned if the type key is set to Flux. A value of Standard
+      indicates that the pressure or flux data will be used as is. A value of Weighted
+      indicates that the flux data is to be weighted by the cells permeability divided
+      by the sum of all cell permeabilities which define the well. The value of Patterned
+      is not implemented.
+    domains:
+    - type: LabelList
+      values:
+      - text: Standard
+        value: Standard
+      - text: Weighted
+        value: Weighted
+      - text: Patterned
+        value: Patterned
+    type: string
+  ExtractionType:
+    _exportSuffix: ExtractionType
+    _help: This key specifies the mechanism by which the extraction well works (how
+      ParFlow works with the well data) if the input type key is set to Recirc. This
+      key can be either Pressure or Flux. A value of Pressure indicates that the data
+      provided for the well is in terms of hydrostatic pressure and ParFlow will ensure
+      that the computed pressure field satisfies this condition in the computational
+      cells which define the well. A value of Flux indicates that the data provided
+      is in terms of volumetric flux rates and ParFlow will ensure that the flux field
+      satisfies this condition in the computational cells which define the well.
+    domains:
+    - type: LabelList
+      values:
+      - text: Pressure
+        value: Pressure
+      - text: Flux
+        value: Flux
+    type: string
+  ExtractionZLower:
+    _exportSuffix: ExtractionZLower
+    _help: This key specifies the z location of the upper extent of a extraction well
+      if the input type is set to Recirc.
+    type: float32
+  ExtractionZUpper:
+    _exportSuffix: ExtractionZUpper
+    _help: This key specifies the z location of the upper extent of a extraction well
+      if the input type is set to Recirc.
+    type: float32
+  InjectionMethod:
+    _exportSuffix: InjectionMethod
+    _help: This key specifies a method by which pressure or flux for an injection
+      well will be weighted before assignment to computational cells. This key can
+      only be Standard if the type key is set to Pressure; or this key can be either
+      Standard, Weighted or Patterned if the type key is set to Flux. A value of Standard
+      indicates that the pressure or flux data will be used as is. A value of Weighted
+      indicates that the flux data is to be weighted by the cells permeability divided
+      by the sum of all cell permeabilities which define the well. The value of Patterned
+      is not implemented.
+    domains:
+    - type: LabelList
+      values:
+      - text: Standard
+        value: Standard
+      - text: Weighted
+        value: Weighted
+      - text: Patterned
+        value: Patterned
+    type: string
+  InjectionType:
+    _exportSuffix: InjectionType
+    _help: This key specifies the mechanism by which the injection well works (how
+      ParFlow works with the well data) if the input type key is set to Recirc. This
+      key can be either Pressure or Flux. A value of Pressure indicates that the data
+      provided for the well is in terms of hydrostatic pressure and ParFlow will ensure
+      that the computed pressure field satisfies this condition in the computational
+      cells which define the well. A value of Flux indicates that the data provided
+      is in terms of volumetric flux rates and ParFlow will ensure that the flux field
+      satisfies this condition in the computational cells which define the well.
+    domains:
+    - type: LabelList
+      values:
+      - text: Pressure
+        value: Pressure
+      - text: Flux
+        value: Flux
+    type: string
+  InjectionZLower:
+    _exportSuffix: InjectionZLower
+    _help: This key specifies the z location of the upper extent of an injection well
+      if the input type is set to Recirc.
+    type: float32
+  InjectionZUpper:
+    _exportSuffix: InjectionZUpper
+    _help: This key specifies the z location of the upper extent of an injection well
+      if the input type is set to Recirc.
+    type: float32
+  InputType:
+    _exportSuffix: InputType
+    _help: This key specifies the type of well to be defined for the given well, well_name.
+      This key can be either Vertical or Recirc. The value Vertical indicates that
+      this is a single segmented well whose action will be specified by the user.
+      The value Recirc indicates that this is a dual segmented, recirculating, well
+      with one segment being an extraction well and another being an injection well.
+      The extraction well filters out a specified fraction of each contaminant and
+      recirculates the remainder to the injection well where the diluted fluid is
+      injected back in. The phase saturations at the extraction well are passed without
+      modification to the injection well. Note with the recirculating well, several
+      input options are not needed as the extraction well will provide these values
+      to the injection well.
+    domains:
+    - type: LabelList
+      values:
+      - text: Vertical
+        value: Vertical
+      - text: Recirc
+        value: Recirc
+    type: string
+  Method:
+    _exportSuffix: Method
+    _help: This key specifies a method by which pressure or flux for a vertical well
+      will be weighted before assignment to computational cells. This key can only
+      be Standard if the type key is set to Pressure; or this key can be either Standard,Weighted
+      or Patterned if the type key is set to Flux. A value of Standard indicates that
+      the pressure or flux data will be used as is. A value of Weighted indicates
+      that the flux data is to be weighted by the cells permeability divided by the
+      sum of all cell permeabilities which define the well. The value of Patterned
+      is not implemented.
+    domains:
+    - type: LabelList
+      values:
+      - text: Standard
+        value: Standard
+      - text: Weighted
+        value: Weighted
+      - text: Patterned
+        value: Patterned
+    type: string
+  Type:
+    _exportSuffix: Type
+    _help: This key specifies the mechanism by which the well works (how ParFlow works
+      with the well data) if the input type key is set to Vertical. This key can be
+      either Pressure or Flux. A value of Pressure indicates that the data provided
+      for the well is in terms of hydrostatic pressure and ParFlow will ensure that
+      the computed pressure field satisfies this condition in the computational cells
+      which define the well. A value of Flux indicates that the data provided is in
+      terms of volumetric flux rates and ParFlow will ensure that the flux field satisfies
+      this condition in the computational cells which define the well.
+    domains:
+    - type: LabelList
+      values:
+      - text: Pressure
+        value: Pressure
+      - text: Flux
+        value: Flux
+    type: string
+  X:
+    _exportSuffix: X
+    _help: This key specifies the x location of the vertical well if the input type
+      is set to Vertical or of both the extraction and injection wells if the input
+      type is set to Recirc.
+    type: float32
+  Y:
+    _exportSuffix: Y
+    _help: This key specifies the y location of the vertical well if the input type
+      is set to Vertical or of both the extraction and injection wells if the input
+      type is set to Recirc.
+    type: float32
+  ZLower:
+    _exportSuffix: ZLower
+    _help: This key specifies the z location of the lower extent of a vertical well
+      if the input type is set to Vertical.
+    type: float32
+  ZUpper:
+    _exportSuffix: ZUpper
+    _help: This key specifies the z location of the upper extent of a vertical well
+      if the input type is set to Vertical.
+    type: float32
+  _exportPrefix: Wells
+  _{interval_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: _{interval_name}
+        type: _{interval_name}
+  name:
+    _help: The name distinguishing this instance of Wells_{well_name}
+    _ui: skip
+    type: string
+_{contaminant_name}:
+  FileName:
+    _exportSuffix: FileName
+    _help: "This key specifies the name of the \u201CParFlow Binary\u201D file which\
+      \ contains the initial condition values if the type was set to PFBFile."
+    type: string
+  Fraction:
+    _exportSuffix: Fraction
+    _help: This key specifies the fraction of the extracted contaminant which gets
+      resupplied to the injection well.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  GeomNames:
+    _exportSuffix: GeomNames
+    _help: "This key specifies the geometries on which an initial condition will be\
+      \ given, if the type was set to Constant. Note that geometries listed later\
+      \ \u201Coverlay\u201D geometries listed earlier."
+    type: string
+  Geom_{geom_input_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Geom_{geom_input_name}
+        type: Geom_{geom_input_name}
+  Retardation_Rate:
+    _exportSuffix: Retardation.Rate
+    _help: This key specifies the distribution coefficient for the linear function
+      used to compute the retardation of the named contaminant, contaminant_name,
+      in the named geometry, geometry_name. The value should be scaled by the density
+      of the material in the geometry.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Retardation_Type:
+    _exportSuffix: Retardation.Type
+    _help: This key specifies which function is to be used to compute the retardation
+      for the named contaminant, contaminant_ name, in the named geometry, geometry_name.
+      The only choice currently available is Linear which indicates that a simple
+      linear retardation function is to be used to compute the retardation.
+    domains:
+    - type: LabelList
+      values:
+      - text: Linear
+        value: Linear
+    type: string
+  Retardation_Value:
+    _exportSuffix: Retardation.Value
+    _help: This key specifies the distribution coefficient for the linear function
+      used to compute the retardation of the named contaminant, contaminant_name,
+      in the named geometry, geometry_name. The value should be scaled by the density
+      of the material in the geometry.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - null
+    type: float32
+  Type:
+    _exportSuffix: Type
+    _help: "This key specifies the type of initial condition that will be applied\
+      \ to different geometries for given phase, phase_name, and the given contaminant,\
+      \ contaminant_name. The choices for this key are Constant or PFBFile. The choice\
+      \ Constant will apply constants values to different geometries. The choice PFBFile\
+      \ will read values from a \u201CParFlow Binary\u201D file."
+    domains:
+    - type: LabelList
+      values:
+      - text: Constant
+        value: Constant
+      - text: PFBFile
+        value: PFBFile
+    type: string
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the contaminant value of a vertical well.
+    type: float32
+  _exportPrefix: ''
+  name:
+    _help: The name distinguishing this instance of _{contaminant_name}
+    _ui: skip
+    type: string
+_{interval_name}:
+  Concentration_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Concentration_{phase_name}
+        type: Concentration_{phase_name}
+  Extraction_Flux_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Extraction_Flux_{phase_name}
+        type: Extraction_Flux_{phase_name}
+  Extraction_Pressure_Value:
+    _exportSuffix: Extraction.Pressure.Value
+    _help: This key specifies the hydrostatic pressure value for an extraction well
+      if the extraction type key is set to Pressure. Note This value gives the pressure
+      of the primary phase (water) at z = 0. The other phase pressures (if any) are
+      computed from the physical relationships that exist between the phases.
+    type: float32
+  Flux_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Flux_{phase_name}
+        type: Flux_{phase_name}
+  Injection_Concentration_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Injection_Concentration_{phase_name}
+        type: Injection_Concentration_{phase_name}
+  Injection_Flux_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Injection_Flux_{phase_name}
+        type: Injection_Flux_{phase_name}
+  Injection_Pressure_Value:
+    _exportSuffix: Injection.Pressure.Value
+    _help: This key specifies the hydrostatic pressure value for an extraction well
+      if the extraction type key is set to Pressure. Note This value gives the pressure
+      of the primary phase (water) at z = 0. The other phase pressures (if any) are
+      computed from the physical relationships that exist between the phases.
+    type: float32
+  Pressure_Value:
+    _exportSuffix: Pressure.Value
+    _help: This key specifies the hydrostatic pressure value for a vertical well if
+      the type key is set to Pressure. Note This value gives the pressure of the primary
+      phase (water) at z = 0. The other phase pressures (if any) are computed from
+      the physical relationships that exist between the phases.
+    type: float32
+  Saturation_{phase_name}:
+    domains:
+    - type: ProxyBuilder
+      values:
+      - name: Saturation_{phase_name}
+        type: Saturation_{phase_name}
+  _exportPrefix: ''
+  name:
+    _help: The name distinguishing this instance of _{interval_name}
+    _ui: skip
+    type: string
+_{phase_name}:
+  IntValue:
+    _exportSuffix: IntValue
+    _help: Note that the reference conditions for types DirEquilPLinear and DirEquilRefPatch
+      boundary conditions are for phase 0 only. This key specifies the constant pressure
+      value along the interface with phase phase_name for cases with two phases present.
+    type: float32
+  _exportPrefix: ''
+  name:
+    _help: The name distinguishing this instance of _{phase_name}
+    _ui: skip
+    type: string
+_{point_number}:
+  Location:
+    _exportSuffix: Location
+    _help: This key specifies a number between 0 and 1 which represents the location
+      of a point on the line for which data is given in type DirEquilPLinear boundary
+      conditions. The line is parameterized so that 0 corresponds to the lower end
+      of the line, and 1 corresponds to the upper end.
+    domains:
+    - level: 1
+      type: Range
+      value_range:
+      - 0.0
+      - 1.0
+    type: float32
+  Value:
+    _exportSuffix: Value
+    _help: This key specifies the water-table height for the given point if type DirEquilPLinear
+      boundary conditions are selected. All saturation values on the patch are determined
+      by first projecting the water-table height value onto the line, then linearly
+      interpolating between the neighboring water-table height values onto the line.
+    type: float32
+  _exportPrefix: ''
+  name:
+    _help: The name distinguishing this instance of _{point_number}
+    _ui: skip
+    type: string

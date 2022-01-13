@@ -5,6 +5,8 @@ import yaml
 from parflow import Run
 from io import StringIO
 
+from KeyDatabase import KeyDatabase
+
 defaults = {
     #
     # These require reading nested keys
@@ -34,12 +36,13 @@ defaults = {
 }
 
 
-class SimulationManager:
+class RunWriter:
     def __init__(self, work_dir, filedb):
         self.work_dir = work_dir
         self.run = {}
 
-    def read_from_simput(self, pxm):
+    def read_from_simput(self):
+        pxm = KeyDatabase().get_pxm()
         extracted_keys = {}
 
         for proxy_type in pxm.types():
@@ -66,6 +69,7 @@ class SimulationManager:
         self.run.update(defaults)
 
     def validate_run(self):
+        self.read_from_simput()
         path = os.path.join(self.work_dir, "run.yaml")
         with open(path, "w") as runFile:
             yaml.dump(self.run, runFile)
