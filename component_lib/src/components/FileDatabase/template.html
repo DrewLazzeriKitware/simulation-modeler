@@ -87,18 +87,23 @@
               @uploaded="uploaded"
             />
             <v-divider style="margin: 1rem;"></v-divider>
-            <v-checkbox v-model="formContent.useLocalFile" label="Specify a local file on the server">
+            <v-checkbox
+              v-model="formContent.useLocalFile"
+              label="Specify a local file on the server"
+            >
             </v-checkbox>
             <!-- <v-checkbox v-model="formContent.copyLocalFile" label="Copy file into database" :disabled="!formContent.useLocalFile">
             </v-checkbox> -->
-            <v-text-field label="File path on server" v-model="formContent.localFile" :disabled="!formContent.useLocalFile" outlined />
-
-            <v-alert
-              v-if="error"
-              dense
+            <v-text-field
+              label="File path on server"
+              v-model="formContent.localFile"
+              :disabled="!formContent.useLocalFile"
               outlined
-              type="error"
-            >{{error}}</v-alert>
+            />
+
+            <v-alert v-if="error" dense outlined type="error"
+              >{{error}}</v-alert
+            >
           </v-col>
           <v-col cols="12" sm="5">
             <v-select
@@ -149,7 +154,7 @@
         <v-row class="pa-4 grey lighten-3">
           <v-textarea label="Description" v-model="formContent.description" />
         </v-row>
-        <v-row class="mt-auto">
+        <v-row class="mt-auto pt-8">
           <v-btn
             text
             elevation="2"

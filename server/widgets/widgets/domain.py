@@ -1,13 +1,17 @@
-from paraview import simple
-
 from trame import state
-from trame.html import vuetify, Element, Div, Span, paraview
+from trame.html import vuetify, Element, Div, Span, simput
 
 from parflow import Run
 
-from visualizations.image import SourceImage
-from visualizations.soil import SoilVisualization
 from FileDatabase import FileCategories, FileDatabase
+from KeyDatabase import KeyDatabase
+
+try:
+    from paraview import simple
+
+    VIZ_ENABLED = True
+except:
+    VIZ_ENABLED = False
 
 state.update(
     {
@@ -19,13 +23,20 @@ state.update(
     }
 )
 
-view = simple.GetRenderView()
-html_view = paraview.VtkRemoteView(view)
-soil_viz = None
+if VIZ_ENABLED:
+    from trame.html import paraview
+    from visualizations.image import SourceImage
+    from visualizations.soil import SoilVisualization
+
+    view = simple.GetRenderView()
+    html_view = paraview.VtkRemoteView(view)
+    soil_viz = None
 
 
 @state.change("currentSoil")
 def updateCurrentSoil(currentSoil, **kwargs):
+    if not VIZ_ENABLED:
+        return
     if soil_viz is None:
         return
 
@@ -41,6 +52,9 @@ def updateCurrentSoil(currentSoil, **kwargs):
 
 @state.change("domainView")
 def on_view_change(domainView, indicatorFile, terrainFile, **kwargs):
+    if not VIZ_ENABLED:
+        return
+
     global soil_viz
 
     if domainView == "grid":
@@ -70,6 +84,9 @@ def on_view_change(domainView, indicatorFile, terrainFile, **kwargs):
 
 
 def domain_viz():
+    if not VIZ_ENABLED:
+        return
+
     return [
         vuetify.VSelect(
             label="Current Soil",
@@ -181,4 +198,39 @@ def domain():
             classes="pa-0 fill-height",
             children=domainViz,
         )
+
+        with Div(classes="fill-height fill-width flex-grow-1 ma-6"):
+            Element("H1", "GeomInput")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%",
+                    itemId=("GeomInputId", KeyDatabase().GeomInput.id),
+                )
+            Element("H1", "Domain")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%", itemId=("DomainId", KeyDatabase().Domain.id)
+                )
+            Element("H1", "Geom")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%", itemId=("GeomId", KeyDatabase().Geom.id)
+                )
+            Element("H1", "TopoSlopesY")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%",
+                    itemId=("TopoSlopesYId", KeyDatabase().TopoSlopesY.id),
+                )
+            Element("H1", "TopoSlopesX")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%",
+                    itemId=("TopoSlopesXId", KeyDatabase().TopoSlopesX.id),
+                )
+            Element("H1", "Mannings")
+            with vuetify.VRow(classes="ma-6 justify-space-between"):
+                simput.SimputItem(
+                    style="width:100%", itemId=("ManningsId", KeyDatabase().Mannings.id)
+                )
     return element

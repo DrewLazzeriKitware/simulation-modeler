@@ -1,4 +1,7 @@
-from paraview.web import venv
+try:
+    from paraview.web import venv
+except:
+    print("Run with pvpython for visualization support")
 
 import argparse
 import sys
@@ -24,12 +27,8 @@ from trame.html import vuetify, Span, simput, Div
 
 import widgets
 
-FILEDB = None
-KEYDB = None
-
 layout = SinglePage("Parflow Web")
 layout.logo.click = "$refs.view.resetCamera()"
-
 # -----------------------------------------------------------------------------
 # Model
 # -----------------------------------------------------------------------------
@@ -66,114 +65,8 @@ init = {
 }
 
 
-# -----------------------------------------------------------------------------
-# Updates
-# -----------------------------------------------------------------------------
-@state.change("dbSelectedFile")
-def changeCurrentFile(dbSelectedFile, dbFiles, **kwargs):
-    if dbSelectedFile is None:
-        return
-
-    file_id = dbSelectedFile.get("id")
-
-    if not file_id:
-        dbSelectedFile = FILEDB.addNewEntry(dbSelectedFile)
-    else:
-        currentEntry = FILEDB.getEntry(file_id)
-        dbSelectedFile = {**currentEntry, **dbSelectedFile}
-        FILEDB.writeEntry(file_id, dbSelectedFile)
-
-    state.dbSelectedFile = dbSelectedFile
-    state.flush("dbSelectedFile")
-    state.dbFiles = FILEDB.getEntries()
-
-
-@state.change("indicatorFile")
-def updateComputationalGrid(indicatorFile, **kwargs):
-    entry = FILEDB.getEntry(indicatorFile)
-    state.indicatorFileDescription = entry.get("description")
-
-    filename = FILEDB.getEntryPath(indicatorFile)
-    try:
-        handle = PFData(filename)
-    except:
-        print(f"Could not find pfb: {filename}")
-    handle.loadHeader()
-
-    state.NX = handle.getNX()
-    state.NY = handle.getNY()
-    state.NZ = handle.getNZ()
-
-    state.LX = handle.getX()
-    state.LY = handle.getY()
-    state.LZ = handle.getZ()
-
-    state.DX = handle.getDX()
-    state.DY = handle.getDY()
-    state.DZ = handle.getDZ()
-
-
-@state.change("dbFileExchange")
-def saveUploadedFile(dbFileExchange=None, dbSelectedFile=None, sharedir=None, **kwargs):
-    if dbFileExchange is None or dbSelectedFile is None or sharedir is None:
-        return
-
-    fileMeta = {
-        key: dbFileExchange.get(key)
-        for key in ["origin", "size", "dateModified", "dateUploaded", "type"]
-    }
-    entryId = dbSelectedFile.get("id")
-
-    try:
-        # File was uploaded from the user browser
-        if dbFileExchange.get("content"):
-            FILEDB.writeEntryData(entryId, dbFileExchange["content"])
-        # Path to file already present on the server was specified
-        elif dbFileExchange.get("localFile"):
-            file_path = os.path.abspath(
-                os.path.join(sharedir, dbFileExchange.get("localFile"))
-            )
-            if os.path.commonpath([sharedir, file_path]) != sharedir:
-                raise Exception("Attempting to access a file outside the sharedir.")
-            fileMeta["origin"] = os.path.basename(file_path)
-
-            with open(file_path, "rb") as f:
-                content = f.read()
-                fileMeta["size"] = len(content)
-                FILEDB.writeEntryData(entryId, content)
-    except Exception as e:
-        print(e)
-        state.uploadError = "An error occurred uploading the file to the database."
-        return
-
-    entry = {**FILEDB.getEntry(entryId), **fileMeta}
-    FILEDB.writeEntry(entryId, entry)
-    state.dbSelectedFile = entry
-    state.flush("dbSelectedFile")
-
-
-@trigger("updateFiles")
-def updateFiles(update, entryId=None):
-    if update == "selectFile":
-        if state.dbFiles.get(entryId):
-            state.dbSelectedFile = FILEDB.getEntry(entryId)
-
-    elif update == "removeFile":
-        FILEDB.deleteEntry(entryId)
-        state.dbFiles = FILEDB.getEntries()
-        if entryId == state.dbSelectedFile.get("id"):
-            state.dbSelectedFile = None
-            state.flush("dbSelectedFile")
-        state.flush("dbFiles")
-
-    elif update == "downloadSelectedFile":
-        state.dbFileExchange = FILEDB.getEntryData(entryId)
-
-    state.uploadError = ""
-
-
 def validateRun():
-    parflow = RunWriter(state.work_dir, FILEDB)
+    parflow = RunWriter(state.work_dir, FileDatabase())
     validation = parflow.validate_run()
 
     state.projGenValidation = {"output": validation, "valid": False}
@@ -261,9 +154,11 @@ if __name__ == "__main__":
     if not validator.args_valid():
         parser.print_help(sys.stderr)
     validated_args = validator.get_args()
-    FILEDB = FileDatabase(validated_args.get("datastore"))
-    KEYDB = KeyDatabase(validated_args.get("work_dir"))
-    entries = FILEDB.getEntries()
+
+    # Init singletons
+    FileDatabase(validated_args.get("datastore"))
+    KeyDatabase(validated_args.get("work_dir"))
+    entries = FileDatabase().getEntries()
 
     init.update(
         {
@@ -275,15 +170,15 @@ if __name__ == "__main__":
 
     # Compose layout which depends on databases
     html_simput = simput.Simput(
-        KEYDB.get_ui_manager(),
-        KEYDB.get_pdm(),
+        KeyDatabase().get_ui_manager(),
+        KeyDatabase().get_pdm(),
         prefix="simput",
     )
     layout.root = html_simput
     boundaryConditions = Div(
         [
-            simput.SimputItem(itemId=("bcPressureId", KEYDB.BCPressure.id)),
-            simput.SimputItem(itemId=("patchId", KEYDB.Patch.id)),
+            simput.SimputItem(itemId=("bcPressureId", KeyDatabase().BCPressure.id)),
+            simput.SimputItem(itemId=("patchId", KeyDatabase().Patch.id)),
         ],
         v_if="currentView=='Boundary Conditions'",
     )
