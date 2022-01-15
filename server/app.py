@@ -93,23 +93,12 @@ file_database = widgets.FileDatabase(
     v_if="currentView == 'File Database'",
 )
 
-solver = """
-<SimputItem
-  v-if="currentView == 'Solver'"
-  :itemId="simputSolverId"
-  />
-"""
-
 simulation_type = """
 <SimulationType
   :shortcuts="simTypeShortcuts"
   v-if="currentView=='Simulation Type'"/>
 """
 
-subSurface = """
-<SubSurface
-  v-if="currentView=='Subsurface Properties'" />
-"""
 
 projectGeneration = widgets.ProjectGeneration(
     validation_callback=validateRun,
@@ -179,9 +168,25 @@ if __name__ == "__main__":
         [
             simput.SimputItem(itemId=("bcPressureId", KeyDatabase().BCPressure.id)),
             simput.SimputItem(itemId=("patchId", KeyDatabase().Patch.id)),
+            simput.SimputItem(itemId=("GeomtId", KeyDatabase().GeomInput.id)),
+            simput.SimputItem(itemId=("GeomInputId", KeyDatabase().GeomInput.id)),
         ],
         v_if="currentView=='Boundary Conditions'",
     )
+    subSurface = Div(
+        [
+            simput.SimputItem(itemId=("BcPressureId", KeyDatabase().BCPressure.id)),
+            simput.SimputItem(itemId=("PatchId", KeyDatabase().Patch.id)),
+            simput.SimputItem(itemId=("GeomtId", KeyDatabase().GeomInput.id)),
+            simput.SimputItem(itemId=("GeomInputId", KeyDatabase().GeomInput.id)),
+        ],
+        v_if="currentView=='Subsurface Properties'",
+    )
+    solver = Div(
+        [simput.SimputItem(itemId=("SolverId", KeyDatabase().Solver.id))],
+        v_if="currentView == 'Solver'",
+    )
+
     layout.content.children += [
         file_database,
         simulation_type,

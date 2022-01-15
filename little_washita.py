@@ -109,9 +109,7 @@ LW_Test.FileVersion = 4  # Assumed
 # -----------------------------------------------------------------------------
 # Page for Domain
 # -----------------------------------------------------------------------------
-# We can get N{XYZ} from PFImage("Indicator.pfb").size()
-# Initialize xyz to 0, but let them change it
-# Initialize D{xyz} to 1000.0, 1000.0, 2.0 - those seem reasonable for land
+# We can get these from PFImage("Indicator.pfb").size()
 # -----------------------------------------------------------------------------
 
 LW_Test.ComputationalGrid.Lower.X = 0.0
