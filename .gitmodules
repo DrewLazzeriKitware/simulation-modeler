@@ -1,0 +1,3 @@
+[submodule "parflow"]
+	path = parflow
+	url = git@github.com:DrewLazzeriKitware/parflow.git
